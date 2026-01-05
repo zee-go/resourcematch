@@ -22,24 +22,24 @@ interface Step {
 const companySteps: Step[] = [
   {
     number: 1,
-    title: "Post Your Role",
-    description: "Share requirements and budget",
+    title: "Browse Profiles Free",
+    description: "View candidate summaries and skills",
     icon: <Building2 className="w-8 h-8" />,
-    detail: "Tell us about your role, required skills, and budget range. Our AI instantly starts matching you with qualified candidates."
+    detail: "Search and filter 500+ pre-vetted professionals. View skills, experience, and portfolio previews at no cost."
   },
   {
     number: 2,
-    title: "AI Matches Candidates",
-    description: "Get matched with pre-vetted talent in minutes",
-    icon: <Users className="w-8 h-8" />,
-    detail: "Receive curated matches based on skills, experience, and availability. No endless scrolling through unqualified profiles."
+    title: "Choose Your Plan",
+    description: "Free pay-per-unlock or subscription plans",
+    icon: <CreditCard className="w-8 h-8" />,
+    detail: "Start free at $3/unlock, or choose Starter ($49/mo, 15 unlocks) or Growth ($99/mo, 40 unlocks) for better rates."
   },
   {
     number: 3,
-    title: "Pay Per Contact",
-    description: "Preview profiles free, unlock for $3 per contact",
-    icon: <CreditCard className="w-8 h-8" />,
-    detail: "Browse candidate matches for free. Only pay $3 when you want to connect. No subscriptions, no hidden fees."
+    title: "Unlock & Hire",
+    description: "Get contact info and start hiring",
+    icon: <Users className="w-8 h-8" />,
+    detail: "Unlock profiles to access full contact details, video introductions, and portfolios. Connect directly with candidates."
   }
 ];
 
@@ -207,14 +207,14 @@ export function HowItWorks() {
                 size="lg" 
                 className="bg-forest-green hover:bg-forest-green/90 text-white px-8 h-14 text-lg group"
               >
-                Post Your First Role
+                Browse Profiles Free
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <p className="text-sm text-muted-foreground">
-                No credit card required • Preview profiles for free
+                No credit card required • Free plan available
               </p>
               <Button variant="outline" size="lg" className="border-2">
-                View Sample Profiles
+                Compare Plans
               </Button>
             </>
           ) : (

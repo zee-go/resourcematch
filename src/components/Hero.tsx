@@ -36,7 +36,7 @@ export function Hero() {
 
           {/* Subheadline */}
           <p className="text-xl sm:text-2xl text-muted-foreground text-center max-w-3xl mx-auto mb-12 animate-slide-up-delay-2">
-            500+ verified professionals. AI-powered matching. Pay-per-contact pricing starting at $3.
+            500+ verified professionals. Browse free, unlock contacts from $1.50-$3. Plans starting at $49/month.
           </p>
 
           {/* CTA Buttons */}
@@ -67,8 +67,8 @@ export function Hero() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4">
                   <TrendingUp className="w-6 h-6" />
                 </div>
-                <div className="text-3xl font-bold text-foreground mb-2">$8-30</div>
-                <div className="text-sm text-muted-foreground font-medium">Average Hourly Rate</div>
+                <div className="text-3xl font-bold text-foreground mb-2">$49/mo</div>
+                <div className="text-sm text-muted-foreground font-medium">Starter Plan with 15 Unlocks</div>
               </div>
             </div>
 

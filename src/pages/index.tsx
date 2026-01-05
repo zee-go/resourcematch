@@ -8,7 +8,7 @@ export default function Home() {
     <>
       <SEO 
         title="ResourceMatch.AI - Connect with Pre-Vetted Filipino Talent"
-        description="500+ verified professionals. AI-powered matching. Pay-per-contact pricing starting at $3. Connect with experienced Filipino remote professionals."
+        description="500+ verified professionals. Browse free, unlock from $1.50-$3. Plans from $49/month with up to 40 unlocks included."
         url="https://resourcematch.ai"
       />
       <main>
