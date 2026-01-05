@@ -8,6 +8,7 @@ import {
   DollarSign,
   Lock,
   Eye,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -29,11 +30,15 @@ interface Candidate {
 interface CandidateResultsProps {
   candidates: Candidate[];
   totalCount: number;
+  matchScores?: Record<number, number>;
+  aiMatchedIds?: number[];
 }
 
 export function CandidateResults({
   candidates,
   totalCount,
+  matchScores = {},
+  aiMatchedIds = [],
 }: CandidateResultsProps) {
   const [unlockedIds, setUnlockedIds] = useState<number[]>([]);
 
@@ -42,6 +47,8 @@ export function CandidateResults({
   };
 
   const isUnlocked = (id: number) => unlockedIds.includes(id);
+  const isTopMatch = (id: number) => aiMatchedIds.includes(id);
+  const getMatchScore = (id: number) => matchScores[id];
 
   return (
     <div className="space-y-6">
@@ -59,15 +66,38 @@ export function CandidateResults({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {candidates.map((candidate, index) => {
           const unlocked = isUnlocked(candidate.id);
+          const topMatch = isTopMatch(candidate.id);
+          const matchScore = getMatchScore(candidate.id);
 
           return (
             <div
               key={candidate.id}
-              className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all duration-300 overflow-hidden group"
+              className={`bg-white rounded-xl shadow-sm border-2 hover:shadow-md transition-all duration-300 overflow-hidden group ${
+                topMatch
+                  ? "border-[#D97642] ring-2 ring-[#D97642]/20"
+                  : "border-slate-200"
+              }`}
               style={{
                 animation: `fadeInUp 0.4s ease-out ${index * 0.05}s both`,
               }}
             >
+              {/* AI Match Badge */}
+              {topMatch && (
+                <div className="bg-gradient-to-r from-[#D97642] to-[#c26638] px-4 py-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-white">
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-sm font-semibold">
+                      Top AI Match
+                    </span>
+                  </div>
+                  {matchScore && (
+                    <span className="text-white text-sm font-bold">
+                      {matchScore}% Match
+                    </span>
+                  )}
+                </div>
+              )}
+
               <div className="p-6">
                 {/* Header */}
                 <div className="flex items-start gap-4 mb-4">
@@ -83,12 +113,21 @@ export function CandidateResults({
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-slate-900 truncate">
-                      {unlocked ? candidate.name : "••••• •••••"}
-                    </h3>
-                    <p className="text-sm text-slate-600 truncate">
-                      {candidate.title}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-bold text-slate-900 truncate">
+                          {unlocked ? candidate.name : "••••• •••••"}
+                        </h3>
+                        <p className="text-sm text-slate-600 truncate">
+                          {candidate.title}
+                        </p>
+                      </div>
+                      {matchScore && !topMatch && (
+                        <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 flex-shrink-0">
+                          {matchScore}% Match
+                        </Badge>
+                      )}
+                    </div>
                     <div className="flex items-center gap-3 mt-2">
                       <div className="flex items-center gap-1 text-sm text-slate-600">
                         <MapPin className="w-3.5 h-3.5" />

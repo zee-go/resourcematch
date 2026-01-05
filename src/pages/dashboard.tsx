@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SEO } from "@/components/SEO";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { AIBanner } from "@/components/dashboard/AIBanner";
+import { AIMatchModal, MatchFormData } from "@/components/dashboard/AIMatchModal";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { SearchFilters } from "@/components/dashboard/SearchFilters";
 import { CandidateResults } from "@/components/dashboard/CandidateResults";
@@ -12,6 +13,10 @@ export default function Dashboard() {
   const [availability, setAvailability] = useState("all");
   const [hourlyRate, setHourlyRate] = useState("all");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [isMatching, setIsMatching] = useState(false);
+  const [matchScores, setMatchScores] = useState<Record<number, number>>({});
+  const [aiMatchedIds, setAiMatchedIds] = useState<number[]>([]);
 
   // Mock candidates data
   const allCandidates = [
@@ -173,6 +178,90 @@ export default function Dashboard() {
     },
   ];
 
+  // AI Matching Algorithm
+  const calculateMatchScore = (
+    candidate: typeof allCandidates[0],
+    jobData: MatchFormData
+  ): number => {
+    let score = 0;
+    const maxScore = 100;
+
+    // Normalize inputs
+    const jobDescLower = jobData.jobDescription.toLowerCase();
+    const jobTitleLower = jobData.jobTitle.toLowerCase();
+    const candidateTitleLower = candidate.title.toLowerCase();
+    const candidateSkillsLower = candidate.skills.map((s) => s.toLowerCase());
+
+    // 1. Title Match (20 points)
+    const titleWords = jobTitleLower.split(" ");
+    const titleMatchCount = titleWords.filter((word) =>
+      candidateTitleLower.includes(word)
+    ).length;
+    score += (titleMatchCount / titleWords.length) * 20;
+
+    // 2. Skills Match (40 points)
+    const descriptionWords = jobDescLower.split(/\s+/);
+    let skillMatches = 0;
+    candidateSkillsLower.forEach((skill) => {
+      if (
+        descriptionWords.some((word) => word.includes(skill) || skill.includes(word))
+      ) {
+        skillMatches++;
+      }
+    });
+    score += (skillMatches / candidate.skills.length) * 40;
+
+    // 3. Budget Match (25 points)
+    const [minBudget, maxBudget] = jobData.budgetRange.includes("+")
+      ? [30, 100]
+      : jobData.budgetRange.split("-").map(Number);
+    if (candidate.hourlyRate >= minBudget && candidate.hourlyRate <= maxBudget) {
+      score += 25;
+    } else if (Math.abs(candidate.hourlyRate - minBudget) <= 5) {
+      score += 15;
+    }
+
+    // 4. Experience & Rating (15 points)
+    const yearsExp = parseInt(candidate.experience);
+    if (yearsExp >= 5) score += 8;
+    else if (yearsExp >= 3) score += 5;
+    if (candidate.rating >= 4.8) score += 7;
+    else if (candidate.rating >= 4.5) score += 4;
+
+    return Math.min(Math.round(score), maxScore);
+  };
+
+  const handleAIMatch = (data: MatchFormData) => {
+    setIsMatching(true);
+
+    // Simulate AI processing
+    setTimeout(() => {
+      const scores: Record<number, number> = {};
+      allCandidates.forEach((candidate) => {
+        scores[candidate.id] = calculateMatchScore(candidate, data);
+      });
+
+      // Get top matches (score >= 60)
+      const topMatchIds = Object.entries(scores)
+        .filter(([, score]) => score >= 60)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([id]) => parseInt(id));
+
+      setMatchScores(scores);
+      setAiMatchedIds(topMatchIds);
+      setIsMatching(false);
+      setShowAIModal(false);
+
+      // Clear filters to show all AI matches
+      setSearchQuery("");
+      setExperienceLevel("all");
+      setAvailability("all");
+      setHourlyRate("all");
+      setSelectedSkills([]);
+    }, 2500);
+  };
+
   // Filter candidates based on search and filters
   const filteredCandidates = allCandidates.filter((candidate) => {
     const matchesSearch =
@@ -218,6 +307,13 @@ export default function Dashboard() {
     );
   });
 
+  // Sort candidates by AI match score if available
+  const sortedCandidates = [...filteredCandidates].sort((a, b) => {
+    const scoreA = matchScores[a.id] || 0;
+    const scoreB = matchScores[b.id] || 0;
+    return scoreB - scoreA;
+  });
+
   return (
     <>
       <SEO
@@ -227,7 +323,7 @@ export default function Dashboard() {
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50/30">
         <DashboardHeader />
-        <AIBanner />
+        <AIBanner onMatchClick={() => setShowAIModal(true)} />
 
         <main className="container mx-auto px-4 py-8 max-w-7xl">
           <StatsCards />
@@ -247,11 +343,20 @@ export default function Dashboard() {
             />
 
             <CandidateResults
-              candidates={filteredCandidates}
-              totalCount={filteredCandidates.length}
+              candidates={sortedCandidates}
+              totalCount={sortedCandidates.length}
+              matchScores={matchScores}
+              aiMatchedIds={aiMatchedIds}
             />
           </div>
         </main>
+
+        <AIMatchModal
+          open={showAIModal}
+          onClose={() => setShowAIModal(false)}
+          onMatch={handleAIMatch}
+          isMatching={isMatching}
+        />
       </div>
     </>
   );
