@@ -1,5 +1,6 @@
 import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
+import { WhyChoose } from "@/components/WhyChoose";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       />
       <main>
         <Hero />
+        <WhyChoose />
       </main>
     </>
   );
