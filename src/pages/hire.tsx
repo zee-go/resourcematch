@@ -13,7 +13,10 @@ import {
   Shield,
   Star,
   ArrowRight,
-  Zap
+  Zap,
+  MapPin,
+  Briefcase,
+  Eye
 } from "lucide-react";
 
 export default function HirePage() {
@@ -71,6 +74,87 @@ export default function HirePage() {
       ],
       cta: "Start Growth Plan",
       popular: false
+    }
+  ];
+
+  const candidates = [
+    {
+      initials: "MC",
+      name: "Maria C.",
+      title: "Senior Full-Stack Developer",
+      location: "Manila",
+      experience: 6,
+      rate: 25,
+      matchScore: 95,
+      summary: "Experienced full-stack developer specializing in React, Node.js, and cloud architecture. Led teams of 5+ developers on enterprise projects...",
+      skills: ["React", "Node.js", "TypeScript", "AWS", "PostgreSQL"],
+      verified: true,
+      available: true
+    },
+    {
+      initials: "JR",
+      name: "Jose R.",
+      title: "UI/UX Designer",
+      location: "Cebu City",
+      experience: 5,
+      rate: 20,
+      matchScore: 88,
+      summary: "Creative designer with a passion for user-centered design. Worked with Fortune 500 companies to create intuitive digital experiences...",
+      skills: ["Figma", "Adobe XD", "UI Design", "Prototyping", "User Research"],
+      verified: true,
+      available: true
+    },
+    {
+      initials: "AS",
+      name: "Anna S.",
+      title: "DevOps Engineer",
+      location: "Quezon City",
+      experience: 7,
+      rate: 28,
+      matchScore: 92,
+      summary: "DevOps specialist with expertise in CI/CD pipelines, Kubernetes, and infrastructure automation. Reduced deployment time by 70%...",
+      skills: ["Kubernetes", "Docker", "Jenkins", "Terraform", "AWS"],
+      verified: true,
+      available: true
+    },
+    {
+      initials: "RL",
+      name: "Robert L.",
+      title: "Content Writer & SEO Specialist",
+      location: "Davao City",
+      experience: 4,
+      rate: 15,
+      matchScore: 94,
+      summary: "Professional content creator with proven track record in SEO optimization. Increased organic traffic by 200% for e-commerce clients...",
+      skills: ["SEO", "Content Writing", "Google Analytics", "WordPress", "Copywriting"],
+      verified: true,
+      available: true
+    },
+    {
+      initials: "EM",
+      name: "Elena M.",
+      title: "Mobile App Developer",
+      location: "Makati",
+      experience: 5,
+      rate: 24,
+      matchScore: 89,
+      summary: "iOS and Android developer with 50+ published apps. Specializes in React Native and Flutter for cross-platform solutions...",
+      skills: ["React Native", "Flutter", "iOS", "Android", "Firebase"],
+      verified: true,
+      available: true
+    },
+    {
+      initials: "DT",
+      name: "Daniel T.",
+      title: "Project Manager",
+      location: "Taguig",
+      experience: 8,
+      rate: 30,
+      matchScore: 91,
+      summary: "Certified PMP with experience managing remote teams across multiple time zones. Successfully delivered 100+ projects on time and budget...",
+      skills: ["Agile", "Scrum", "JIRA", "Project Planning", "Team Leadership"],
+      verified: true,
+      available: true
     }
   ];
 
@@ -193,6 +277,143 @@ export default function HirePage() {
               >
                 Trusted by 200+ companies • No credit card required
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Candidate Preview Cards */}
+        <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-teal-50/20">
+          <div className="container mx-auto px-4">
+            <div className="max-w-7xl mx-auto">
+              {/* Section Header */}
+              <div className="text-center mb-16">
+                <Badge className="mb-4 bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  AI-Matched Candidates
+                </Badge>
+                <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+                  Meet Your Top Matches
+                </h2>
+                <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                  Browse verified professionals matched to your needs. Unlock full profiles to start hiring.
+                </p>
+              </div>
+
+              {/* Candidate Cards Grid */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                {candidates.map((candidate, index) => (
+                  <div
+                    key={index}
+                    className="group relative bg-white rounded-2xl border-2 border-slate-200 hover:border-teal-400 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {/* Corner Accent */}
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full" />
+
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      {/* Avatar with Verification */}
+                      <div className="relative">
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                          {candidate.initials}
+                        </div>
+                        {candidate.verified && (
+                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center border-2 border-white shadow-md">
+                            <CheckCircle2 className="w-4 h-4 text-white" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* AI Match Score */}
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-full">
+                        <Star className="w-4 h-4 text-orange-600 fill-orange-600" />
+                        <span className="text-sm font-bold text-orange-700">{candidate.matchScore}%</span>
+                      </div>
+                    </div>
+
+                    {/* Name & Title */}
+                    <div className="mb-4">
+                      <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
+                        {candidate.name}
+                      </h3>
+                      <p className="text-sm text-slate-600 font-medium">{candidate.title}</p>
+                    </div>
+
+                    {/* Meta Info */}
+                    <div className="flex items-center gap-4 mb-4 text-sm text-slate-600">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4 text-slate-400" />
+                        <span>{candidate.location}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Briefcase className="w-4 h-4 text-slate-400" />
+                        <span>{candidate.experience} yrs</span>
+                      </div>
+                    </div>
+
+                    {/* Hourly Rate & Status */}
+                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+                      <div className="flex items-center gap-1.5">
+                        <DollarSign className="w-4 h-4 text-teal-600" />
+                        <span className="text-lg font-bold text-slate-900">${candidate.rate}/hr</span>
+                      </div>
+                      {candidate.available && (
+                        <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50">
+                          <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse" />
+                          Available
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Summary Preview */}
+                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                      {candidate.summary}
+                    </p>
+
+                    {/* Skills Tags */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {candidate.skills.slice(0, 4).map((skill, i) => (
+                        <Badge
+                          key={i}
+                          variant="secondary"
+                          className="bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs"
+                        >
+                          {skill}
+                        </Badge>
+                      ))}
+                      {candidate.skills.length > 4 && (
+                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 text-xs">
+                          +{candidate.skills.length - 4} more
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* CTA Button */}
+                    <Button 
+                      className="w-full bg-teal-600 hover:bg-teal-700 text-white group-hover:shadow-lg transition-all"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Profile
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom CTA */}
+              <div className="text-center">
+                <Link href="/dashboard">
+                  <Button 
+                    size="lg"
+                    className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
+                  >
+                    Browse All 500+ Candidates
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <p className="mt-4 text-sm text-slate-500">
+                  No credit card required • Start browsing free
+                </p>
+              </div>
             </div>
           </div>
         </section>
