@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Building2, Users, CreditCard, Home } from "lucide-react";
+import { Building2, Users, CreditCard, Home, Unlock } from "lucide-react";
 
 export function DashboardHeader() {
   return (
@@ -23,13 +23,13 @@ export function DashboardHeader() {
                 Find Candidates
               </Button>
             </Link>
-            <Link href="/dashboard/unlocks">
+            <Link href="/unlocks">
               <Button variant="ghost" className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50">
-                <CreditCard className="w-4 h-4 mr-2" />
+                <Unlock className="w-4 h-4 mr-2" />
                 My Unlocks
               </Button>
             </Link>
-            <Link href="/dashboard/billing">
+            <Link href="/billing">
               <Button variant="ghost" className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50">
                 <CreditCard className="w-4 h-4 mr-2" />
                 Billing

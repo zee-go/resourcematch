@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import Link from "next/link";
 import { SEO } from "@/components/SEO";
+import { UnlockModal } from "@/components/UnlockModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -82,12 +83,19 @@ export default function CandidateProfile() {
   const router = useRouter();
   const { id } = router.query;
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
 
   const candidate = mockCandidates[id as string] || mockCandidates["1"];
 
   const handleUnlock = () => {
+    setShowUnlockModal(true);
+  };
+
+  const handleUnlockSuccess = (candidateId: string, contactInfo: any) => {
     setIsUnlocked(true);
-    // In production, this would trigger payment flow
+    setShowUnlockModal(false);
+    // In production, this would update global state/backend
+    console.log("Unlocked candidate:", candidateId, contactInfo);
   };
 
   return (
@@ -419,6 +427,21 @@ export default function CandidateProfile() {
             </div>
           )}
         </main>
+
+        {/* Unlock Modal */}
+        <UnlockModal
+          isOpen={showUnlockModal}
+          onClose={() => setShowUnlockModal(false)}
+          candidate={{
+            id: candidate.id,
+            name: candidate.name,
+            title: candidate.title,
+            avatar: candidate.name.split(" ").map((n: string) => n[0]).join(""),
+            hourlyRate: `$${candidate.hourlyRate}/hr`,
+            matchScore: candidate.matchScore,
+          }}
+          onUnlockSuccess={handleUnlockSuccess}
+        />
       </div>
     </>
   );
