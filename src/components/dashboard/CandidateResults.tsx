@@ -10,6 +10,7 @@ import {
   Eye,
 } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 interface Candidate {
   id: number;
@@ -157,9 +158,11 @@ export function CandidateResults({
                 <div className="flex gap-3">
                   {unlocked ? (
                     <>
-                      <Button className="flex-1 bg-[#2D5F3F] hover:bg-[#1a3a26] text-white">
-                        View Full Profile
-                      </Button>
+                      <Link href={`/profile/${candidate.id}`} className="flex-1">
+                        <Button className="w-full bg-[#2D5F3F] hover:bg-[#1a3a26] text-white">
+                          View Full Profile
+                        </Button>
+                      </Link>
                       <Button
                         variant="outline"
                         className="border-[#2D5F3F] text-[#2D5F3F] hover:bg-green-50"
@@ -176,12 +179,14 @@ export function CandidateResults({
                         <Lock className="w-4 h-4 mr-2" />
                         Unlock for $3
                       </Button>
-                      <Button
-                        variant="outline"
-                        className="border-slate-300 text-slate-600 hover:bg-slate-50"
-                      >
-                        Preview
-                      </Button>
+                      <Link href={`/profile/${candidate.id}`}>
+                        <Button
+                          variant="outline"
+                          className="border-slate-300 text-slate-600 hover:bg-slate-50"
+                        >
+                          Preview
+                        </Button>
+                      </Link>
                     </>
                   )}
                 </div>
