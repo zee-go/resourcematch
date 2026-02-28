@@ -1,6 +1,10 @@
+import { useState } from "react";
+import type { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthProvider";
 import Link from "next/link";
 import {
   Building2,
@@ -17,20 +21,95 @@ import {
   Eye,
   Coins,
   CreditCard,
-  Crown
+  Crown,
+  Loader2,
 } from "lucide-react";
-import { candidates as allCandidates, verticalLabels } from "@/lib/candidates";
 
-export default function HirePage() {
+interface PreviewCandidate {
+  id: number;
+  name: string;
+  title: string;
+  avatar: string;
+  vertical: string;
+  experience: number;
+  vettingScore: number;
+  verified: boolean;
+  skills: string[];
+  caseStudyTitle?: string;
+  caseStudyMetrics?: string;
+}
+
+const VERTICAL_LABELS: Record<string, string> = {
+  ecommerce: "E-commerce Operations",
+  healthcare: "Healthcare Admin",
+  accounting: "Accounting & Finance",
+  marketing: "Digital Marketing",
+};
+
+interface HirePageProps {
+  previewCandidates: PreviewCandidate[];
+}
+
+export const getServerSideProps: GetServerSideProps<HirePageProps> = async () => {
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    const dbCandidates = await prisma.candidate.findMany({
+      take: 6,
+      orderBy: { vettingScore: "desc" },
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        avatar: true,
+        vertical: true,
+        experience: true,
+        vettingScore: true,
+        verified: true,
+        skills: true,
+        caseStudies: {
+          take: 1,
+          select: { title: true, metrics: true },
+        },
+      },
+    });
+
+    const previewCandidates: PreviewCandidate[] = dbCandidates.map((c) => ({
+      id: c.id,
+      name: c.name,
+      title: c.title,
+      avatar: c.avatar,
+      vertical: c.vertical,
+      experience: c.experience,
+      vettingScore: c.vettingScore,
+      verified: c.verified,
+      skills: c.skills,
+      caseStudyTitle: c.caseStudies[0]?.title,
+      caseStudyMetrics: c.caseStudies[0]?.metrics ?? undefined,
+    }));
+
+    return { props: { previewCandidates: JSON.parse(JSON.stringify(previewCandidates)) } };
+  } catch (error) {
+    console.error("Failed to fetch preview candidates:", error);
+    return { props: { previewCandidates: [] } };
+  }
+};
+
+export default function HirePage({ previewCandidates }: HirePageProps) {
+  const router = useRouter();
+  const { user } = useAuth();
+  const [loadingPack, setLoadingPack] = useState<string | null>(null);
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
+
   const creditPacks = [
-    { credits: 1, price: 25, perUnlock: "25.00" },
-    { credits: 5, price: 100, perUnlock: "20.00", popular: true },
-    { credits: 15, price: 250, perUnlock: "16.67" },
+    { id: "pack_1", credits: 1, price: 25, perUnlock: "25.00" },
+    { id: "pack_5", credits: 5, price: 100, perUnlock: "20.00", popular: true },
+    { id: "pack_15", credits: 15, price: 250, perUnlock: "16.67" },
   ];
 
   const subscriptionPlans = [
     {
       name: "Starter",
+      tier: "STARTER",
       price: "$149",
       period: "/month",
       description: "For selective hiring",
@@ -41,13 +120,14 @@ export default function HirePage() {
         "AI-powered candidate matching",
         "Priority support",
         "Save & favorite candidates",
-        "Unused unlocks roll over 1 month"
+        "Unused unlocks roll over 1 month",
       ],
       cta: "Start Starter Plan",
-      popular: true
+      popular: true,
     },
     {
       name: "Growth",
+      tier: "GROWTH",
       price: "$299",
       period: "/month",
       description: "For active hiring",
@@ -58,13 +138,14 @@ export default function HirePage() {
         "All Starter features",
         "Custom search filters",
         "Saved searches & alerts",
-        "Dedicated matching support"
+        "Dedicated matching support",
       ],
       cta: "Start Growth Plan",
-      popular: false
+      popular: false,
     },
     {
       name: "Enterprise",
+      tier: "ENTERPRISE",
       price: "$599",
       period: "/month",
       description: "Unlimited hiring",
@@ -76,28 +157,101 @@ export default function HirePage() {
         "API access",
         "Dedicated account manager",
         "Custom vetting criteria",
-        "Bulk hiring tools"
+        "Bulk hiring tools",
       ],
       cta: "Contact Sales",
-      popular: false
-    }
+      popular: false,
+    },
   ];
-
-  const previewCandidates = allCandidates.slice(0, 6);
 
   const stats = [
     { icon: Users, value: "200+", label: "Vetted Senior Professionals" },
     { icon: ShieldCheck, value: "4-Layer", label: "AI Vetting Pipeline" },
     { icon: DollarSign, value: "$25", label: "Per Profile Unlock" },
-    { icon: Star, value: "92%", label: "Client Match Rate" }
+    { icon: Star, value: "92%", label: "Client Match Rate" },
   ];
 
   const companyLogos = [
     { name: "United States", flag: "\u{1F1FA}\u{1F1F8}" },
     { name: "Australia", flag: "\u{1F1E6}\u{1F1FA}" },
     { name: "United Kingdom", flag: "\u{1F1EC}\u{1F1E7}" },
-    { name: "Singapore", flag: "\u{1F1F8}\u{1F1EC}" }
+    { name: "Singapore", flag: "\u{1F1F8}\u{1F1EC}" },
   ];
+
+  const handleBuyCredits = async (packId: string) => {
+    if (!user) {
+      router.push("/login?redirect=/hire");
+      return;
+    }
+
+    setLoadingPack(packId);
+    try {
+      const res = await fetch("/api/payments/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ packId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Checkout error:", data.error);
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Checkout failed:", error);
+    } finally {
+      setLoadingPack(null);
+    }
+  };
+
+  const handleSubscribe = async (tier: string) => {
+    if (!user) {
+      router.push("/login?redirect=/hire");
+      return;
+    }
+
+    if (tier === "ENTERPRISE") {
+      window.location.href = "mailto:hello@resourcematch.ph?subject=Enterprise Plan Inquiry";
+      return;
+    }
+
+    setLoadingTier(tier);
+    try {
+      const res = await fetch("/api/payments/subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.action === "portal") {
+          const portalRes = await fetch("/api/payments/portal", { method: "POST" });
+          const portalData = await portalRes.json();
+          if (portalData.url) {
+            window.location.href = portalData.url;
+          }
+        } else {
+          console.error("Subscription error:", data.error);
+        }
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Subscription failed:", error);
+    } finally {
+      setLoadingTier(null);
+    }
+  };
 
   return (
     <>
@@ -141,27 +295,43 @@ export default function HirePage() {
                 AI-Vetted Senior Talent
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-bold text-slate-900 leading-tight animate-fade-in" style={{ animationDelay: "100ms" }}>
+              <h1
+                className="text-5xl md:text-7xl font-bold text-slate-900 leading-tight animate-fade-in"
+                style={{ animationDelay: "100ms" }}
+              >
                 Hire Senior Professionals{" "}
                 <span className="bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
                   Vetted by AI
                 </span>
               </h1>
 
-              <p className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "200ms" }}>
-                5-10+ years of experience. Every candidate passes our 4-layer AI vetting pipeline before you see their profile.
+              <p
+                className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto animate-fade-in"
+                style={{ animationDelay: "200ms" }}
+              >
+                5-10+ years of experience. Every candidate passes our 4-layer AI vetting pipeline
+                before you see their profile.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
+              <div
+                className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in"
+                style={{ animationDelay: "300ms" }}
+              >
                 <Link href="/dashboard">
-                  <Button size="lg" className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30 hover:shadow-xl transition-all">
+                  <Button
+                    size="lg"
+                    className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30 hover:shadow-xl transition-all"
+                  >
                     Browse Vetted Professionals
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
               </div>
 
-              <p className="text-sm text-slate-500 animate-fade-in" style={{ animationDelay: "400ms" }}>
+              <p
+                className="text-sm text-slate-500 animate-fade-in"
+                style={{ animationDelay: "400ms" }}
+              >
                 Browse profiles free. No credit card required.
               </p>
             </div>
@@ -169,120 +339,137 @@ export default function HirePage() {
         </section>
 
         {/* Candidate Preview Cards */}
-        <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-teal-50/20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-16">
-                <Badge className="mb-4 bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50">
-                  <ShieldCheck className="w-3 h-3 mr-1" />
-                  AI-Vetted Professionals
-                </Badge>
-                <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-                  Meet Our Senior Talent
-                </h2>
-                <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                  Every professional has passed our 4-layer AI vetting pipeline and brings 5-10+ years of domain expertise.
-                </p>
-              </div>
+        {previewCandidates.length > 0 && (
+          <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-teal-50/20">
+            <div className="container mx-auto px-4">
+              <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-16">
+                  <Badge className="mb-4 bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50">
+                    <ShieldCheck className="w-3 h-3 mr-1" />
+                    AI-Vetted Professionals
+                  </Badge>
+                  <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+                    Meet Our Senior Talent
+                  </h2>
+                  <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                    Every professional has passed our 4-layer AI vetting pipeline and brings 5-10+
+                    years of domain expertise.
+                  </p>
+                </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                {previewCandidates.map((candidate, index) => (
-                  <div
-                    key={candidate.id}
-                    className="group relative bg-white rounded-2xl border-2 border-slate-200 hover:border-teal-400 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full" />
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                  {previewCandidates.map((candidate, index) => (
+                    <div
+                      key={candidate.id}
+                      className="group relative bg-white rounded-2xl border-2 border-slate-200 hover:border-teal-400 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full" />
 
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="relative">
-                        <img
-                          src={candidate.avatar}
-                          alt={candidate.name}
-                          className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200"
-                        />
-                        {candidate.verified && (
-                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
-                            <ShieldCheck className="w-3 h-3 text-white" />
-                          </div>
-                        )}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="relative">
+                          <img
+                            src={candidate.avatar}
+                            alt={candidate.name}
+                            className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200"
+                          />
+                          {candidate.verified && (
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
+                              <ShieldCheck className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-full">
+                          <ShieldCheck className="w-4 h-4 text-green-600" />
+                          <span className="text-sm font-bold text-green-700">
+                            {candidate.vettingScore}/100
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-full">
-                        <ShieldCheck className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-bold text-green-700">{candidate.vettingScore}/100</span>
+
+                      <div className="mb-3">
+                        <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
+                          {candidate.name}
+                        </h3>
+                        <p className="text-sm text-slate-600 font-medium">{candidate.title}</p>
                       </div>
-                    </div>
 
-                    <div className="mb-3">
-                      <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
-                        {candidate.name}
-                      </h3>
-                      <p className="text-sm text-slate-600 font-medium">{candidate.title}</p>
-                    </div>
-
-                    <div className="flex items-center gap-4 mb-3 text-sm text-slate-600">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4 text-slate-400" />
-                        <span>Philippines</span>
+                      <div className="flex items-center gap-4 mb-3 text-sm text-slate-600">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4 text-slate-400" />
+                          <span>Philippines</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Briefcase className="w-4 h-4 text-slate-400" />
+                          <span>{candidate.experience} yrs</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Briefcase className="w-4 h-4 text-slate-400" />
-                        <span>{candidate.experience} yrs</span>
-                      </div>
-                    </div>
 
-                    {/* Vertical Badge */}
-                    <div className="mb-3">
-                      <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs">
-                        {verticalLabels[candidate.vertical]}
-                      </Badge>
-                    </div>
-
-                    {/* Case Study Preview */}
-                    {candidate.caseStudies.length > 0 && (
-                      <div className="mb-3 pb-3 border-b border-slate-100">
-                        <p className="text-sm text-slate-600 line-clamp-2">{candidate.caseStudies[0].title}</p>
-                        {candidate.caseStudies[0].metrics && (
-                          <p className="text-xs text-teal-700 font-medium mt-1">{candidate.caseStudies[0].metrics}</p>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {candidate.skills.slice(0, 3).map((skill, i) => (
-                        <Badge key={i} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs">
-                          {skill}
+                      <div className="mb-3">
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs">
+                          {VERTICAL_LABELS[candidate.vertical] || candidate.vertical}
                         </Badge>
-                      ))}
-                      {candidate.skills.length > 3 && (
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 text-xs">
-                          +{candidate.skills.length - 3} more
-                        </Badge>
+                      </div>
+
+                      {candidate.caseStudyTitle && (
+                        <div className="mb-3 pb-3 border-b border-slate-100">
+                          <p className="text-sm text-slate-600 line-clamp-2">
+                            {candidate.caseStudyTitle}
+                          </p>
+                          {candidate.caseStudyMetrics && (
+                            <p className="text-xs text-teal-700 font-medium mt-1">
+                              {candidate.caseStudyMetrics}
+                            </p>
+                          )}
+                        </div>
                       )}
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {candidate.skills.slice(0, 3).map((skill, i) => (
+                          <Badge
+                            key={i}
+                            variant="secondary"
+                            className="bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                        {candidate.skills.length > 3 && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-slate-100 text-slate-600 text-xs"
+                          >
+                            +{candidate.skills.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+
+                      <Link href={`/profile/${candidate.id}`}>
+                        <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white group-hover:shadow-lg transition-all">
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Profile
+                        </Button>
+                      </Link>
                     </div>
+                  ))}
+                </div>
 
-                    <Link href={`/profile/${candidate.id}`}>
-                      <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white group-hover:shadow-lg transition-all">
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Profile
-                      </Button>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-
-              <div className="text-center">
-                <Link href="/dashboard">
-                  <Button size="lg" className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30">
-                    Browse All Vetted Professionals
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <p className="mt-4 text-sm text-slate-500">Browse free, unlock from $25</p>
+                <div className="text-center">
+                  <Link href="/dashboard">
+                    <Button
+                      size="lg"
+                      className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
+                    >
+                      Browse All Vetted Professionals
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <p className="mt-4 text-sm text-slate-500">Browse free, unlock from $25</p>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Credit Packs */}
         <section className="py-20 bg-white">
@@ -297,14 +484,15 @@ export default function HirePage() {
                   Credit Packs
                 </h2>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                  Buy credits to unlock vetted profiles. Credits never expire — use them whenever you need to hire.
+                  Buy credits to unlock vetted profiles. Credits never expire — use them whenever
+                  you need to hire.
                 </p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8">
-                {creditPacks.map((pack, index) => (
+                {creditPacks.map((pack) => (
                   <div
-                    key={index}
+                    key={pack.id}
                     className={`relative rounded-2xl p-6 border-2 text-center transition-all hover:shadow-xl ${
                       pack.popular
                         ? "border-purple-500 shadow-lg shadow-purple-500/20 scale-105"
@@ -319,11 +507,30 @@ export default function HirePage() {
                       </div>
                     )}
                     <div className="text-4xl font-bold text-slate-900 mb-1">{pack.credits}</div>
-                    <div className="text-sm text-slate-500 mb-4">{pack.credits === 1 ? "credit" : "credits"}</div>
+                    <div className="text-sm text-slate-500 mb-4">
+                      {pack.credits === 1 ? "credit" : "credits"}
+                    </div>
                     <div className="text-3xl font-bold text-slate-900 mb-1">${pack.price}</div>
                     <div className="text-sm text-slate-500 mb-6">${pack.perUnlock} per unlock</div>
-                    <Button className={`w-full ${pack.popular ? "bg-purple-600 hover:bg-purple-700 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}>
-                      Buy {pack.credits} Credit{pack.credits !== 1 ? "s" : ""}
+                    <Button
+                      onClick={() => handleBuyCredits(pack.id)}
+                      disabled={loadingPack === pack.id}
+                      className={`w-full ${
+                        pack.popular
+                          ? "bg-purple-600 hover:bg-purple-700 text-white"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-900"
+                      }`}
+                    >
+                      {loadingPack === pack.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Redirecting...
+                        </>
+                      ) : (
+                        <>
+                          Buy {pack.credits} Credit{pack.credits !== 1 ? "s" : ""}
+                        </>
+                      )}
                     </Button>
                   </div>
                 ))}
@@ -349,14 +556,15 @@ export default function HirePage() {
                   Subscription Plans
                 </h2>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                  Hiring regularly? Save with a monthly subscription and get priority access to new talent.
+                  Hiring regularly? Save with a monthly subscription and get priority access to new
+                  talent.
                 </p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-8">
-                {subscriptionPlans.map((plan, index) => (
+                {subscriptionPlans.map((plan) => (
                   <div
-                    key={index}
+                    key={plan.tier}
                     className={`relative rounded-2xl p-8 border-2 transition-all hover:shadow-xl bg-white ${
                       plan.popular
                         ? "border-teal-500 shadow-lg shadow-teal-500/20 scale-105"
@@ -373,16 +581,24 @@ export default function HirePage() {
                     )}
 
                     <div className="mb-6">
-                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                        plan.color === "teal" ? "bg-teal-100" :
-                        plan.color === "orange" ? "bg-orange-100" :
-                        "bg-slate-100"
-                      }`}>
-                        <plan.icon className={`h-7 w-7 ${
-                          plan.color === "teal" ? "text-teal-700" :
-                          plan.color === "orange" ? "text-orange-600" :
-                          "text-slate-600"
-                        }`} />
+                      <div
+                        className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                          plan.color === "teal"
+                            ? "bg-teal-100"
+                            : plan.color === "orange"
+                              ? "bg-orange-100"
+                              : "bg-slate-100"
+                        }`}
+                      >
+                        <plan.icon
+                          className={`h-7 w-7 ${
+                            plan.color === "teal"
+                              ? "text-teal-700"
+                              : plan.color === "orange"
+                                ? "text-orange-600"
+                                : "text-slate-600"
+                          }`}
+                        />
                       </div>
                     </div>
 
@@ -397,22 +613,37 @@ export default function HirePage() {
                     <ul className="space-y-3 mb-8">
                       {plan.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3">
-                          <CheckCircle2 className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                            plan.color === "teal" ? "text-teal-600" :
-                            plan.color === "orange" ? "text-orange-600" :
-                            "text-slate-500"
-                          }`} />
+                          <CheckCircle2
+                            className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
+                              plan.color === "teal"
+                                ? "text-teal-600"
+                                : plan.color === "orange"
+                                  ? "text-orange-600"
+                                  : "text-slate-500"
+                            }`}
+                          />
                           <span className="text-sm text-slate-600">{feature}</span>
                         </li>
                       ))}
                     </ul>
 
-                    <Button className={`w-full h-12 ${
-                      plan.popular
-                        ? "bg-teal-700 hover:bg-teal-800 text-white"
-                        : "bg-slate-100 hover:bg-slate-200 text-slate-900"
-                    }`}>
-                      {plan.cta}
+                    <Button
+                      onClick={() => handleSubscribe(plan.tier)}
+                      disabled={loadingTier === plan.tier}
+                      className={`w-full h-12 ${
+                        plan.popular
+                          ? "bg-teal-700 hover:bg-teal-800 text-white"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-900"
+                      }`}
+                    >
+                      {loadingTier === plan.tier ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Redirecting...
+                        </>
+                      ) : (
+                        plan.cta
+                      )}
                     </Button>
                   </div>
                 ))}
@@ -430,7 +661,10 @@ export default function HirePage() {
               </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {companyLogos.map((location, index) => (
-                  <div key={index} className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+                  <div
+                    key={index}
+                    className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+                  >
                     <span className="text-4xl">{location.flag}</span>
                     <span className="text-sm font-medium text-slate-700">{location.name}</span>
                   </div>
@@ -443,16 +677,23 @@ export default function HirePage() {
         {/* Stats Row */}
         <section className="py-16 bg-gradient-to-br from-teal-700 to-teal-900 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-full h-full" style={{
-              backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-              backgroundSize: "40px 40px"
-            }} />
+            <div
+              className="absolute top-0 left-0 w-full h-full"
+              style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                backgroundSize: "40px 40px",
+              }}
+            />
           </div>
 
           <div className="container mx-auto px-4 relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
               {stats.map((stat, index) => (
-                <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <div
+                  key={index}
+                  className="text-center animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
                   <div className="mb-3 flex justify-center">
                     <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                       <stat.icon className="h-6 w-6 text-white" />
@@ -478,7 +719,10 @@ export default function HirePage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                 <Link href="/dashboard">
-                  <Button size="lg" className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30">
+                  <Button
+                    size="lg"
+                    className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
+                  >
                     Browse Vetted Professionals
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>

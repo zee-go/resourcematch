@@ -21,10 +21,10 @@ export function DashboardHeader() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
               <Building2 className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-[#2D5F3F]">
+            <span className="text-xl font-bold text-[#04443C]">
               ResourceMatch
             </span>
           </Link>
@@ -34,7 +34,7 @@ export function DashboardHeader() {
             <Link href="/dashboard">
               <Button
                 variant="ghost"
-                className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50"
+                className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
               >
                 <Users className="w-4 h-4 mr-2" />
                 Find Professionals
@@ -45,7 +45,7 @@ export function DashboardHeader() {
                 <Link href="/unlocks">
                   <Button
                     variant="ghost"
-                    className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50"
+                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
                   >
                     <Unlock className="w-4 h-4 mr-2" />
                     My Unlocks
@@ -54,7 +54,7 @@ export function DashboardHeader() {
                 <Link href="/hire">
                   <Button
                     variant="ghost"
-                    className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50"
+                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
                   >
                     <CreditCard className="w-4 h-4 mr-2" />
                     Buy Credits
@@ -74,7 +74,7 @@ export function DashboardHeader() {
                 {company && (
                   <Badge
                     variant="secondary"
-                    className="bg-green-100 text-[#2D5F3F] hidden sm:flex"
+                    className="bg-green-100 text-[#04443C] hidden sm:flex"
                   >
                     <CreditCard className="w-3 h-3 mr-1" />
                     {company.credits} credits
@@ -110,7 +110,7 @@ export function DashboardHeader() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-[#2D5F3F] text-[#2D5F3F] hover:bg-green-50"
+                    className="border-[#04443C] text-[#04443C] hover:bg-green-50"
                   >
                     <LogIn className="w-4 h-4 mr-1" />
                     Log In
@@ -119,7 +119,7 @@ export function DashboardHeader() {
                 <Link href="/signup">
                   <Button
                     size="sm"
-                    className="bg-[#2D5F3F] hover:bg-[#1a3a26] text-white"
+                    className="bg-[#04443C] hover:bg-[#022C27] text-white"
                   >
                     Sign Up
                   </Button>

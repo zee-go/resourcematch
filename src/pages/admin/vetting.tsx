@@ -133,7 +133,7 @@ export default function VettingAdmin() {
         <div className="bg-white border-b border-slate-200">
           <div className="max-w-5xl mx-auto px-4 py-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -154,7 +154,7 @@ export default function VettingAdmin() {
             <Button
               variant={activeTab === "resume" ? "default" : "outline"}
               onClick={() => setActiveTab("resume")}
-              className={activeTab === "resume" ? "bg-[#2D5F3F] hover:bg-[#1a3a26]" : ""}
+              className={activeTab === "resume" ? "bg-[#04443C] hover:bg-[#022C27]" : ""}
             >
               <FileSearch className="w-4 h-4 mr-2" />
               Resume Analysis
@@ -162,7 +162,7 @@ export default function VettingAdmin() {
             <Button
               variant={activeTab === "scenarios" ? "default" : "outline"}
               onClick={() => setActiveTab("scenarios")}
-              className={activeTab === "scenarios" ? "bg-[#2D5F3F] hover:bg-[#1a3a26]" : ""}
+              className={activeTab === "scenarios" ? "bg-[#04443C] hover:bg-[#022C27]" : ""}
             >
               <ClipboardCheck className="w-4 h-4 mr-2" />
               Scenario Assessment
@@ -215,7 +215,7 @@ export default function VettingAdmin() {
                   <Button
                     onClick={handleAnalyzeResume}
                     disabled={isAnalyzing || !resumeText.trim() || !targetVertical}
-                    className="bg-[#2D5F3F] hover:bg-[#1a3a26] text-white"
+                    className="bg-[#04443C] hover:bg-[#022C27] text-white"
                   >
                     {isAnalyzing ? (
                       <>
@@ -344,7 +344,7 @@ export default function VettingAdmin() {
                     <ul className="space-y-2">
                       {analysisResult.relevantExperience.map((exp, i) => (
                         <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
-                          <ArrowRight className="w-3 h-3 mt-1 text-[#2D5F3F] flex-shrink-0" />
+                          <ArrowRight className="w-3 h-3 mt-1 text-[#04443C] flex-shrink-0" />
                           {exp}
                         </li>
                       ))}
@@ -405,7 +405,7 @@ export default function VettingAdmin() {
                 <Button
                   onClick={handleGenerateScenarios}
                   disabled={isGenerating || !scenarioVertical || !experienceLevel}
-                  className="bg-[#D97642] hover:bg-[#c26638] text-white"
+                  className="bg-[#D38B53] hover:bg-[#B47646] text-white"
                 >
                   {isGenerating ? (
                     <>
@@ -453,7 +453,7 @@ export default function VettingAdmin() {
                         className="w-full p-6 text-left flex items-center justify-between hover:bg-slate-50 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-full bg-[#2D5F3F] text-white flex items-center justify-center text-sm font-semibold">
+                          <span className="w-8 h-8 rounded-full bg-[#04443C] text-white flex items-center justify-center text-sm font-semibold">
                             {index + 1}
                           </span>
                           <div>
@@ -492,7 +492,7 @@ export default function VettingAdmin() {
                                 key={i}
                                 className="text-sm text-slate-700 flex items-start gap-2"
                               >
-                                <CheckCircle2 className="w-3 h-3 mt-1 text-[#2D5F3F] flex-shrink-0" />
+                                <CheckCircle2 className="w-3 h-3 mt-1 text-[#04443C] flex-shrink-0" />
                                 {criteria}
                               </li>
                             ))}

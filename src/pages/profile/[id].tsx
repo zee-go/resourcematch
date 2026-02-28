@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import type { GetServerSideProps } from "next";
 import { SEO } from "@/components/SEO";
@@ -147,18 +148,14 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
         unlocked: hasUnlocked,
       },
     };
-  } catch {
-    // Fallback to mock data when DB is not available
-    const { candidates } = await import("@/lib/candidates");
-    const candidate = candidates.find((c) => c.id === candidateId);
-    if (!candidate) {
-      return { notFound: true };
-    }
-    return { props: { candidate, unlocked: false } };
+  } catch (error) {
+    console.error("Failed to fetch candidate:", error);
+    return { notFound: true };
   }
 };
 
 export default function CandidateProfile({ candidate, unlocked }: ProfileProps) {
+  const router = useRouter();
   const [isUnlocked, setIsUnlocked] = useState(unlocked);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
 
@@ -169,6 +166,8 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
   const handleUnlockSuccess = () => {
     setIsUnlocked(true);
     setShowUnlockModal(false);
+    // Reload to get full unlocked data from server
+    router.replace(router.asPath);
   };
 
   return (
@@ -191,7 +190,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
               </Link>
               <Link href="/">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#04443C] to-[#022C27] flex items-center justify-center">
                     <Building2 className="w-5 h-5 text-white" />
                   </div>
                   <span className="font-bold text-lg">ResourceMatch</span>
@@ -260,7 +259,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
 
               {/* Vetting Score */}
               <div className="flex flex-col items-end gap-2">
-                <div className="bg-gradient-to-r from-[#2D5F3F] to-[#3a7a50] text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                <div className="bg-gradient-to-r from-[#04443C] to-[#3a7a50] text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
                   <ShieldCheck className="w-5 h-5" />
                   <span className="font-bold text-lg">
                     {candidate.vettingScore}/100
@@ -357,8 +356,8 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                   <p className="text-sm text-slate-600 mb-2">{cs.outcome}</p>
                   {cs.metrics && (
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-[#2D5F3F]" />
-                      <span className="text-sm font-medium text-[#2D5F3F]">{cs.metrics}</span>
+                      <TrendingUp className="w-4 h-4 text-[#04443C]" />
+                      <span className="text-sm font-medium text-[#04443C]">{cs.metrics}</span>
                     </div>
                   )}
                 </div>
@@ -563,7 +562,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
           isOpen={showUnlockModal}
           onClose={() => setShowUnlockModal(false)}
           candidate={{
-            id: String(candidate.id),
+            id: candidate.id,
             name: candidate.name,
             title: candidate.title,
             avatar: candidate.name.split(" ").map((n: string) => n[0]).join(""),

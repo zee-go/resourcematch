@@ -87,7 +87,7 @@ export function SearchFilters({
           placeholder="Search by name, job title, or skills..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 h-12 text-base border-slate-300 focus:border-[#2D5F3F] focus:ring-[#2D5F3F]"
+          className="pl-10 h-12 text-base border-slate-300 focus:border-[#04443C] focus:ring-[#04443C]"
         />
       </div>
 
@@ -175,12 +175,12 @@ export function SearchFilters({
             <Badge
               key={skill}
               variant="secondary"
-              className="bg-green-100 text-[#2D5F3F] hover:bg-green-200 px-3 py-1 text-sm"
+              className="bg-green-100 text-[#04443C] hover:bg-green-200 px-3 py-1 text-sm"
             >
               {skill}
               <button
                 onClick={() => removeSkill(skill)}
-                className="ml-2 hover:text-[#1a3a26]"
+                className="ml-2 hover:text-[#022C27]"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -195,7 +195,7 @@ export function SearchFilters({
           <Button
             variant="ghost"
             onClick={clearAllFilters}
-            className="text-slate-600 hover:text-[#2D5F3F] hover:bg-green-50"
+            className="text-slate-600 hover:text-[#04443C] hover:bg-green-50"
           >
             <X className="w-4 h-4 mr-2" />
             Clear All Filters

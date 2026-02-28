@@ -7,7 +7,7 @@ interface AIBannerProps {
 
 export function AIBanner({ onMatchClick }: AIBannerProps) {
   return (
-    <div className="bg-gradient-to-r from-[#D97642] via-[#e88b5d] to-[#D97642] text-white">
+    <div className="bg-gradient-to-r from-[#D38B53] via-[#e88b5d] to-[#D38B53] text-white">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         <div className="flex items-center justify-between gap-6 flex-wrap">
           <div className="flex items-center gap-4">
@@ -28,7 +28,7 @@ export function AIBanner({ onMatchClick }: AIBannerProps) {
           </div>
           <Button
             onClick={onMatchClick}
-            className="bg-white text-[#D97642] hover:bg-white/90 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            className="bg-white text-[#D38B53] hover:bg-white/90 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
           >
             <Zap className="w-4 h-4 mr-2" />
             Match with AI

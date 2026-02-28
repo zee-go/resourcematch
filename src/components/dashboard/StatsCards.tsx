@@ -7,21 +7,21 @@ export function StatsCards() {
       value: "200+",
       label: "Vetted Senior Professionals",
       description: "5-10+ years experience, AI-verified",
-      gradient: "from-[#2D5F3F] to-[#1a3a26]",
+      gradient: "from-[#04443C] to-[#022C27]",
     },
     {
       icon: ShieldCheck,
       value: "4-Layer",
       label: "AI Vetting Pipeline",
       description: "Resume, scenarios, video, references",
-      gradient: "from-[#D97642] to-[#c26638]",
+      gradient: "from-[#D38B53] to-[#B47646]",
     },
     {
       icon: DollarSign,
       value: "$25",
       label: "Per Profile Unlock",
       description: "Credits never expire",
-      gradient: "from-[#2D5F3F] to-[#1a3a26]",
+      gradient: "from-[#04443C] to-[#022C27]",
     },
   ];
 

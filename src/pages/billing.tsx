@@ -104,7 +104,7 @@ export default function BillingPage() {
                 </div>
               </div>
               <Link href="/hire">
-                <Button className="bg-[#2D5F3F] hover:bg-[#1a3a26] text-white">
+                <Button className="bg-[#04443C] hover:bg-[#022C27] text-white">
                   Buy Credits
                 </Button>
               </Link>
@@ -198,7 +198,7 @@ export default function BillingPage() {
                 No purchases yet.{" "}
                 <Link
                   href="/hire"
-                  className="text-[#2D5F3F] font-semibold hover:underline"
+                  className="text-[#04443C] font-semibold hover:underline"
                 >
                   Buy your first credits
                 </Link>

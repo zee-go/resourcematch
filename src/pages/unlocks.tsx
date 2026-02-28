@@ -147,34 +147,51 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
     return matchesSearch && matchesFilter;
   });
 
+  const contactedCount = Object.values(contactedStatus).filter(Boolean).length;
   const stats = {
     totalUnlocked: unlockedCandidates.length,
-    contacted: Object.values(contactedStatus).filter(Boolean).length,
-    responseRate: unlockedCandidates.length > 0 ? 72 : 0,
+    contacted: contactedCount,
+    responseRate: unlockedCandidates.length > 0
+      ? Math.round((contactedCount / unlockedCandidates.length) * 100)
+      : 0,
   };
 
-  const handleExportCSV = () => {
-    const csvContent = [
-      ["Name", "Title", "Email", "Phone", "Unlocked Date", "Contacted", "Vetting Score"],
-      ...filteredCandidates.map((c) => [
-        c.name,
-        c.title,
-        c.email,
-        c.phone,
-        c.unlockedAt,
-        contactedStatus[c.id] ? "Yes" : "No",
-        String(c.vettingScore),
-      ]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n");
+  const handleExportCSV = async () => {
+    try {
+      const res = await fetch("/api/unlocks/export");
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "unlocked-professionals.csv";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      // Fallback to client-side export
+      const csvContent = [
+        ["Name", "Title", "Email", "Phone", "Unlocked Date", "Contacted", "Vetting Score"],
+        ...filteredCandidates.map((c) => [
+          c.name,
+          c.title,
+          c.email,
+          c.phone,
+          c.unlockedAt,
+          contactedStatus[c.id] ? "Yes" : "No",
+          String(c.vettingScore),
+        ]),
+      ]
+        .map((row) => row.join(","))
+        .join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "unlocked-professionals.csv";
-    a.click();
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "unlocked-professionals.csv";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
   };
 
   const toggleContacted = async (unlockId: string) => {
@@ -233,7 +250,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                 contact information and vetting results.
               </p>
               <Link href="/dashboard">
-                <Button className="bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white">
+                <Button className="bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white">
                   Browse Professionals
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -246,7 +263,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                 <div className="bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-slate-600">Total Unlocked</span>
-                    <Users className="w-5 h-5 text-[#2D5F3F]" />
+                    <Users className="w-5 h-5 text-[#04443C]" />
                   </div>
                   <p className="text-3xl font-bold text-slate-900">{stats.totalUnlocked}</p>
                   <p className="text-xs text-slate-500 mt-1">Active profiles</p>
@@ -266,7 +283,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                 <div className="bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-slate-600">Response Rate</span>
-                    <Percent className="w-5 h-5 text-[#D97642]" />
+                    <Percent className="w-5 h-5 text-[#D38B53]" />
                   </div>
                   <p className="text-3xl font-bold text-slate-900">{stats.responseRate}%</p>
                   <p className="text-xs text-slate-500 mt-1">Last 30 days</p>
@@ -325,7 +342,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                       <TableRow key={candidate.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] flex items-center justify-center text-white font-semibold text-sm">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#04443C] to-[#022C27] flex items-center justify-center text-white font-semibold text-sm">
                               {candidate.avatar}
                             </div>
                             <div>
@@ -351,7 +368,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                         </TableCell>
 
                         <TableCell>
-                          <Badge className="bg-green-100 text-[#2D5F3F] hover:bg-green-100">
+                          <Badge className="bg-green-100 text-[#04443C] hover:bg-green-100">
                             <ShieldCheck className="w-3 h-3 mr-1" />
                             {candidate.vettingScore}/100
                           </Badge>
@@ -400,7 +417,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                               onClick={() => toggleContacted(candidate.id)}
                               className={
                                 !contactedStatus[candidate.id]
-                                  ? "bg-[#2D5F3F] hover:bg-[#1a3a26]"
+                                  ? "bg-[#04443C] hover:bg-[#022C27]"
                                   : ""
                               }
                             >

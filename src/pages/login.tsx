@@ -49,7 +49,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
               <span className="text-2xl font-bold text-slate-900">
@@ -111,7 +111,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white"
+                className="w-full bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -129,7 +129,7 @@ export default function LoginPage() {
                 Don't have an account?{" "}
                 <Link
                   href="/signup"
-                  className="text-[#2D5F3F] font-semibold hover:underline"
+                  className="text-[#04443C] font-semibold hover:underline"
                 >
                   Sign up
                 </Link>

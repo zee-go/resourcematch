@@ -91,10 +91,9 @@ export const getServerSideProps: GetServerSideProps<DashboardProps> = async () =
     });
 
     return { props: { candidates: JSON.parse(JSON.stringify(candidates)) } };
-  } catch {
-    // Fallback to mock data when DB is not available
-    const { candidates } = await import("@/lib/candidates");
-    return { props: { candidates } };
+  } catch (error) {
+    console.error("Failed to fetch candidates:", error);
+    return { props: { candidates: [] } };
   }
 };
 

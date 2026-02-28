@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthProvider";
 import {
   Unlock,
   CheckCircle2,
@@ -16,21 +16,22 @@ import {
   Users,
   Download,
   Sparkles,
+  AlertCircle,
   CreditCard,
-  Building2,
+  Coins,
 } from "lucide-react";
 
 interface UnlockModalProps {
   isOpen: boolean;
   onClose: () => void;
   candidate: {
-    id: string;
+    id: number;
     name: string;
     title: string;
     avatar: string;
     vettingScore?: number;
   };
-  onUnlockSuccess: (candidateId: string, contactInfo: {
+  onUnlockSuccess: (contactInfo: {
     email: string;
     phone: string;
     fullName: string;
@@ -38,47 +39,101 @@ interface UnlockModalProps {
 }
 
 export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: UnlockModalProps) {
-  const [step, setStep] = useState<"payment" | "success">("payment");
+  const router = useRouter();
+  const { user, company, refreshCompany } = useAuth();
+  const [step, setStep] = useState<"confirm" | "success" | "error">("confirm");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [formData, setFormData] = useState({
-    cardNumber: "",
-    expiry: "",
-    cvv: "",
-    name: "",
-  });
+  const [contactInfo, setContactInfo] = useState<{ email: string; phone: string; fullName: string } | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorAction, setErrorAction] = useState("");
 
-  const contactInfo = {
-    email: `${candidate.name.toLowerCase().replace(/\s+/g, ".")}@example.com`,
-    phone: "+63 917 123 4567",
-    fullName: candidate.name,
-  };
+  const credits = company?.credits ?? 0;
+  const hasSubscription = company?.subscriptionTier && company?.subscriptionStatus === "ACTIVE";
+  const subscriptionUnlocksLeft = hasSubscription && company?.monthlyUnlocksLimit
+    ? company.monthlyUnlocksLimit - company.monthlyUnlocksUsed
+    : hasSubscription && company?.subscriptionTier === "ENTERPRISE"
+      ? Infinity
+      : 0;
+  const canUnlock = credits > 0 || (subscriptionUnlocksLeft ?? 0) > 0;
 
-  const handleUnlock = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUnlock = async () => {
+    if (!user) {
+      router.push(`/login?redirect=/profile/${candidate.id}`);
+      return;
+    }
+
     setIsProcessing(true);
+    setErrorMessage("");
 
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const res = await fetch("/api/unlocks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateId: candidate.id }),
+      });
 
-    setIsProcessing(false);
-    setStep("success");
+      const data = await res.json();
 
-    // Notify parent component
-    setTimeout(() => {
-      onUnlockSuccess(candidate.id, contactInfo);
-    }, 2000);
+      if (!res.ok) {
+        if (res.status === 402) {
+          setErrorMessage(data.message || "You need credits to unlock profiles.");
+          setErrorAction("buy_credits");
+          setStep("error");
+        } else if (res.status === 403) {
+          setErrorMessage(data.message || "Unable to unlock this profile.");
+          setErrorAction(data.action || "");
+          setStep("error");
+        } else if (res.status === 409) {
+          // Already unlocked — just redirect
+          router.push(`/profile/${candidate.id}`);
+          handleClose();
+        } else {
+          setErrorMessage(data.error || "Something went wrong. Please try again.");
+          setStep("error");
+        }
+        return;
+      }
+
+      // Success
+      const { unlock } = data;
+      const info = {
+        email: unlock.candidate.email || "",
+        phone: unlock.candidate.phone || "",
+        fullName: unlock.candidate.fullName || candidate.name,
+      };
+      setContactInfo(info);
+      setStep("success");
+
+      // Refresh credit balance
+      await refreshCompany();
+
+      // Notify parent
+      onUnlockSuccess(info);
+    } catch {
+      setErrorMessage("Network error. Please check your connection and try again.");
+      setStep("error");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleClose = () => {
-    setStep("payment");
-    setFormData({ cardNumber: "", expiry: "", cvv: "", name: "" });
+    setStep("confirm");
+    setErrorMessage("");
+    setErrorAction("");
+    setContactInfo(null);
     onClose();
+  };
+
+  const handleBuyCredits = () => {
+    handleClose();
+    router.push("/hire");
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        {step === "payment" ? (
+        {step === "confirm" && (
           <>
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">Unlock Candidate Profile</DialogTitle>
@@ -86,7 +141,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
 
             {/* Candidate Preview */}
             <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] flex items-center justify-center text-white font-semibold text-xl">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#04443C] to-[#022C27] flex items-center justify-center text-white font-semibold text-xl">
                 {candidate.avatar}
               </div>
               <div className="flex-1">
@@ -94,7 +149,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                 <p className="text-slate-600 text-sm">{candidate.title}</p>
                 {candidate.vettingScore && (
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge className="bg-green-100 text-[#2D5F3F] hover:bg-green-100 text-xs">
+                    <Badge className="bg-green-100 text-[#04443C] hover:bg-green-100 text-xs">
                       <ShieldCheck className="w-3 h-3 mr-1" />
                       {candidate.vettingScore}/100 Vetted
                     </Badge>
@@ -105,7 +160,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
 
             {/* What You'll Get */}
             <div className="space-y-3">
-              <h4 className="font-semibold text-slate-900">What You'll Get:</h4>
+              <h4 className="font-semibold text-slate-900">What You&apos;ll Get:</h4>
               <div className="grid gap-2">
                 {[
                   { icon: Mail, text: "Full contact information (email & phone)" },
@@ -116,7 +171,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3 text-sm">
                     <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-4 h-4 text-[#2D5F3F]" />
+                      <item.icon className="w-4 h-4 text-[#04443C]" />
                     </div>
                     <span className="text-slate-700">{item.text}</span>
                   </div>
@@ -124,111 +179,96 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
               </div>
             </div>
 
-            {/* Pricing */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-slate-700">One-time unlock</span>
-                <span className="text-3xl font-bold text-[#2D5F3F]">$25</span>
+            {/* Credit Balance */}
+            {user ? (
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Coins className="w-5 h-5 text-[#04443C]" />
+                    <span className="text-slate-700 font-medium">Your Balance</span>
+                  </div>
+                  <span className="text-lg font-bold text-[#04443C]">
+                    {credits} credit{credits !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                {hasSubscription && (
+                  <p className="text-xs text-slate-600">
+                    {company?.subscriptionTier === "ENTERPRISE"
+                      ? "Unlimited unlocks (Enterprise plan)"
+                      : `${subscriptionUnlocksLeft} subscription unlocks remaining this month`}
+                  </p>
+                )}
+                {!canUnlock && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Not enough credits. Purchase a credit pack to continue.
+                  </p>
+                )}
               </div>
-              <p className="text-xs text-slate-600">Instant access • Credits never expire • No subscription required</p>
+            ) : (
+              <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                <p className="text-sm text-slate-600 text-center">
+                  Sign in to unlock this profile
+                </p>
+              </div>
+            )}
+
+            {/* Trust Badges */}
+            <div className="flex flex-wrap gap-3 pt-2">
+              {[
+                { icon: Shield, text: "Secure & Instant" },
+                { icon: CheckCircle2, text: "Credits Never Expire" },
+                { icon: CreditCard, text: "Powered by Stripe" },
+              ].map((badge, index) => (
+                <div key={index} className="flex items-center gap-2 text-xs text-slate-600">
+                  <badge.icon className="w-4 h-4 text-[#04443C]" />
+                  <span>{badge.text}</span>
+                </div>
+              ))}
             </div>
 
-            {/* Payment Form */}
-            <form onSubmit={handleUnlock} className="space-y-4">
-              <div>
-                <Label htmlFor="cardNumber">Card Number</Label>
-                <div className="relative">
-                  <Input
-                    id="cardNumber"
-                    placeholder="1234 5678 9012 3456"
-                    value={formData.cardNumber}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cardNumber: e.target.value })
-                    }
-                    required
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              {user ? (
+                canUnlock ? (
+                  <Button
+                    onClick={handleUnlock}
+                    className="w-full bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white shadow-lg"
                     disabled={isProcessing}
-                    className="pl-10"
-                  />
-                  <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="expiry">Expiry Date</Label>
-                  <Input
-                    id="expiry"
-                    placeholder="MM/YY"
-                    value={formData.expiry}
-                    onChange={(e) =>
-                      setFormData({ ...formData, expiry: e.target.value })
-                    }
-                    required
-                    disabled={isProcessing}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="cvv">CVV</Label>
-                  <Input
-                    id="cvv"
-                    placeholder="123"
-                    value={formData.cvv}
-                    onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
-                    required
-                    disabled={isProcessing}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="name">Cardholder Name</Label>
-                <Input
-                  id="name"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  disabled={isProcessing}
-                />
-              </div>
-
-              {/* Trust Badges */}
-              <div className="flex flex-wrap gap-3 pt-2">
-                {[
-                  { icon: Shield, text: "Secure Payment" },
-                  { icon: CheckCircle2, text: "No Setup Fees" },
-                  { icon: Building2, text: "Trusted by 200+ Companies" },
-                ].map((badge, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 text-xs text-slate-600"
                   >
-                    <badge.icon className="w-4 h-4 text-[#2D5F3F]" />
-                    <span>{badge.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white shadow-lg"
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Processing Payment...
-                  </>
+                    {isProcessing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Unlocking...
+                      </>
+                    ) : (
+                      <>
+                        <Unlock className="w-4 h-4 mr-2" />
+                        Unlock Profile (1 Credit)
+                      </>
+                    )}
+                  </Button>
                 ) : (
-                  <>
-                    <Unlock className="w-4 h-4 mr-2" />
-                    Unlock Profile for $25
-                  </>
-                )}
-              </Button>
-            </form>
+                  <Button
+                    onClick={handleBuyCredits}
+                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg"
+                  >
+                    <Coins className="w-4 h-4 mr-2" />
+                    Buy Credits to Unlock
+                  </Button>
+                )
+              ) : (
+                <Button
+                  onClick={() => router.push(`/login?redirect=/profile/${candidate.id}`)}
+                  className="w-full bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white shadow-lg"
+                >
+                  Sign In to Unlock
+                </Button>
+              )}
+            </div>
           </>
-        ) : (
+        )}
+
+        {step === "success" && contactInfo && (
           <>
             {/* Success State */}
             <div className="text-center py-6">
@@ -236,24 +276,26 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                 <CheckCircle2 className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                Profile Unlocked Successfully!
+                Profile Unlocked!
               </h3>
               <p className="text-slate-600 mb-6">
-                You now have full access to {candidate.name}'s complete profile
+                You now have full access to {contactInfo.fullName}&apos;s complete profile
               </p>
 
-              {/* Contact Information Revealed */}
+              {/* Contact Information */}
               <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border-2 border-green-200 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Mail className="w-5 h-5 text-[#2D5F3F]" />
+                    <Mail className="w-5 h-5 text-[#04443C]" />
                     <span className="text-sm text-slate-600">Email:</span>
                   </div>
-                  <span className="font-semibold text-slate-900">{contactInfo.email}</span>
+                  <a href={`mailto:${contactInfo.email}`} className="font-semibold text-slate-900 hover:text-[#04443C]">
+                    {contactInfo.email}
+                  </a>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Phone className="w-5 h-5 text-[#2D5F3F]" />
+                    <Phone className="w-5 h-5 text-[#04443C]" />
                     <span className="text-sm text-slate-600">Phone:</span>
                   </div>
                   <span className="font-semibold text-slate-900">{contactInfo.phone}</span>
@@ -268,23 +310,60 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
               </div>
 
               <div className="flex gap-3 mt-6">
-                <Button
-                  variant="outline"
-                  onClick={handleClose}
-                  className="flex-1"
-                >
+                <Button variant="outline" onClick={handleClose} className="flex-1">
                   Close
                 </Button>
                 <Button
-                  className="flex-1 bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white"
+                  className="flex-1 bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
                   onClick={() => {
                     handleClose();
-                    window.location.href = `/profile/${candidate.id}`;
+                    router.push(`/profile/${candidate.id}`);
                   }}
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   View Full Profile
                 </Button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === "error" && (
+          <>
+            {/* Error State */}
+            <div className="text-center py-6">
+              <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-10 h-10 text-red-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                Unable to Unlock
+              </h3>
+              <p className="text-slate-600 mb-6">{errorMessage}</p>
+
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setStep("confirm")} className="flex-1">
+                  Go Back
+                </Button>
+                {errorAction === "buy_credits" && (
+                  <Button
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+                    onClick={handleBuyCredits}
+                  >
+                    <Coins className="w-4 h-4 mr-2" />
+                    Buy Credits
+                  </Button>
+                )}
+                {errorAction === "verify" && (
+                  <Button
+                    className="flex-1 bg-gradient-to-r from-[#04443C] to-[#022C27] text-white"
+                    onClick={() => {
+                      handleClose();
+                      router.push("/billing");
+                    }}
+                  >
+                    Complete Verification
+                  </Button>
+                )}
               </div>
             </div>
           </>

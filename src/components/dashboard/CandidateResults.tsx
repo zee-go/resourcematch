@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,10 +11,10 @@ import {
   Eye,
   Sparkles,
 } from "lucide-react";
-import { useState } from "react";
 import Link from "next/link";
 import type { Candidate } from "@/lib/candidates";
 import { verticalLabels } from "@/lib/candidates";
+import { UnlockModal } from "@/components/UnlockModal";
 
 interface CandidateResultsProps {
   candidates: Candidate[];
@@ -28,15 +29,17 @@ export function CandidateResults({
   matchScores = {},
   aiMatchedIds = [],
 }: CandidateResultsProps) {
+  const [unlockTarget, setUnlockTarget] = useState<Candidate | null>(null);
   const [unlockedIds, setUnlockedIds] = useState<number[]>([]);
-
-  const unlockCandidate = (id: number) => {
-    setUnlockedIds([...unlockedIds, id]);
-  };
 
   const isUnlocked = (id: number) => unlockedIds.includes(id);
   const isTopMatch = (id: number) => aiMatchedIds.includes(id);
   const getMatchScore = (id: number) => matchScores[id];
+
+  const handleUnlockSuccess = (candidateId: number) => {
+    setUnlockedIds((prev) => [...prev, candidateId]);
+    setUnlockTarget(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -62,7 +65,7 @@ export function CandidateResults({
               key={candidate.id}
               className={`bg-white rounded-xl shadow-sm border-2 hover:shadow-md transition-all duration-300 overflow-hidden group ${
                 topMatch
-                  ? "border-[#D97642] ring-2 ring-[#D97642]/20"
+                  ? "border-[#D38B53] ring-2 ring-[#D38B53]/20"
                   : "border-slate-200"
               }`}
               style={{
@@ -71,7 +74,7 @@ export function CandidateResults({
             >
               {/* AI Match Badge */}
               {topMatch && (
-                <div className="bg-gradient-to-r from-[#D97642] to-[#c26638] px-4 py-2 flex items-center justify-between">
+                <div className="bg-gradient-to-r from-[#D38B53] to-[#B47646] px-4 py-2 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-white">
                     <Sparkles className="w-4 h-4" />
                     <span className="text-sm font-semibold">
@@ -148,9 +151,9 @@ export function CandidateResults({
                     </div>
                   </div>
                   <div className="bg-green-50 rounded-lg p-3 text-center">
-                    <ShieldCheck className="w-4 h-4 text-[#2D5F3F] mx-auto mb-1" />
+                    <ShieldCheck className="w-4 h-4 text-[#04443C] mx-auto mb-1" />
                     <div className="text-xs text-slate-600">Vetting Score</div>
-                    <div className="text-sm font-semibold text-[#2D5F3F]">
+                    <div className="text-sm font-semibold text-[#04443C]">
                       {candidate.vettingScore}/100
                     </div>
                   </div>
@@ -191,7 +194,7 @@ export function CandidateResults({
                       {candidate.caseStudies[0].title}
                     </p>
                     {candidate.caseStudies[0].metrics && (
-                      <p className="text-xs text-[#2D5F3F] font-medium mt-1">
+                      <p className="text-xs text-[#04443C] font-medium mt-1">
                         {candidate.caseStudies[0].metrics}
                       </p>
                     )}
@@ -203,25 +206,27 @@ export function CandidateResults({
                   {unlocked ? (
                     <>
                       <Link href={`/profile/${candidate.id}`} className="flex-1">
-                        <Button className="w-full bg-[#2D5F3F] hover:bg-[#1a3a26] text-white">
+                        <Button className="w-full bg-[#04443C] hover:bg-[#022C27] text-white">
                           View Full Profile
                         </Button>
                       </Link>
-                      <Button
-                        variant="outline"
-                        className="border-[#2D5F3F] text-[#2D5F3F] hover:bg-green-50"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
+                      <Link href={`/profile/${candidate.id}`}>
+                        <Button
+                          variant="outline"
+                          className="border-[#04443C] text-[#04443C] hover:bg-green-50"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </Link>
                     </>
                   ) : (
                     <>
                       <Button
-                        onClick={() => unlockCandidate(candidate.id)}
-                        className="flex-1 bg-[#D97642] hover:bg-[#c26638] text-white"
+                        onClick={() => setUnlockTarget(candidate)}
+                        className="flex-1 bg-[#D38B53] hover:bg-[#B47646] text-white"
                       >
                         <Lock className="w-4 h-4 mr-2" />
-                        Unlock ($25)
+                        Unlock (1 Credit)
                       </Button>
                       <Link href={`/profile/${candidate.id}`}>
                         <Button
@@ -252,13 +257,23 @@ export function CandidateResults({
           <p className="text-slate-600 mb-6">
             Try adjusting your filters or search criteria
           </p>
-          <Button
-            variant="outline"
-            className="border-[#2D5F3F] text-[#2D5F3F] hover:bg-green-50"
-          >
-            Clear All Filters
-          </Button>
         </div>
+      )}
+
+      {/* Unlock Modal */}
+      {unlockTarget && (
+        <UnlockModal
+          isOpen={!!unlockTarget}
+          onClose={() => setUnlockTarget(null)}
+          candidate={{
+            id: unlockTarget.id,
+            name: unlockTarget.name,
+            title: unlockTarget.title,
+            avatar: unlockTarget.name.split(" ").map((n) => n[0]).join(""),
+            vettingScore: unlockTarget.vettingScore,
+          }}
+          onUnlockSuccess={() => handleUnlockSuccess(unlockTarget.id)}
+        />
       )}
     </div>
   );

@@ -133,7 +133,7 @@ export default function SignupPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
               <span className="text-2xl font-bold text-slate-900">
@@ -145,10 +145,10 @@ export default function SignupPage() {
           {/* Progress */}
           <div className="flex items-center gap-3 mb-6">
             <div
-              className={`flex-1 h-1 rounded-full ${step === "credentials" || step === "company" ? "bg-[#2D5F3F]" : "bg-slate-200"}`}
+              className={`flex-1 h-1 rounded-full ${step === "credentials" || step === "company" ? "bg-[#04443C]" : "bg-slate-200"}`}
             />
             <div
-              className={`flex-1 h-1 rounded-full ${step === "company" ? "bg-[#2D5F3F]" : "bg-slate-200"}`}
+              className={`flex-1 h-1 rounded-full ${step === "company" ? "bg-[#04443C]" : "bg-slate-200"}`}
             />
           </div>
 
@@ -224,7 +224,7 @@ export default function SignupPage() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white"
+                    className="w-full bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
                   >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -345,8 +345,8 @@ export default function SignupPage() {
                   {/* Why we ask */}
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                     <div className="flex gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#2D5F3F] mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-[#2D5F3F]">
+                      <CheckCircle2 className="w-4 h-4 text-[#04443C] mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-[#04443C]">
                         We verify companies to protect our professionals from lowball offers.
                         Verified employers get priority access and a trusted badge.
                       </p>
@@ -375,7 +375,7 @@ export default function SignupPage() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white"
+                      className="flex-1 bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
                     >
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -396,7 +396,7 @@ export default function SignupPage() {
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="text-[#2D5F3F] font-semibold hover:underline"
+                  className="text-[#04443C] font-semibold hover:underline"
                 >
                   Log in
                 </Link>

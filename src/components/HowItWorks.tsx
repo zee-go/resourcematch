@@ -98,7 +98,7 @@ export function HowItWorks() {
               className={`
                 px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2
                 ${activeTab === "companies"
-                  ? "bg-[#2D5F3F] text-white shadow-lg shadow-[#2D5F3F]/30"
+                  ? "bg-[#04443C] text-white shadow-lg shadow-[#04443C]/30"
                   : "text-muted-foreground hover:text-foreground"
                 }
               `}
@@ -111,7 +111,7 @@ export function HowItWorks() {
               className={`
                 px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2
                 ${activeTab === "professionals"
-                  ? "bg-[#D97642] text-white shadow-lg shadow-[#D97642]/30"
+                  ? "bg-[#D38B53] text-white shadow-lg shadow-[#D38B53]/30"
                   : "text-muted-foreground hover:text-foreground"
                 }
               `}
@@ -140,8 +140,8 @@ export function HowItWorks() {
                   {/* Step Number Badge */}
                   <div className={`absolute -top-4 left-8 px-4 py-1 rounded-full text-xs font-bold ${
                     activeTab === "companies"
-                      ? "bg-[#2D5F3F] text-white"
-                      : "bg-[#D97642] text-white"
+                      ? "bg-[#04443C] text-white"
+                      : "bg-[#D38B53] text-white"
                   }`}>
                     Step {step.number}
                   </div>
@@ -150,14 +150,14 @@ export function HowItWorks() {
                   <div className="relative mb-6 inline-block">
                     <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${
                       activeTab === "companies"
-                        ? "bg-gradient-to-br from-[#2D5F3F] to-[#2D5F3F]/80 text-white shadow-lg shadow-[#2D5F3F]/30"
-                        : "bg-gradient-to-br from-[#D97642] to-[#D97642]/80 text-white shadow-lg shadow-[#D97642]/30"
+                        ? "bg-gradient-to-br from-[#04443C] to-[#04443C]/80 text-white shadow-lg shadow-[#04443C]/30"
+                        : "bg-gradient-to-br from-[#D38B53] to-[#D38B53]/80 text-white shadow-lg shadow-[#D38B53]/30"
                     }`}>
                       {step.icon}
                     </div>
                     {/* Checkmark Badge */}
                     <div className={`absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center border-2 border-background ${
-                      activeTab === "companies" ? "bg-[#2D5F3F]" : "bg-[#D97642]"
+                      activeTab === "companies" ? "bg-[#04443C]" : "bg-[#D38B53]"
                     }`}>
                       <Check className="w-4 h-4 text-white" />
                     </div>
@@ -166,8 +166,8 @@ export function HowItWorks() {
                   {/* Content */}
                   <h3 className={`text-xl font-bold mb-3 transition-colors ${
                     activeTab === "companies"
-                      ? "group-hover:text-[#2D5F3F]"
-                      : "group-hover:text-[#D97642]"
+                      ? "group-hover:text-[#04443C]"
+                      : "group-hover:text-[#D38B53]"
                   }`}>
                     {step.title}
                   </h3>
@@ -182,7 +182,7 @@ export function HowItWorks() {
 
                   {/* Decorative Element */}
                   <div className={`absolute bottom-0 right-0 w-24 h-24 rounded-tl-full opacity-5 ${
-                    activeTab === "companies" ? "bg-[#2D5F3F]" : "bg-[#D97642]"
+                    activeTab === "companies" ? "bg-[#04443C]" : "bg-[#D38B53]"
                   }`} />
                 </div>
 
@@ -190,7 +190,7 @@ export function HowItWorks() {
                 {index < steps.length - 1 && (
                   <div className="hidden md:flex absolute top-24 -right-2 w-4 h-4 items-center justify-center z-10">
                     <ArrowRight className={`w-6 h-6 ${
-                      activeTab === "companies" ? "text-[#2D5F3F]" : "text-[#D97642]"
+                      activeTab === "companies" ? "text-[#04443C]" : "text-[#D38B53]"
                     }`} />
                   </div>
                 )}
@@ -205,7 +205,7 @@ export function HowItWorks() {
             <>
               <Button
                 size="lg"
-                className="bg-[#2D5F3F] hover:bg-[#1a3a26] text-white px-8 h-14 text-lg group"
+                className="bg-[#04443C] hover:bg-[#022C27] text-white px-8 h-14 text-lg group"
               >
                 Browse Vetted Professionals
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -218,7 +218,7 @@ export function HowItWorks() {
             <>
               <Button
                 size="lg"
-                className="bg-[#D97642] hover:bg-[#c26638] text-white px-8 h-14 text-lg group"
+                className="bg-[#D38B53] hover:bg-[#B47646] text-white px-8 h-14 text-lg group"
               >
                 Apply as a Professional
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
