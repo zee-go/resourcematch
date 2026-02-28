@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, X, Plus } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useState } from "react";
 
 interface SearchFiltersProps {
@@ -18,8 +18,8 @@ interface SearchFiltersProps {
   setExperienceLevel: (value: string) => void;
   availability: string;
   setAvailability: (value: string) => void;
-  hourlyRate: string;
-  setHourlyRate: (value: string) => void;
+  vertical: string;
+  setVertical: (value: string) => void;
   selectedSkills: string[];
   setSelectedSkills: (skills: string[]) => void;
 }
@@ -31,23 +31,24 @@ export function SearchFilters({
   setExperienceLevel,
   availability,
   setAvailability,
-  hourlyRate,
-  setHourlyRate,
+  vertical,
+  setVertical,
   selectedSkills,
   setSelectedSkills,
 }: SearchFiltersProps) {
   const [skillInput, setSkillInput] = useState("");
 
   const availableSkills = [
-    "React",
-    "Node.js",
-    "TypeScript",
-    "Python",
-    "AWS",
-    "Docker",
-    "Figma",
+    "Shopify",
+    "Amazon Seller Central",
+    "Medical Billing",
+    "HIPAA Compliance",
+    "QuickBooks",
+    "Financial Modeling",
+    "Google Ads",
     "SEO",
-    "Content Writing",
+    "Team Leadership",
+    "Operations Management",
   ];
 
   const addSkill = (skill: string) => {
@@ -65,7 +66,7 @@ export function SearchFilters({
     setSearchQuery("");
     setExperienceLevel("all");
     setAvailability("all");
-    setHourlyRate("all");
+    setVertical("all");
     setSelectedSkills([]);
   };
 
@@ -73,7 +74,7 @@ export function SearchFilters({
     searchQuery !== "" ||
     experienceLevel !== "all" ||
     availability !== "all" ||
-    hourlyRate !== "all" ||
+    vertical !== "all" ||
     selectedSkills.length > 0;
 
   return (
@@ -102,9 +103,27 @@ export function SearchFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="entry">Entry (0-2 years)</SelectItem>
-              <SelectItem value="mid">Mid (3-5 years)</SelectItem>
-              <SelectItem value="senior">Senior (6+ years)</SelectItem>
+              <SelectItem value="5-7">5-7 years</SelectItem>
+              <SelectItem value="8-10">8-10 years</SelectItem>
+              <SelectItem value="10+">10+ years</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-slate-700 mb-1.5 block">
+            Vertical
+          </label>
+          <Select value={vertical} onValueChange={setVertical}>
+            <SelectTrigger className="border-slate-300">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Verticals</SelectItem>
+              <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
+              <SelectItem value="healthcare">Healthcare Admin</SelectItem>
+              <SelectItem value="accounting">Accounting & Finance</SelectItem>
+              <SelectItem value="marketing">Digital Marketing</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -121,24 +140,7 @@ export function SearchFilters({
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="full">Full-time</SelectItem>
               <SelectItem value="part">Part-time</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-slate-700 mb-1.5 block">
-            Hourly Rate
-          </label>
-          <Select value={hourlyRate} onValueChange={setHourlyRate}>
-            <SelectTrigger className="border-slate-300">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Rates</SelectItem>
-              <SelectItem value="8-15">$8 - $15/hr</SelectItem>
-              <SelectItem value="15-20">$15 - $20/hr</SelectItem>
-              <SelectItem value="20-25">$20 - $25/hr</SelectItem>
-              <SelectItem value="25-30">$25 - $30/hr</SelectItem>
+              <SelectItem value="contract">Contract</SelectItem>
             </SelectContent>
           </Select>
         </div>

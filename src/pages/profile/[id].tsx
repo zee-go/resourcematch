@@ -1,17 +1,16 @@
-import { useRouter } from "next/router";
 import { useState } from "react";
 import Link from "next/link";
+import type { GetServerSideProps } from "next";
 import { SEO } from "@/components/SEO";
 import { UnlockModal } from "@/components/UnlockModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import type { Candidate } from "@/lib/candidates";
+import { verticalLabels } from "@/lib/candidates";
 import {
   ArrowLeft,
   MapPin,
   Briefcase,
-  DollarSign,
-  Star,
-  Clock,
   Globe,
   Lock,
   Play,
@@ -23,86 +22,160 @@ import {
   Shield,
   FileText,
   Users,
-  MessageSquare,
   Sparkles,
+  ShieldCheck,
+  Building2,
+  TrendingUp,
 } from "lucide-react";
 
-// Mock candidate data
-const mockCandidates: Record<string, any> = {
-  "1": {
-    id: "1",
-    name: "Maria C.",
-    fullName: "Maria Christina Santos",
-    title: "Senior Full-Stack Developer",
-    location: "Manila, Philippines",
-    experience: 6,
-    hourlyRate: 25,
-    matchScore: 95,
-    availability: "Available",
-    timezone: "GMT+8 (Flexible)",
-    summary:
-      "Experienced full-stack developer with 6+ years building scalable web applications. Specialized in React, Node.js, and cloud architecture. Previously led development teams at tech startups in Manila and worked with international clients across US, Australia, and Singapore. Passionate about clean code, agile methodologies, and continuous learning.",
-    skills: [
-      "React",
-      "Node.js",
-      "TypeScript",
-      "PostgreSQL",
-      "AWS",
-      "Docker",
-      "GraphQL",
-      "Next.js",
-      "MongoDB",
-      "Redis",
-      "REST APIs",
-      "Git",
-    ],
-    englishScore: 92,
-    videoUrl: "/videos/intro-maria.mp4",
-    email: "maria.santos@example.com",
-    phone: "+63 917 123 4567",
-    verified: true,
-    governmentId: true,
-    references: 3,
-    discProfile: "Dominance (D) - Direct, Results-Oriented, Confident",
-    commendations: [
-      {
-        manager: "John Davis",
-        company: "TechCorp Inc.",
-        text: "Maria consistently delivered high-quality code and mentored junior developers effectively. Her problem-solving skills are exceptional.",
-      },
-      {
-        manager: "Sarah Chen",
-        company: "StartupHub",
-        text: "One of the best developers I've worked with. Always meets deadlines and communicates proactively with the team.",
-      },
-    ],
-  },
+const AVAILABILITY_LABELS: Record<string, string> = {
+  FULL_TIME: "Full-time",
+  PART_TIME: "Part-time",
+  CONTRACT: "Contract",
 };
 
-export default function CandidateProfile() {
-  const router = useRouter();
-  const { id } = router.query;
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [showUnlockModal, setShowUnlockModal] = useState(false);
+const LAYER_KEY_MAP: Record<string, keyof Candidate["vettingLayers"]> = {
+  RESUME_ANALYSIS: "resumeAnalysis",
+  SCENARIO_ASSESSMENT: "scenarioAssessment",
+  VIDEO_INTERVIEW: "videoInterview",
+  REFERENCE_CHECK: "referenceCheck",
+};
 
-  const candidate = mockCandidates[id as string] || mockCandidates["1"];
+interface ProfileProps {
+  candidate: Candidate;
+  unlocked: boolean;
+}
+
+export const getServerSideProps: GetServerSideProps<ProfileProps> = async (context) => {
+  const { id } = context.params!;
+  const candidateId = Number(id);
+
+  if (isNaN(candidateId)) {
+    return { notFound: true };
+  }
+
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    const { getAuthUserId } = await import("@/lib/supabase-server");
+
+    // Check unlock status
+    let hasUnlocked = false;
+    const supabaseUserId = await getAuthUserId(context.req, context.res);
+    if (supabaseUserId) {
+      const company = await prisma.company.findUnique({
+        where: { supabaseUserId },
+      });
+      if (company) {
+        const unlock = await prisma.unlock.findUnique({
+          where: {
+            companyId_candidateId: { companyId: company.id, candidateId },
+          },
+        });
+        hasUnlocked = !!unlock;
+      }
+    }
+
+    const dbCandidate = await prisma.candidate.findUnique({
+      where: { id: candidateId },
+      include: {
+        caseStudies: true,
+        references: hasUnlocked,
+        vettingLayers: {
+          select: { layer: true, score: true, passed: true },
+        },
+      },
+    });
+
+    if (!dbCandidate) {
+      return { notFound: true };
+    }
+
+    // Normalize vetting layers
+    const vettingLayers = {
+      resumeAnalysis: { score: 0, passed: false },
+      scenarioAssessment: { score: 0, passed: false },
+      videoInterview: { score: 0, passed: false },
+      referenceCheck: { score: 0, passed: false },
+    };
+    for (const vl of dbCandidate.vettingLayers) {
+      const key = LAYER_KEY_MAP[vl.layer];
+      if (key) vettingLayers[key] = { score: vl.score, passed: vl.passed };
+    }
+
+    const candidate: Candidate = {
+      id: dbCandidate.id,
+      name: dbCandidate.name,
+      fullName: dbCandidate.fullName,
+      title: dbCandidate.title,
+      avatar: dbCandidate.avatar,
+      vertical: dbCandidate.vertical as Candidate["vertical"],
+      experience: dbCandidate.experience,
+      availability: (AVAILABILITY_LABELS[dbCandidate.availability] || dbCandidate.availability) as Candidate["availability"],
+      skills: dbCandidate.skills,
+      tools: dbCandidate.tools,
+      location: dbCandidate.location,
+      rating: dbCandidate.rating,
+      summary: dbCandidate.summary,
+      vettingScore: dbCandidate.vettingScore,
+      verified: dbCandidate.verified,
+      vettingLayers,
+      caseStudies: dbCandidate.caseStudies.map((cs) => ({
+        title: cs.title,
+        outcome: cs.outcome,
+        metrics: cs.metrics ?? undefined,
+      })),
+      ...(hasUnlocked
+        ? {
+            email: dbCandidate.email ?? undefined,
+            phone: dbCandidate.phone ?? undefined,
+            linkedIn: dbCandidate.linkedIn ?? undefined,
+            videoUrl: dbCandidate.videoUrl ?? undefined,
+            englishScore: dbCandidate.englishScore ?? undefined,
+            references: (dbCandidate as any).references?.map((ref: any) => ({
+              name: ref.name,
+              company: ref.company,
+              role: ref.role,
+              quote: ref.quote,
+            })),
+          }
+        : {}),
+    };
+
+    return {
+      props: {
+        candidate: JSON.parse(JSON.stringify(candidate)),
+        unlocked: hasUnlocked,
+      },
+    };
+  } catch {
+    // Fallback to mock data when DB is not available
+    const { candidates } = await import("@/lib/candidates");
+    const candidate = candidates.find((c) => c.id === candidateId);
+    if (!candidate) {
+      return { notFound: true };
+    }
+    return { props: { candidate, unlocked: false } };
+  }
+};
+
+export default function CandidateProfile({ candidate, unlocked }: ProfileProps) {
+  const [isUnlocked, setIsUnlocked] = useState(unlocked);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
 
   const handleUnlock = () => {
     setShowUnlockModal(true);
   };
 
-  const handleUnlockSuccess = (candidateId: string, contactInfo: any) => {
+  const handleUnlockSuccess = () => {
     setIsUnlocked(true);
     setShowUnlockModal(false);
-    // In production, this would update global state/backend
-    console.log("Unlocked candidate:", candidateId, contactInfo);
   };
 
   return (
     <>
       <SEO
         title={`${candidate.name} - ${candidate.title} | ResourceMatch`}
-        description={`View ${candidate.name}'s profile. ${candidate.title} with ${candidate.experience}+ years experience. Hourly rate: $${candidate.hourlyRate}/hr.`}
+        description={`View ${candidate.name}'s profile. AI-vetted ${candidate.title} with ${candidate.experience}+ years experience. Vetting score: ${candidate.vettingScore}/100.`}
       />
 
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -118,8 +191,8 @@ export default function CandidateProfile() {
               </Link>
               <Link href="/">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">RM</span>
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-white" />
                   </div>
                   <span className="font-bold text-lg">ResourceMatch</span>
                 </div>
@@ -135,12 +208,11 @@ export default function CandidateProfile() {
               <div className="flex items-start gap-4">
                 {/* Avatar */}
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold">
-                    {candidate.name
-                      .split(" ")
-                      .map((n: string) => n[0])
-                      .join("")}
-                  </div>
+                  <img
+                    src={candidate.avatar}
+                    alt={candidate.name}
+                    className="w-20 h-20 rounded-full object-cover ring-2 ring-slate-200"
+                  />
                   {candidate.verified && (
                     <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
                       <CheckCircle className="w-4 h-4 text-white" />
@@ -167,23 +239,16 @@ export default function CandidateProfile() {
                       <Briefcase className="w-4 h-4" />
                       <span>{candidate.experience} years experience</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4" />
-                      <span className="font-semibold">
-                        ${candidate.hourlyRate}/hr
-                      </span>
-                    </div>
                   </div>
 
                   {/* Badges */}
                   <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
+                      {verticalLabels[candidate.vertical]}
+                    </Badge>
                     <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
                       <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2" />
                       {candidate.availability}
-                    </Badge>
-                    <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
-                      <Clock className="w-3 h-3 mr-1" />
-                      Full-Time Available
                     </Badge>
                     <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100">
                       <Globe className="w-3 h-3 mr-1" />
@@ -193,16 +258,16 @@ export default function CandidateProfile() {
                 </div>
               </div>
 
-              {/* Match Score */}
+              {/* Vetting Score */}
               <div className="flex flex-col items-end gap-2">
-                <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
-                  <Star className="w-5 h-5 fill-current" />
+                <div className="bg-gradient-to-r from-[#2D5F3F] to-[#3a7a50] text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                  <ShieldCheck className="w-5 h-5" />
                   <span className="font-bold text-lg">
-                    {candidate.matchScore}% Match
+                    {candidate.vettingScore}/100
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 text-right">
-                  AI-Powered Match Score
+                  AI Vetting Score
                 </p>
               </div>
             </div>
@@ -215,6 +280,31 @@ export default function CandidateProfile() {
               <p className="text-slate-600 leading-relaxed">
                 {candidate.summary}
               </p>
+            </div>
+          </div>
+
+          {/* Vetting Results */}
+          <div className="bg-white rounded-2xl border-2 border-green-200 p-6 mb-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-green-600" />
+              AI Vetting Results
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "Resume Analysis", score: candidate.vettingLayers.resumeAnalysis.score, passed: candidate.vettingLayers.resumeAnalysis.passed },
+                { label: "Scenario Assessment", score: candidate.vettingLayers.scenarioAssessment.score, passed: candidate.vettingLayers.scenarioAssessment.passed },
+                { label: "Video Interview", score: candidate.vettingLayers.videoInterview.score, passed: candidate.vettingLayers.videoInterview.passed },
+                { label: "Reference Check", score: candidate.vettingLayers.referenceCheck.score, passed: candidate.vettingLayers.referenceCheck.passed },
+              ].map((layer, idx) => (
+                <div key={idx} className="bg-green-50 rounded-xl p-4 text-center">
+                  <div className="flex items-center justify-center gap-1 mb-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-xs font-medium text-green-700">Passed</span>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900 mb-1">{layer.score}</div>
+                  <div className="text-xs text-slate-600">{layer.label}</div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -236,111 +326,131 @@ export default function CandidateProfile() {
             </div>
           </div>
 
-          {/* Video Introduction - Locked */}
-          <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-6 shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm z-10">
-              <Lock className="w-3.5 h-3.5" />
-              <span>Locked</span>
-            </div>
-
+          {/* Tools */}
+          <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <Play className="w-5 h-5 text-slate-400" />
-              Video Introduction
+              <TrendingUp className="w-5 h-5 text-slate-600" />
+              Tools & Technologies
             </h2>
-
-            <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl aspect-video flex items-center justify-center">
-              <div className="absolute inset-0 backdrop-blur-sm bg-white/30" />
-              <div className="relative text-center z-10">
-                <div className="w-20 h-20 rounded-full bg-slate-300 flex items-center justify-center mx-auto mb-4">
-                  <Play className="w-10 h-10 text-slate-500" />
-                </div>
-                <p className="text-slate-600 font-medium">
-                  Unlock to watch video introduction
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Locked Sections Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            {/* Identity Verified */}
-            <LockedCard
-              icon={<Shield className="w-5 h-5" />}
-              title="Identity Verified"
-              description="Government ID and background check completed"
-            />
-
-            {/* English Proficiency */}
-            <LockedCard
-              icon={<Award className="w-5 h-5" />}
-              title="English Proficiency"
-              description={`Score: ${candidate.englishScore}/100 - Advanced Level`}
-            />
-
-            {/* Government Documents */}
-            <LockedCard
-              icon={<FileText className="w-5 h-5" />}
-              title="Government ID & TIN"
-              description="Verified national ID and tax identification"
-            />
-
-            {/* References */}
-            <LockedCard
-              icon={<Users className="w-5 h-5" />}
-              title="Manager References"
-              description={`${candidate.references} verified professional references`}
-              showProgress
-              progress={100}
-            />
-
-            {/* Contact Information */}
-            <LockedCard
-              icon={<Mail className="w-5 h-5" />}
-              title="Contact Information"
-              description="Email, phone, and resume download"
-              highlight
-            />
-
-            {/* Personality Assessment */}
-            <LockedCard
-              icon={<MessageSquare className="w-5 h-5" />}
-              title="Personality Assessment"
-              description="DISC profile and work style analysis"
-            />
-          </div>
-
-          {/* Manager Commendations - Locked */}
-          <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-8 shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm z-10">
-              <Lock className="w-3.5 h-3.5" />
-              <span>Locked</span>
-            </div>
-
-            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <Award className="w-5 h-5 text-slate-400" />
-              Manager Commendations
-            </h2>
-
-            <div className="space-y-4 opacity-50 blur-sm pointer-events-none">
-              {candidate.commendations.map((comm: any, idx: number) => (
-                <div
+            <div className="flex flex-wrap gap-2">
+              {candidate.tools.map((tool: string, idx: number) => (
+                <Badge
                   key={idx}
-                  className="bg-slate-50 rounded-xl p-4 border border-slate-200"
+                  className="bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 px-4 py-2 text-sm"
                 >
-                  <p className="text-slate-600 italic mb-3">"{comm.text}"</p>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-slate-300" />
-                    <div>
-                      <p className="font-semibold text-sm text-slate-900">
-                        {comm.manager}
-                      </p>
-                      <p className="text-xs text-slate-500">{comm.company}</p>
+                  {tool}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Case Studies */}
+          <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-slate-600" />
+              Portfolio & Case Studies
+            </h2>
+            <div className="space-y-4">
+              {candidate.caseStudies.map((cs, idx) => (
+                <div key={idx} className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                  <h3 className="font-semibold text-slate-900 mb-2">{cs.title}</h3>
+                  <p className="text-sm text-slate-600 mb-2">{cs.outcome}</p>
+                  {cs.metrics && (
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-[#2D5F3F]" />
+                      <span className="text-sm font-medium text-[#2D5F3F]">{cs.metrics}</span>
                     </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Video Introduction - Locked */}
+          {!isUnlocked && (
+            <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-6 shadow-sm relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm z-10">
+                <Lock className="w-3.5 h-3.5" />
+                <span>Locked</span>
+              </div>
+
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Play className="w-5 h-5 text-slate-400" />
+                Video Introduction
+              </h2>
+
+              <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl aspect-video flex items-center justify-center">
+                <div className="absolute inset-0 backdrop-blur-sm bg-white/30" />
+                <div className="relative text-center z-10">
+                  <div className="w-20 h-20 rounded-full bg-slate-300 flex items-center justify-center mx-auto mb-4">
+                    <Play className="w-10 h-10 text-slate-500" />
+                  </div>
+                  <p className="text-slate-600 font-medium">
+                    Unlock to watch video introduction
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Locked Sections Grid */}
+          {!isUnlocked && (
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <LockedCard
+                icon={<Shield className="w-5 h-5" />}
+                title="Identity Verified"
+                description="Government ID and background check completed"
+              />
+              <LockedCard
+                icon={<Award className="w-5 h-5" />}
+                title="English Proficiency"
+                description={`Score: ${candidate.englishScore || 90}/100 - Advanced Level`}
+              />
+              <LockedCard
+                icon={<Mail className="w-5 h-5" />}
+                title="Contact Information"
+                description="Email, phone, LinkedIn, and resume download"
+                highlight
+              />
+              <LockedCard
+                icon={<Users className="w-5 h-5" />}
+                title="Verified References"
+                description={`${candidate.references?.length || 2} verified professional references`}
+                showProgress
+                progress={100}
+              />
+            </div>
+          )}
+
+          {/* Manager References - Locked */}
+          {!isUnlocked && candidate.references && candidate.references.length > 0 && (
+            <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-8 shadow-sm relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm z-10">
+                <Lock className="w-3.5 h-3.5" />
+                <span>Locked</span>
+              </div>
+
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5 text-slate-400" />
+                Verified References
+              </h2>
+
+              <div className="space-y-4 opacity-50 blur-sm pointer-events-none">
+                {candidate.references.map((ref, idx) => (
+                  <div key={idx} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <p className="text-slate-600 italic mb-3">&ldquo;{ref.quote}&rdquo;</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-slate-300" />
+                      <div>
+                        <p className="font-semibold text-sm text-slate-900">{ref.name}</p>
+                        <p className="text-xs text-slate-500">{ref.role}, {ref.company}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Unlock CTA */}
           {!isUnlocked && (
@@ -350,11 +460,11 @@ export default function CandidateProfile() {
                   <Lock className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">
-                  Unlock Full Profile for $3
+                  Unlock Full Profile ($25)
                 </h3>
                 <p className="text-teal-50 mb-6">
                   Get instant access to contact information, video introduction,
-                  verified documents, and professional references.
+                  verified references, and professional documents.
                 </p>
 
                 <Button
@@ -363,13 +473,13 @@ export default function CandidateProfile() {
                   className="bg-white text-teal-700 hover:bg-teal-50 font-semibold px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all hover:scale-105"
                 >
                   <Lock className="w-5 h-5 mr-2" />
-                  Unlock Profile Now - $3
+                  Unlock Profile ($25)
                 </Button>
 
                 <div className="mt-6 space-y-2">
                   <p className="text-sm text-teal-50">
                     <CheckCircle className="w-4 h-4 inline mr-1" />
-                    One-time payment • No subscription required
+                    Credits from $16.67 each with packs. Never expire.
                   </p>
                   <p className="text-sm text-teal-50">
                     <CheckCircle className="w-4 h-4 inline mr-1" />
@@ -395,7 +505,7 @@ export default function CandidateProfile() {
                   Profile Unlocked Successfully!
                 </h3>
                 <p className="text-green-50 mb-6">
-                  You now have full access to {candidate.fullName}'s profile,
+                  You now have full access to {candidate.fullName}&apos;s profile,
                   contact information, and all verified documents.
                 </p>
 
@@ -423,6 +533,26 @@ export default function CandidateProfile() {
                     </Button>
                   </div>
                 </div>
+
+                {/* Show references when unlocked */}
+                {candidate.references && candidate.references.length > 0 && (
+                  <div className="mt-6 text-left">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Award className="w-5 h-5" />
+                      Verified References
+                    </h4>
+                    <div className="space-y-3">
+                      {candidate.references.map((ref, idx) => (
+                        <div key={idx} className="bg-white/10 rounded-xl p-4">
+                          <p className="italic mb-2">&ldquo;{ref.quote}&rdquo;</p>
+                          <p className="text-sm text-green-100">
+                            {ref.name} — {ref.role}, {ref.company}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -433,12 +563,11 @@ export default function CandidateProfile() {
           isOpen={showUnlockModal}
           onClose={() => setShowUnlockModal(false)}
           candidate={{
-            id: candidate.id,
+            id: String(candidate.id),
             name: candidate.name,
             title: candidate.title,
             avatar: candidate.name.split(" ").map((n: string) => n[0]).join(""),
-            hourlyRate: `$${candidate.hourlyRate}/hr`,
-            matchScore: candidate.matchScore,
+            vettingScore: candidate.vettingScore,
           }}
           onUnlockSuccess={handleUnlockSuccess}
         />
@@ -447,7 +576,6 @@ export default function CandidateProfile() {
   );
 }
 
-// Locked Card Component
 function LockedCard({
   icon,
   title,

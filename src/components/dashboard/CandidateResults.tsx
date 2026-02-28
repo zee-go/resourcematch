@@ -5,27 +5,15 @@ import {
   Star,
   Briefcase,
   Clock,
-  DollarSign,
+  ShieldCheck,
   Lock,
   Eye,
   Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-
-interface Candidate {
-  id: number;
-  name: string;
-  title: string;
-  avatar: string;
-  experience: string;
-  availability: string;
-  hourlyRate: number;
-  skills: string[];
-  location: string;
-  rating: number;
-  completedProjects: number;
-}
+import type { Candidate } from "@/lib/candidates";
+import { verticalLabels } from "@/lib/candidates";
 
 interface CandidateResultsProps {
   candidates: Candidate[];
@@ -55,7 +43,7 @@ export function CandidateResults({
       {/* Results Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-900">
-          {totalCount} Candidate{totalCount !== 1 ? "s" : ""} Found
+          {totalCount} Professional{totalCount !== 1 ? "s" : ""} Found
         </h2>
         <div className="text-sm text-slate-600">
           Showing {candidates.length} result{candidates.length !== 1 ? "s" : ""}
@@ -107,16 +95,18 @@ export function CandidateResults({
                       alt={candidate.name}
                       className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200"
                     />
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full" />
-                    </div>
+                    {candidate.verified && (
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                        <ShieldCheck className="w-3 h-3 text-white" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <h3 className="text-lg font-bold text-slate-900 truncate">
-                          {unlocked ? candidate.name : "••••• •••••"}
+                          {unlocked ? candidate.fullName : candidate.name}
                         </h3>
                         <p className="text-sm text-slate-600 truncate">
                           {candidate.title}
@@ -147,7 +137,7 @@ export function CandidateResults({
                     <Briefcase className="w-4 h-4 text-slate-600 mx-auto mb-1" />
                     <div className="text-xs text-slate-600">Experience</div>
                     <div className="text-sm font-semibold text-slate-900">
-                      {candidate.experience}
+                      {candidate.experience} years
                     </div>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-3 text-center">
@@ -158,18 +148,25 @@ export function CandidateResults({
                     </div>
                   </div>
                   <div className="bg-green-50 rounded-lg p-3 text-center">
-                    <DollarSign className="w-4 h-4 text-[#2D5F3F] mx-auto mb-1" />
-                    <div className="text-xs text-slate-600">Hourly Rate</div>
+                    <ShieldCheck className="w-4 h-4 text-[#2D5F3F] mx-auto mb-1" />
+                    <div className="text-xs text-slate-600">Vetting Score</div>
                     <div className="text-sm font-semibold text-[#2D5F3F]">
-                      ${candidate.hourlyRate}/hr
+                      {candidate.vettingScore}/100
                     </div>
                   </div>
                 </div>
 
+                {/* Vertical Badge */}
+                <div className="mb-3">
+                  <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs mb-2">
+                    {verticalLabels[candidate.vertical]}
+                  </Badge>
+                </div>
+
                 {/* Skills */}
-                <div className="mb-4">
+                <div className="mb-3">
                   <div className="text-xs font-medium text-slate-600 mb-2">
-                    Top Skills
+                    Key Skills
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {candidate.skills.slice(0, 4).map((skill) => (
@@ -184,14 +181,22 @@ export function CandidateResults({
                   </div>
                 </div>
 
-                {/* Projects */}
-                <div className="flex items-center gap-2 text-sm text-slate-600 mb-4 pb-4 border-b border-slate-200">
-                  <Briefcase className="w-4 h-4" />
-                  <span>
-                    {candidate.completedProjects} completed project
-                    {candidate.completedProjects !== 1 ? "s" : ""}
-                  </span>
-                </div>
+                {/* Case Study Preview */}
+                {candidate.caseStudies.length > 0 && (
+                  <div className="mb-4 pb-4 border-b border-slate-200">
+                    <div className="text-xs font-medium text-slate-600 mb-1.5">
+                      Featured Case Study
+                    </div>
+                    <p className="text-sm text-slate-700 line-clamp-2">
+                      {candidate.caseStudies[0].title}
+                    </p>
+                    {candidate.caseStudies[0].metrics && (
+                      <p className="text-xs text-[#2D5F3F] font-medium mt-1">
+                        {candidate.caseStudies[0].metrics}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-3">
@@ -216,7 +221,7 @@ export function CandidateResults({
                         className="flex-1 bg-[#D97642] hover:bg-[#c26638] text-white"
                       >
                         <Lock className="w-4 h-4 mr-2" />
-                        Unlock for $3
+                        Unlock ($25)
                       </Button>
                       <Link href={`/profile/${candidate.id}`}>
                         <Button
@@ -239,10 +244,10 @@ export function CandidateResults({
       {candidates.length === 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search className="w-8 h-8 text-slate-400" />
+            <SearchIcon className="w-8 h-8 text-slate-400" />
           </div>
           <h3 className="text-xl font-semibold text-slate-900 mb-2">
-            No candidates found
+            No professionals found
           </h3>
           <p className="text-slate-600 mb-6">
             Try adjusting your filters or search criteria
@@ -259,7 +264,7 @@ export function CandidateResults({
   );
 }
 
-function Search(props: React.SVGProps<SVGSVGElement>) {
+function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

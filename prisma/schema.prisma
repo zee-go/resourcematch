@@ -1,0 +1,260 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Auth / Users ──────────────────────────────────────────
+
+model Company {
+  id                  String              @id @default(uuid())
+  supabaseUserId      String              @unique @map("supabase_user_id")
+  email               String              @unique
+  companyName         String?             @map("company_name")
+  companyWebsite      String?             @map("company_website")
+  companySize         CompanySize?        @map("company_size")
+  industry            String?
+  monthlyBudgetMin    Int?                @map("monthly_budget_min") // in USD
+  verified            Boolean             @default(false)
+  verifiedAt          DateTime?           @map("verified_at")
+  credits             Int                 @default(0)
+  freeUnlocksUsed     Int                 @default(0) @map("free_unlocks_used")
+  stripeCustomerId    String?             @unique @map("stripe_customer_id")
+  subscriptionId      String?             @unique @map("subscription_id")
+  subscriptionTier    SubscriptionTier?   @map("subscription_tier")
+  subscriptionStatus  SubscriptionStatus? @map("subscription_status")
+  monthlyUnlocksUsed  Int                 @default(0) @map("monthly_unlocks_used")
+  monthlyUnlocksLimit Int?                @map("monthly_unlocks_limit")
+  billingCycleStart   DateTime?           @map("billing_cycle_start")
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+
+  unlocks         Unlock[]
+  creditPurchases CreditPurchase[]
+  savedCandidates SavedCandidate[]
+  ratings         CompanyRating[]
+
+  @@map("companies")
+}
+
+enum CompanySize {
+  SOLO        // 1 person
+  SMALL       // 2-10
+  MEDIUM      // 11-50
+  LARGE       // 51-200
+  ENTERPRISE  // 200+
+}
+
+enum SubscriptionTier {
+  STARTER    // $149/mo, 10 unlocks
+  GROWTH     // $299/mo, 25 unlocks
+  ENTERPRISE // $599/mo, unlimited
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+// ─── Candidates ────────────────────────────────────────────
+
+model Candidate {
+  id           Int          @id @default(autoincrement())
+  name         String       // Display name, e.g., "Patricia M."
+  fullName     String       @map("full_name")
+  title        String
+  avatar       String
+  vertical     Vertical
+  experience   Int
+  availability Availability
+  skills       String[]
+  tools        String[]
+  location     String
+  rating       Float
+  summary      String
+  verified     Boolean      @default(false)
+  verifiedDate DateTime?    @map("verified_date")
+  vettingScore Int          @map("vetting_score")
+
+  // Locked fields (revealed on unlock)
+  email        String?
+  phone        String?
+  linkedIn     String?      @map("linked_in")
+  videoUrl     String?      @map("video_url")
+  englishScore Int?         @map("english_score")
+  discProfile  String?      @map("disc_profile")
+  salaryMin    Int?         @map("salary_min")  // monthly USD
+  salaryMax    Int?         @map("salary_max")  // monthly USD
+  salaryPeriod String?      @default("monthly") @map("salary_period")
+
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  caseStudies    CaseStudy[]
+  references     Reference[]
+  vettingLayers  VettingLayerResult[]
+  vettingProfile VettingProfile?
+  unlocks        Unlock[]
+  savedBy        SavedCandidate[]
+  companyRatings CompanyRating[]
+
+  @@map("candidates")
+}
+
+enum Vertical {
+  ecommerce
+  healthcare
+  accounting
+  marketing
+}
+
+enum Availability {
+  FULL_TIME @map("Full-time")
+  PART_TIME @map("Part-time")
+  CONTRACT  @map("Contract")
+}
+
+model CaseStudy {
+  id          Int       @id @default(autoincrement())
+  candidateId Int       @map("candidate_id")
+  title       String
+  outcome     String
+  metrics     String?
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("case_studies")
+}
+
+model Reference {
+  id          Int    @id @default(autoincrement())
+  candidateId Int    @map("candidate_id")
+  name        String
+  company     String
+  role        String
+  quote       String
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("references")
+}
+
+// ─── Vetting Pipeline ──────────────────────────────────────
+
+model VettingProfile {
+  id           String        @id @default(uuid())
+  candidateId  Int           @unique @map("candidate_id")
+  status       VettingStatus @default(PENDING)
+  overallScore Int           @default(0) @map("overall_score")
+  startedAt    DateTime      @default(now()) @map("started_at")
+  completedAt  DateTime?     @map("completed_at")
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("vetting_profiles")
+}
+
+enum VettingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+model VettingLayerResult {
+  id          String       @id @default(uuid())
+  candidateId Int          @map("candidate_id")
+  layer       VettingLayer
+  score       Int
+  passed      Boolean
+  summary     String?
+  details     String[]     @default([])
+  resultJson  Json?        @map("result_json") // Full structured result
+  completedAt DateTime?    @map("completed_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, layer])
+  @@map("vetting_layer_results")
+}
+
+enum VettingLayer {
+  RESUME_ANALYSIS
+  SCENARIO_ASSESSMENT
+  VIDEO_INTERVIEW
+  REFERENCE_CHECK
+}
+
+// ─── Unlocks & Credits ─────────────────────────────────────
+
+model Unlock {
+  id          String   @id @default(uuid())
+  companyId   String   @map("company_id")
+  candidateId Int      @map("candidate_id")
+  contacted   Boolean  @default(false)
+  unlockedAt  DateTime @default(now()) @map("unlocked_at")
+
+  company   Company   @relation(fields: [companyId], references: [id])
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+
+  @@unique([companyId, candidateId])
+  @@map("unlocks")
+}
+
+model CreditPurchase {
+  id                  String       @id @default(uuid())
+  companyId           String       @map("company_id")
+  credits             Int
+  amountCents         Int          @map("amount_cents")
+  stripeSessionId     String?      @unique @map("stripe_session_id")
+  stripePaymentIntent String?      @map("stripe_payment_intent")
+  type                PurchaseType
+  createdAt           DateTime     @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("credit_purchases")
+}
+
+enum PurchaseType {
+  CREDIT_PACK
+  SUBSCRIPTION
+}
+
+model SavedCandidate {
+  id          String   @id @default(uuid())
+  companyId   String   @map("company_id")
+  candidateId Int      @map("candidate_id")
+  savedAt     DateTime @default(now()) @map("saved_at")
+
+  company   Company   @relation(fields: [companyId], references: [id])
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+
+  @@unique([companyId, candidateId])
+  @@map("saved_candidates")
+}
+
+// ─── Company Ratings (candidate feedback) ──────────────────
+
+model CompanyRating {
+  id          String   @id @default(uuid())
+  companyId   String   @map("company_id")
+  candidateId Int      @map("candidate_id")
+  rating      Int      // 1-5
+  fairOffer   Boolean  @map("fair_offer")
+  comment     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  company   Company   @relation(fields: [companyId], references: [id])
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+
+  @@unique([companyId, candidateId])
+  @@map("company_ratings")
+}

@@ -1,8 +1,20 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Building2, Users, CreditCard, Home, Unlock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Building2,
+  Users,
+  CreditCard,
+  Unlock,
+  LogIn,
+  LogOut,
+  ShieldCheck,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthProvider";
 
 export function DashboardHeader() {
+  const { user, company, loading, signOut } = useAuth();
+
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 max-w-7xl">
@@ -12,38 +24,109 @@ export function DashboardHeader() {
             <div className="w-8 h-8 bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
               <Building2 className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-[#2D5F3F]">ResourceMatch</span>
+            <span className="text-xl font-bold text-[#2D5F3F]">
+              ResourceMatch
+            </span>
           </Link>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             <Link href="/dashboard">
-              <Button variant="ghost" className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50">
+              <Button
+                variant="ghost"
+                className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50"
+              >
                 <Users className="w-4 h-4 mr-2" />
-                Find Candidates
+                Find Professionals
               </Button>
             </Link>
-            <Link href="/unlocks">
-              <Button variant="ghost" className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50">
-                <Unlock className="w-4 h-4 mr-2" />
-                My Unlocks
-              </Button>
-            </Link>
-            <Link href="/billing">
-              <Button variant="ghost" className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50">
-                <CreditCard className="w-4 h-4 mr-2" />
-                Billing
-              </Button>
-            </Link>
+            {user && (
+              <>
+                <Link href="/unlocks">
+                  <Button
+                    variant="ghost"
+                    className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50"
+                  >
+                    <Unlock className="w-4 h-4 mr-2" />
+                    My Unlocks
+                  </Button>
+                </Link>
+                <Link href="/hire">
+                  <Button
+                    variant="ghost"
+                    className="text-slate-700 hover:text-[#2D5F3F] hover:bg-green-50"
+                  >
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Buy Credits
+                  </Button>
+                </Link>
+              </>
+            )}
           </nav>
 
-          {/* Back to Home */}
-          <Link href="/">
-            <Button variant="outline" className="border-[#2D5F3F] text-[#2D5F3F] hover:bg-green-50">
-              <Home className="w-4 h-4 mr-2" />
-              Home
-            </Button>
-          </Link>
+          {/* Auth Section */}
+          <div className="flex items-center gap-3">
+            {loading ? (
+              <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse" />
+            ) : user ? (
+              <div className="flex items-center gap-3">
+                {/* Credits Badge */}
+                {company && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-100 text-[#2D5F3F] hidden sm:flex"
+                  >
+                    <CreditCard className="w-3 h-3 mr-1" />
+                    {company.credits} credits
+                  </Badge>
+                )}
+
+                {/* Verified Badge */}
+                {company?.verified && (
+                  <Badge className="bg-blue-100 text-blue-700 hidden sm:flex">
+                    <ShieldCheck className="w-3 h-3 mr-1" />
+                    Verified
+                  </Badge>
+                )}
+
+                {/* User Info & Logout */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600 hidden sm:inline">
+                    {company?.companyName || user.email}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={signOut}
+                    className="border-slate-300 text-slate-600 hover:text-red-600 hover:border-red-300"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link href="/login">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-[#2D5F3F] text-[#2D5F3F] hover:bg-green-50"
+                  >
+                    <LogIn className="w-4 h-4 mr-1" />
+                    Log In
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button
+                    size="sm"
+                    className="bg-[#2D5F3F] hover:bg-[#1a3a26] text-white"
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

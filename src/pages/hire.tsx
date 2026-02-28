@@ -5,194 +5,105 @@ import Link from "next/link";
 import {
   Building2,
   DollarSign,
-  UserCheck,
-  Sparkles,
+  ShieldCheck,
   CheckCircle2,
   TrendingUp,
   Users,
-  Shield,
   Star,
   ArrowRight,
   Zap,
   MapPin,
   Briefcase,
-  Eye
+  Eye,
+  Coins,
+  CreditCard,
+  Crown
 } from "lucide-react";
+import { candidates as allCandidates, verticalLabels } from "@/lib/candidates";
 
 export default function HirePage() {
-  const plans = [
-    {
-      name: "Free Plan",
-      price: "$0",
-      period: "forever",
-      description: "Pay as you go",
-      icon: UserCheck,
-      color: "slate",
-      features: [
-        "Browse all candidate profiles",
-        "$3 per contact unlock",
-        "View skills & experience summaries",
-        "Save jobs and browse board",
-        "Limited profile previews"
-      ],
-      cta: "Start Free",
-      popular: false
-    },
+  const creditPacks = [
+    { credits: 1, price: 25, perUnlock: "25.00" },
+    { credits: 5, price: 100, perUnlock: "20.00", popular: true },
+    { credits: 15, price: 250, perUnlock: "16.67" },
+  ];
+
+  const subscriptionPlans = [
     {
       name: "Starter",
-      price: "$49",
+      price: "$149",
       period: "/month",
-      description: "Best for small teams",
+      description: "For selective hiring",
       icon: Building2,
       color: "teal",
       features: [
-        "15 profile unlocks included",
-        "$2 per additional unlock",
-        "Full profile access (no contact)",
-        "Early access to new candidates (48hrs)",
+        "10 profile unlocks per month",
+        "AI-powered candidate matching",
+        "Priority support",
         "Save & favorite candidates",
-        "Monthly usage stats"
+        "Unused unlocks roll over 1 month"
       ],
       cta: "Start Starter Plan",
       popular: true
     },
     {
       name: "Growth",
-      price: "$99",
+      price: "$299",
       period: "/month",
       description: "For active hiring",
       icon: TrendingUp,
       color: "orange",
       features: [
-        "40 profile unlocks included",
-        "$1.50 per additional unlock",
-        "All Starter features included",
-        "Priority email support",
+        "25 profile unlocks per month",
+        "All Starter features",
         "Custom search filters",
-        "Exclusive high-demand access",
-        "Advanced candidate bookmarks"
+        "Saved searches & alerts",
+        "Dedicated matching support"
       ],
       cta: "Start Growth Plan",
+      popular: false
+    },
+    {
+      name: "Enterprise",
+      price: "$599",
+      period: "/month",
+      description: "Unlimited hiring",
+      icon: Crown,
+      color: "slate",
+      features: [
+        "Unlimited profile unlocks",
+        "All Growth features",
+        "API access",
+        "Dedicated account manager",
+        "Custom vetting criteria",
+        "Bulk hiring tools"
+      ],
+      cta: "Contact Sales",
       popular: false
     }
   ];
 
-  const candidates = [
-    {
-      initials: "MC",
-      name: "Maria C.",
-      title: "Senior Full-Stack Developer",
-      location: "Manila",
-      experience: 6,
-      rate: 25,
-      matchScore: 95,
-      summary: "Experienced full-stack developer specializing in React, Node.js, and cloud architecture. Led teams of 5+ developers on enterprise projects...",
-      skills: ["React", "Node.js", "TypeScript", "AWS", "PostgreSQL"],
-      verified: true,
-      available: true
-    },
-    {
-      initials: "JR",
-      name: "Jose R.",
-      title: "UI/UX Designer",
-      location: "Cebu City",
-      experience: 5,
-      rate: 20,
-      matchScore: 88,
-      summary: "Creative designer with a passion for user-centered design. Worked with Fortune 500 companies to create intuitive digital experiences...",
-      skills: ["Figma", "Adobe XD", "UI Design", "Prototyping", "User Research"],
-      verified: true,
-      available: true
-    },
-    {
-      initials: "AS",
-      name: "Anna S.",
-      title: "DevOps Engineer",
-      location: "Quezon City",
-      experience: 7,
-      rate: 28,
-      matchScore: 92,
-      summary: "DevOps specialist with expertise in CI/CD pipelines, Kubernetes, and infrastructure automation. Reduced deployment time by 70%...",
-      skills: ["Kubernetes", "Docker", "Jenkins", "Terraform", "AWS"],
-      verified: true,
-      available: true
-    },
-    {
-      initials: "RL",
-      name: "Robert L.",
-      title: "Content Writer & SEO Specialist",
-      location: "Davao City",
-      experience: 4,
-      rate: 15,
-      matchScore: 94,
-      summary: "Professional content creator with proven track record in SEO optimization. Increased organic traffic by 200% for e-commerce clients...",
-      skills: ["SEO", "Content Writing", "Google Analytics", "WordPress", "Copywriting"],
-      verified: true,
-      available: true
-    },
-    {
-      initials: "EM",
-      name: "Elena M.",
-      title: "Mobile App Developer",
-      location: "Makati",
-      experience: 5,
-      rate: 24,
-      matchScore: 89,
-      summary: "iOS and Android developer with 50+ published apps. Specializes in React Native and Flutter for cross-platform solutions...",
-      skills: ["React Native", "Flutter", "iOS", "Android", "Firebase"],
-      verified: true,
-      available: true
-    },
-    {
-      initials: "DT",
-      name: "Daniel T.",
-      title: "Project Manager",
-      location: "Taguig",
-      experience: 8,
-      rate: 30,
-      matchScore: 91,
-      summary: "Certified PMP with experience managing remote teams across multiple time zones. Successfully delivered 100+ projects on time and budget...",
-      skills: ["Agile", "Scrum", "JIRA", "Project Planning", "Team Leadership"],
-      verified: true,
-      available: true
-    }
-  ];
+  const previewCandidates = allCandidates.slice(0, 6);
 
   const stats = [
-    {
-      icon: Users,
-      value: "500+",
-      label: "Vetted Professionals"
-    },
-    {
-      icon: DollarSign,
-      value: "$8-30",
-      label: "Average Hourly Rate"
-    },
-    {
-      icon: TrendingUp,
-      value: "3+",
-      label: "Years Experience Minimum"
-    },
-    {
-      icon: Star,
-      value: "95%",
-      label: "Client Satisfaction"
-    }
+    { icon: Users, value: "200+", label: "Vetted Senior Professionals" },
+    { icon: ShieldCheck, value: "4-Layer", label: "AI Vetting Pipeline" },
+    { icon: DollarSign, value: "$25", label: "Per Profile Unlock" },
+    { icon: Star, value: "92%", label: "Client Match Rate" }
   ];
 
   const companyLogos = [
-    { name: "United States", flag: "🇺🇸" },
-    { name: "Australia", flag: "🇦🇺" },
-    { name: "United Kingdom", flag: "🇬🇧" },
-    { name: "Singapore", flag: "🇸🇬" }
+    { name: "United States", flag: "\u{1F1FA}\u{1F1F8}" },
+    { name: "Australia", flag: "\u{1F1E6}\u{1F1FA}" },
+    { name: "United Kingdom", flag: "\u{1F1EC}\u{1F1E7}" },
+    { name: "Singapore", flag: "\u{1F1F8}\u{1F1EC}" }
   ];
 
   return (
     <>
       <SEO
-        title="Hire Pre-Vetted Filipino Talent - ResourceMatch"
-        description="Access 500+ senior Filipino professionals. Browse free, unlock from $1.50-$3. Plans from $49/month."
+        title="Hire AI-Vetted Senior Filipino Professionals - ResourceMatch"
+        description="Pre-vetted senior Filipino professionals with 5-10+ years experience. 4-layer AI vetting pipeline. From $25/unlock."
       />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
@@ -208,7 +119,7 @@ export default function HirePage() {
                 <Link href="/dashboard">
                   <Button variant="outline" size="lg">
                     <Users className="mr-2 h-4 w-4" />
-                    Browse Candidates
+                    Browse Professionals
                   </Button>
                 </Link>
               </div>
@@ -218,7 +129,6 @@ export default function HirePage() {
 
         {/* Hero Section */}
         <section className="py-20 relative overflow-hidden">
-          {/* Background decorations */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute top-20 left-10 w-72 h-72 bg-teal-200/20 rounded-full blur-3xl" />
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-200/20 rounded-full blur-3xl" />
@@ -226,56 +136,33 @@ export default function HirePage() {
 
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto text-center space-y-8">
-              {/* Badge */}
-              <div 
-                className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-teal-700 font-medium animate-fade-in"
-                style={{ animationDelay: "0ms" }}
-              >
-                <Shield className="h-4 w-4" />
-                Top 5% Filipino Talent Network
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-teal-700 font-medium animate-fade-in">
+                <ShieldCheck className="h-4 w-4" />
+                AI-Vetted Senior Talent
               </div>
 
-              {/* Main Headline */}
-              <h1 
-                className="text-5xl md:text-7xl font-bold text-slate-900 leading-tight animate-fade-in"
-                style={{ animationDelay: "100ms" }}
-              >
-                Hire Pre-Vetted Filipino Talent{" "}
+              <h1 className="text-5xl md:text-7xl font-bold text-slate-900 leading-tight animate-fade-in" style={{ animationDelay: "100ms" }}>
+                Hire Senior Professionals{" "}
                 <span className="bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
-                  in Minutes
+                  Vetted by AI
                 </span>
               </h1>
 
-              {/* Subheading */}
-              <p 
-                className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto animate-fade-in"
-                style={{ animationDelay: "200ms" }}
-              >
-                Access 500+ senior professionals ready for remote work. Browse free, unlock from $1.50-$3 per contact.
+              <p className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "200ms" }}>
+                5-10+ years of experience. Every candidate passes our 4-layer AI vetting pipeline before you see their profile.
               </p>
 
-              {/* CTA */}
-              <div 
-                className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in"
-                style={{ animationDelay: "300ms" }}
-              >
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: "300ms" }}>
                 <Link href="/dashboard">
-                  <Button 
-                    size="lg" 
-                    className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30 hover:shadow-xl hover:shadow-teal-700/40 transition-all"
-                  >
-                    Browse Free Now
+                  <Button size="lg" className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30 hover:shadow-xl transition-all">
+                    Browse Vetted Professionals
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
               </div>
 
-              {/* Secondary text */}
-              <p 
-                className="text-sm text-slate-500 animate-fade-in"
-                style={{ animationDelay: "400ms" }}
-              >
-                Trusted by 200+ companies • No credit card required
+              <p className="text-sm text-slate-500 animate-fade-in" style={{ animationDelay: "400ms" }}>
+                Browse profiles free. No credit card required.
               </p>
             </div>
           </div>
@@ -285,65 +172,58 @@ export default function HirePage() {
         <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-teal-50/20">
           <div className="container mx-auto px-4">
             <div className="max-w-7xl mx-auto">
-              {/* Section Header */}
               <div className="text-center mb-16">
                 <Badge className="mb-4 bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  AI-Matched Candidates
+                  <ShieldCheck className="w-3 h-3 mr-1" />
+                  AI-Vetted Professionals
                 </Badge>
                 <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-                  Meet Your Top Matches
+                  Meet Our Senior Talent
                 </h2>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                  Browse verified professionals matched to your needs. Unlock full profiles to start hiring.
+                  Every professional has passed our 4-layer AI vetting pipeline and brings 5-10+ years of domain expertise.
                 </p>
               </div>
 
-              {/* Candidate Cards Grid */}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                {candidates.map((candidate, index) => (
+                {previewCandidates.map((candidate, index) => (
                   <div
-                    key={index}
+                    key={candidate.id}
                     className="group relative bg-white rounded-2xl border-2 border-slate-200 hover:border-teal-400 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    {/* Corner Accent */}
                     <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full" />
 
-                    {/* Header */}
                     <div className="flex items-start justify-between mb-4">
-                      {/* Avatar with Verification */}
                       <div className="relative">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                          {candidate.initials}
-                        </div>
+                        <img
+                          src={candidate.avatar}
+                          alt={candidate.name}
+                          className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200"
+                        />
                         {candidate.verified && (
-                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center border-2 border-white shadow-md">
-                            <CheckCircle2 className="w-4 h-4 text-white" />
+                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
+                            <ShieldCheck className="w-3 h-3 text-white" />
                           </div>
                         )}
                       </div>
-
-                      {/* AI Match Score */}
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-full">
-                        <Star className="w-4 h-4 text-orange-600 fill-orange-600" />
-                        <span className="text-sm font-bold text-orange-700">{candidate.matchScore}%</span>
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-full">
+                        <ShieldCheck className="w-4 h-4 text-green-600" />
+                        <span className="text-sm font-bold text-green-700">{candidate.vettingScore}/100</span>
                       </div>
                     </div>
 
-                    {/* Name & Title */}
-                    <div className="mb-4">
+                    <div className="mb-3">
                       <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
                         {candidate.name}
                       </h3>
                       <p className="text-sm text-slate-600 font-medium">{candidate.title}</p>
                     </div>
 
-                    {/* Meta Info */}
-                    <div className="flex items-center gap-4 mb-4 text-sm text-slate-600">
+                    <div className="flex items-center gap-4 mb-3 text-sm text-slate-600">
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4 text-slate-400" />
-                        <span>{candidate.location}</span>
+                        <span>Philippines</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Briefcase className="w-4 h-4 text-slate-400" />
@@ -351,99 +231,138 @@ export default function HirePage() {
                       </div>
                     </div>
 
-                    {/* Hourly Rate & Status */}
-                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
-                      <div className="flex items-center gap-1.5">
-                        <DollarSign className="w-4 h-4 text-teal-600" />
-                        <span className="text-lg font-bold text-slate-900">${candidate.rate}/hr</span>
-                      </div>
-                      {candidate.available && (
-                        <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50">
-                          <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse" />
-                          Available
-                        </Badge>
-                      )}
+                    {/* Vertical Badge */}
+                    <div className="mb-3">
+                      <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs">
+                        {verticalLabels[candidate.vertical]}
+                      </Badge>
                     </div>
 
-                    {/* Summary Preview */}
-                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">
-                      {candidate.summary}
-                    </p>
+                    {/* Case Study Preview */}
+                    {candidate.caseStudies.length > 0 && (
+                      <div className="mb-3 pb-3 border-b border-slate-100">
+                        <p className="text-sm text-slate-600 line-clamp-2">{candidate.caseStudies[0].title}</p>
+                        {candidate.caseStudies[0].metrics && (
+                          <p className="text-xs text-teal-700 font-medium mt-1">{candidate.caseStudies[0].metrics}</p>
+                        )}
+                      </div>
+                    )}
 
-                    {/* Skills Tags */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {candidate.skills.slice(0, 4).map((skill, i) => (
-                        <Badge
-                          key={i}
-                          variant="secondary"
-                          className="bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs"
-                        >
+                      {candidate.skills.slice(0, 3).map((skill, i) => (
+                        <Badge key={i} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs">
                           {skill}
                         </Badge>
                       ))}
-                      {candidate.skills.length > 4 && (
+                      {candidate.skills.length > 3 && (
                         <Badge variant="secondary" className="bg-slate-100 text-slate-600 text-xs">
-                          +{candidate.skills.length - 4} more
+                          +{candidate.skills.length - 3} more
                         </Badge>
                       )}
                     </div>
 
-                    {/* CTA Button */}
-                    <Button 
-                      className="w-full bg-teal-600 hover:bg-teal-700 text-white group-hover:shadow-lg transition-all"
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Profile
-                    </Button>
+                    <Link href={`/profile/${candidate.id}`}>
+                      <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white group-hover:shadow-lg transition-all">
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Profile
+                      </Button>
+                    </Link>
                   </div>
                 ))}
               </div>
 
-              {/* Bottom CTA */}
               <div className="text-center">
                 <Link href="/dashboard">
-                  <Button 
-                    size="lg"
-                    className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
-                  >
-                    Browse All 500+ Candidates
+                  <Button size="lg" className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30">
+                    Browse All Vetted Professionals
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <p className="mt-4 text-sm text-slate-500">
-                  No credit card required • Start browsing free
-                </p>
+                <p className="mt-4 text-sm text-slate-500">Browse free, unlock from $25</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Pricing Plans */}
+        {/* Credit Packs */}
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              {/* Section Header */}
-              <div className="text-center mb-16">
+              <div className="text-center mb-12">
+                <Badge className="mb-4 bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-50">
+                  <Coins className="w-3 h-3 mr-1" />
+                  Pay As You Go
+                </Badge>
                 <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-                  Choose Your Plan
+                  Credit Packs
                 </h2>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                  Start free or save up to 50% with a subscription plan
+                  Buy credits to unlock vetted profiles. Credits never expire — use them whenever you need to hire.
                 </p>
               </div>
 
-              {/* Plans Grid */}
-              <div className="grid md:grid-cols-3 gap-8">
-                {plans.map((plan, index) => (
+              <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8">
+                {creditPacks.map((pack, index) => (
                   <div
                     key={index}
-                    className={`relative rounded-2xl p-8 border-2 transition-all hover:shadow-xl ${
+                    className={`relative rounded-2xl p-6 border-2 text-center transition-all hover:shadow-xl ${
+                      pack.popular
+                        ? "border-purple-500 shadow-lg shadow-purple-500/20 scale-105"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    {pack.popular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <Badge className="bg-purple-600 text-white px-3 py-0.5 text-xs font-bold">
+                          BEST VALUE
+                        </Badge>
+                      </div>
+                    )}
+                    <div className="text-4xl font-bold text-slate-900 mb-1">{pack.credits}</div>
+                    <div className="text-sm text-slate-500 mb-4">{pack.credits === 1 ? "credit" : "credits"}</div>
+                    <div className="text-3xl font-bold text-slate-900 mb-1">${pack.price}</div>
+                    <div className="text-sm text-slate-500 mb-6">${pack.perUnlock} per unlock</div>
+                    <Button className={`w-full ${pack.popular ? "bg-purple-600 hover:bg-purple-700 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}>
+                      Buy {pack.credits} Credit{pack.credits !== 1 ? "s" : ""}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-center text-sm text-slate-500">
+                Credits never expire. Use them across any talent pool, anytime.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Subscription Plans */}
+        <section className="py-20 bg-slate-50">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12">
+                <Badge className="mb-4 bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50">
+                  <CreditCard className="w-3 h-3 mr-1" />
+                  Monthly Plans
+                </Badge>
+                <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+                  Subscription Plans
+                </h2>
+                <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                  Hiring regularly? Save with a monthly subscription and get priority access to new talent.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                {subscriptionPlans.map((plan, index) => (
+                  <div
+                    key={index}
+                    className={`relative rounded-2xl p-8 border-2 transition-all hover:shadow-xl bg-white ${
                       plan.popular
                         ? "border-teal-500 shadow-lg shadow-teal-500/20 scale-105"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
-                    {/* Popular Badge */}
                     {plan.popular && (
                       <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                         <Badge className="bg-teal-600 text-white px-4 py-1 text-sm font-bold">
@@ -453,7 +372,6 @@ export default function HirePage() {
                       </div>
                     )}
 
-                    {/* Icon */}
                     <div className="mb-6">
                       <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
                         plan.color === "teal" ? "bg-teal-100" :
@@ -468,16 +386,14 @@ export default function HirePage() {
                       </div>
                     </div>
 
-                    {/* Plan Details */}
                     <h3 className="text-2xl font-bold text-slate-900 mb-2">{plan.name}</h3>
                     <p className="text-sm text-slate-500 mb-4">{plan.description}</p>
-                    
+
                     <div className="mb-6">
                       <span className="text-5xl font-bold text-slate-900">{plan.price}</span>
                       <span className="text-slate-500 ml-2">{plan.period}</span>
                     </div>
 
-                    {/* Features */}
                     <ul className="space-y-3 mb-8">
                       {plan.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3">
@@ -491,35 +407,22 @@ export default function HirePage() {
                       ))}
                     </ul>
 
-                    {/* CTA */}
-                    <Button 
-                      className={`w-full h-12 ${
-                        plan.popular
-                          ? "bg-teal-700 hover:bg-teal-800 text-white"
-                          : "bg-slate-100 hover:bg-slate-200 text-slate-900"
-                      }`}
-                    >
+                    <Button className={`w-full h-12 ${
+                      plan.popular
+                        ? "bg-teal-700 hover:bg-teal-800 text-white"
+                        : "bg-slate-100 hover:bg-slate-200 text-slate-900"
+                    }`}>
                       {plan.cta}
                     </Button>
                   </div>
                 ))}
-              </div>
-
-              {/* Additional Info */}
-              <div className="mt-12 text-center space-y-4">
-                <p className="text-sm text-slate-500">
-                  💡 Credits expire after 90 days • Top up anytime with manual credit purchases
-                </p>
-                <p className="text-slate-600 font-medium">
-                  Viewing multiple profiles? Save up to 50% with a plan.
-                </p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Trust Bar */}
-        <section className="py-12 bg-slate-50 border-y border-slate-200">
+        <section className="py-12 bg-white border-y border-slate-200">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
               <p className="text-center text-sm font-medium text-slate-500 mb-8">
@@ -527,10 +430,7 @@ export default function HirePage() {
               </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {companyLogos.map((location, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl bg-white hover:bg-slate-50 transition-colors"
-                  >
+                  <div key={index} className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
                     <span className="text-4xl">{location.flag}</span>
                     <span className="text-sm font-medium text-slate-700">{location.name}</span>
                   </div>
@@ -542,7 +442,6 @@ export default function HirePage() {
 
         {/* Stats Row */}
         <section className="py-16 bg-gradient-to-br from-teal-700 to-teal-900 relative overflow-hidden">
-          {/* Background pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-full h-full" style={{
               backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -553,22 +452,14 @@ export default function HirePage() {
           <div className="container mx-auto px-4 relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
               {stats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="text-center animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
+                <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
                   <div className="mb-3 flex justify-center">
                     <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                       <stat.icon className="h-6 w-6 text-white" />
                     </div>
                   </div>
-                  <div className="text-3xl md:text-4xl font-bold text-white mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-teal-100">
-                    {stat.label}
-                  </div>
+                  <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.value}</div>
+                  <div className="text-sm text-teal-100">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -580,18 +471,15 @@ export default function HirePage() {
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center space-y-6">
               <h2 className="text-4xl md:text-5xl font-bold text-slate-900">
-                Ready to Build Your Team?
+                Ready to Hire Vetted Senior Talent?
               </h2>
               <p className="text-xl text-slate-600">
-                Start browsing verified profiles in seconds. No credit card required.
+                Browse AI-vetted senior professionals with 5-10+ years experience. From $25/unlock.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                 <Link href="/dashboard">
-                  <Button 
-                    size="lg" 
-                    className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
-                  >
-                    Browse All Candidates
+                  <Button size="lg" className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30">
+                    Browse Vetted Professionals
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>

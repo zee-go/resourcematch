@@ -8,8 +8,8 @@ interface SEOProps {
 }
 
 export function SEOElements({
-  title = "ResourceMatch.AI - Connect with Pre-Vetted Filipino Talent",
-  description = "500+ verified professionals. AI-powered matching. Pay-per-contact pricing starting at $3.",
+  title = "ResourceMatch - AI-Vetted Senior Filipino Professionals",
+  description = "Hire pre-vetted senior Filipino professionals with 5-10+ years experience. AI-powered vetting across resume analysis, scenario assessments, and video interviews. From $25/unlock.",
   image = "/og-image.png",
   url,
 }: SEOProps) {

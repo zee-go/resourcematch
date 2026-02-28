@@ -29,6 +29,7 @@ export interface MatchFormData {
   jobTitle: string;
   jobDescription: string;
   budgetRange: string;
+  vertical: string;
 }
 
 export function AIMatchModal({
@@ -40,13 +41,14 @@ export function AIMatchModal({
   const [jobTitle, setJobTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [budgetRange, setBudgetRange] = useState("");
+  const [vertical, setVertical] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!jobTitle.trim() || !jobDescription.trim() || !budgetRange) {
       return;
     }
-    onMatch({ jobTitle, jobDescription, budgetRange });
+    onMatch({ jobTitle, jobDescription, budgetRange, vertical });
   };
 
   const handleClose = () => {
@@ -54,6 +56,7 @@ export function AIMatchModal({
       setJobTitle("");
       setJobDescription("");
       setBudgetRange("");
+      setVertical("");
       onClose();
     }
   };
@@ -66,11 +69,11 @@ export function AIMatchModal({
             <div className="w-10 h-10 bg-gradient-to-br from-[#D97642] to-[#c26638] rounded-lg flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            AI-Powered Candidate Matching
+            AI-Powered Talent Matching
           </DialogTitle>
           <DialogDescription className="text-base">
-            Describe your ideal candidate and our AI will analyze skills,
-            experience, and availability to find your best matches.
+            Describe your ideal candidate and our AI will match you with
+            vetted senior professionals based on skills, experience, and vertical fit.
           </DialogDescription>
         </DialogHeader>
 
@@ -85,12 +88,38 @@ export function AIMatchModal({
             </label>
             <Input
               id="jobTitle"
-              placeholder="e.g., Senior Full-Stack Developer"
+              placeholder="e.g., Senior E-commerce Operations Manager"
               value={jobTitle}
               onChange={(e) => setJobTitle(e.target.value)}
               disabled={isMatching}
               className="h-11"
             />
+          </div>
+
+          {/* Vertical */}
+          <div className="space-y-2">
+            <label
+              htmlFor="vertical"
+              className="text-sm font-medium text-slate-900"
+            >
+              Industry Vertical
+            </label>
+            <Select
+              value={vertical}
+              onValueChange={setVertical}
+              disabled={isMatching}
+            >
+              <SelectTrigger className="h-11">
+                <SelectValue placeholder="Select a vertical (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Verticals</SelectItem>
+                <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
+                <SelectItem value="healthcare">Healthcare Admin</SelectItem>
+                <SelectItem value="accounting">Accounting & Finance</SelectItem>
+                <SelectItem value="marketing">Digital Marketing</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Job Description */}
@@ -99,7 +128,7 @@ export function AIMatchModal({
               htmlFor="jobDescription"
               className="text-sm font-medium text-slate-900"
             >
-              Job Description <span className="text-red-500">*</span>
+              Role Description <span className="text-red-500">*</span>
             </label>
             <Textarea
               id="jobDescription"
@@ -111,18 +140,18 @@ export function AIMatchModal({
               className="resize-none"
             />
             <p className="text-xs text-slate-500">
-              Include key skills, technologies, and experience requirements for
+              Include key skills, domain experience, and leadership requirements for
               best results
             </p>
           </div>
 
-          {/* Budget Range */}
+          {/* Monthly Budget Range */}
           <div className="space-y-2">
             <label
               htmlFor="budget"
               className="text-sm font-medium text-slate-900"
             >
-              Budget Range ($/hour) <span className="text-red-500">*</span>
+              Monthly Budget Range <span className="text-red-500">*</span>
             </label>
             <Select
               value={budgetRange}
@@ -130,14 +159,13 @@ export function AIMatchModal({
               disabled={isMatching}
             >
               <SelectTrigger className="h-11">
-                <SelectValue placeholder="Select your hourly budget" />
+                <SelectValue placeholder="Select your monthly budget" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="8-15">$8 - $15 per hour</SelectItem>
-                <SelectItem value="15-20">$15 - $20 per hour</SelectItem>
-                <SelectItem value="20-25">$20 - $25 per hour</SelectItem>
-                <SelectItem value="25-30">$25 - $30 per hour</SelectItem>
-                <SelectItem value="30+">$30+ per hour</SelectItem>
+                <SelectItem value="1500-2500">$1,500 - $2,500/month</SelectItem>
+                <SelectItem value="2500-3500">$2,500 - $3,500/month</SelectItem>
+                <SelectItem value="3500-5000">$3,500 - $5,000/month</SelectItem>
+                <SelectItem value="5000+">$5,000+/month</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -149,10 +177,10 @@ export function AIMatchModal({
               <div className="text-sm text-blue-900">
                 <p className="font-medium mb-1">How AI Matching Works:</p>
                 <ul className="space-y-1 text-blue-800">
-                  <li>• Analyzes skills, experience, and expertise</li>
-                  <li>• Matches budget with candidate rates</li>
-                  <li>• Evaluates availability and timezone fit</li>
-                  <li>• Returns candidates ranked by match score</li>
+                  <li>• Matches your requirements with candidate vetting scores</li>
+                  <li>• Evaluates vertical and domain expertise fit</li>
+                  <li>• Considers experience level and leadership capabilities</li>
+                  <li>• Returns candidates ranked by overall match quality</li>
                 </ul>
               </div>
             </div>

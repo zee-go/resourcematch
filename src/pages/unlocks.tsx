@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { GetServerSideProps } from "next";
 import { SEO } from "@/components/SEO";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -28,17 +29,18 @@ import {
   CheckCircle2,
   Clock,
   FileText,
-  TrendingUp,
   Users,
   UserCheck,
   Percent,
   Unlock,
   ArrowRight,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 
 interface UnlockedCandidate {
   id: string;
+  candidateId: number;
   name: string;
   title: string;
   avatar: string;
@@ -46,45 +48,86 @@ interface UnlockedCandidate {
   phone: string;
   unlockedAt: string;
   contacted: boolean;
+  vettingScore: number;
+  vertical: string;
 }
 
-export default function MyUnlocks() {
+interface UnlocksProps {
+  initialUnlocks: UnlockedCandidate[];
+}
+
+export const getServerSideProps: GetServerSideProps<UnlocksProps> = async (context) => {
+  try {
+    const { getAuthUserId } = await import("@/lib/supabase-server");
+    const supabaseUserId = await getAuthUserId(context.req, context.res);
+
+    if (!supabaseUserId) {
+      return {
+        redirect: {
+          destination: "/login?redirect=/unlocks",
+          permanent: false,
+        },
+      };
+    }
+
+    const { prisma } = await import("@/lib/prisma");
+    const company = await prisma.company.findUnique({
+      where: { supabaseUserId },
+    });
+
+    if (!company) {
+      return { props: { initialUnlocks: [] } };
+    }
+
+    const unlocks = await prisma.unlock.findMany({
+      where: { companyId: company.id },
+      include: {
+        candidate: {
+          select: {
+            id: true,
+            name: true,
+            fullName: true,
+            title: true,
+            avatar: true,
+            vertical: true,
+            vettingScore: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: { unlockedAt: "desc" },
+    });
+
+    const initialUnlocks: UnlockedCandidate[] = unlocks.map((u) => ({
+      id: u.id,
+      candidateId: u.candidate.id,
+      name: u.candidate.fullName,
+      title: u.candidate.title,
+      avatar: u.candidate.fullName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2),
+      email: u.candidate.email || "",
+      phone: u.candidate.phone || "",
+      unlockedAt: u.unlockedAt.toISOString(),
+      contacted: u.contacted,
+      vettingScore: u.candidate.vettingScore,
+      vertical: u.candidate.vertical,
+    }));
+
+    return { props: { initialUnlocks: JSON.parse(JSON.stringify(initialUnlocks)) } };
+  } catch {
+    // Fallback to empty state when DB is not available
+    return { props: { initialUnlocks: [] } };
+  }
+};
+
+export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "contacted" | "not-contacted">("all");
-
-  // Mock unlocked candidates (in real app, this would come from backend/context)
-  const [unlockedCandidates] = useState<UnlockedCandidate[]>([
-    {
-      id: "1",
-      name: "Maria Christina Santos",
-      title: "Senior Full-Stack Developer",
-      avatar: "MC",
-      email: "maria.santos@example.com",
-      phone: "+63 917 123 4567",
-      unlockedAt: "2025-01-05",
-      contacted: true,
-    },
-    {
-      id: "2",
-      name: "Jose Rodriguez",
-      title: "UI/UX Designer",
-      avatar: "JR",
-      email: "jose.rodriguez@example.com",
-      phone: "+63 918 234 5678",
-      unlockedAt: "2025-01-04",
-      contacted: false,
-    },
-    {
-      id: "3",
-      name: "Anna Sophia Cruz",
-      title: "DevOps Engineer",
-      avatar: "AS",
-      email: "anna.cruz@example.com",
-      phone: "+63 919 345 6789",
-      unlockedAt: "2025-01-03",
-      contacted: true,
-    },
-  ]);
+  const [unlockedCandidates] = useState<UnlockedCandidate[]>(initialUnlocks);
 
   const [contactedStatus, setContactedStatus] = useState<Record<string, boolean>>(
     unlockedCandidates.reduce((acc, c) => ({ ...acc, [c.id]: c.contacted }), {})
@@ -107,12 +150,12 @@ export default function MyUnlocks() {
   const stats = {
     totalUnlocked: unlockedCandidates.length,
     contacted: Object.values(contactedStatus).filter(Boolean).length,
-    responseRate: 72, // Placeholder percentage
+    responseRate: unlockedCandidates.length > 0 ? 72 : 0,
   };
 
   const handleExportCSV = () => {
     const csvContent = [
-      ["Name", "Title", "Email", "Phone", "Unlocked Date", "Contacted"],
+      ["Name", "Title", "Email", "Phone", "Unlocked Date", "Contacted", "Vetting Score"],
       ...filteredCandidates.map((c) => [
         c.name,
         c.title,
@@ -120,6 +163,7 @@ export default function MyUnlocks() {
         c.phone,
         c.unlockedAt,
         contactedStatus[c.id] ? "Yes" : "No",
+        String(c.vettingScore),
       ]),
     ]
       .map((row) => row.join(","))
@@ -129,22 +173,38 @@ export default function MyUnlocks() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "unlocked-candidates.csv";
+    a.download = "unlocked-professionals.csv";
     a.click();
   };
 
-  const toggleContacted = (candidateId: string) => {
+  const toggleContacted = async (unlockId: string) => {
+    const newStatus = !contactedStatus[unlockId];
     setContactedStatus((prev) => ({
       ...prev,
-      [candidateId]: !prev[candidateId],
+      [unlockId]: newStatus,
     }));
+
+    // Persist to API
+    try {
+      await fetch(`/api/unlocks/${unlockId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contacted: newStatus }),
+      });
+    } catch {
+      // Revert on failure
+      setContactedStatus((prev) => ({
+        ...prev,
+        [unlockId]: !newStatus,
+      }));
+    }
   };
 
   return (
     <>
       <SEO
         title="My Unlocked Profiles - ResourceMatch"
-        description="Manage your unlocked candidate profiles and contact information"
+        description="Manage your unlocked senior professional profiles and contact information on ResourceMatch."
       />
 
       <div className="min-h-screen bg-slate-50">
@@ -155,7 +215,7 @@ export default function MyUnlocks() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2">My Unlocked Profiles</h1>
             <p className="text-slate-600">
-              Manage and track all candidates you've unlocked
+              Manage and track all professionals you've unlocked
             </p>
           </div>
 
@@ -169,12 +229,12 @@ export default function MyUnlocks() {
                 No profiles unlocked yet
               </h3>
               <p className="text-slate-600 mb-6 max-w-md mx-auto">
-                Browse our talent pool and unlock candidate profiles to access their full
-                contact information and resume.
+                Browse our vetted senior professionals and unlock profiles to access their full
+                contact information and vetting results.
               </p>
               <Link href="/dashboard">
-                <Button className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white">
-                  Browse Candidates
+                <Button className="bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white">
+                  Browse Professionals
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
@@ -186,7 +246,7 @@ export default function MyUnlocks() {
                 <div className="bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-slate-600">Total Unlocked</span>
-                    <Users className="w-5 h-5 text-teal-600" />
+                    <Users className="w-5 h-5 text-[#2D5F3F]" />
                   </div>
                   <p className="text-3xl font-bold text-slate-900">{stats.totalUnlocked}</p>
                   <p className="text-xs text-slate-500 mt-1">Active profiles</p>
@@ -206,7 +266,7 @@ export default function MyUnlocks() {
                 <div className="bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-slate-600">Response Rate</span>
-                    <Percent className="w-5 h-5 text-orange-600" />
+                    <Percent className="w-5 h-5 text-[#D97642]" />
                   </div>
                   <p className="text-3xl font-bold text-slate-900">{stats.responseRate}%</p>
                   <p className="text-xs text-slate-500 mt-1">Last 30 days</p>
@@ -228,7 +288,7 @@ export default function MyUnlocks() {
 
                   <Select
                     value={filterStatus}
-                    onValueChange={(value: any) => setFilterStatus(value)}
+                    onValueChange={(value: "all" | "contacted" | "not-contacted") => setFilterStatus(value)}
                   >
                     <SelectTrigger className="w-full md:w-[200px]">
                       <SelectValue />
@@ -252,8 +312,9 @@ export default function MyUnlocks() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Candidate</TableHead>
+                      <TableHead>Professional</TableHead>
                       <TableHead>Contact Info</TableHead>
+                      <TableHead>Vetting Score</TableHead>
                       <TableHead>Unlocked Date</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -264,7 +325,7 @@ export default function MyUnlocks() {
                       <TableRow key={candidate.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white font-semibold text-sm">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] flex items-center justify-center text-white font-semibold text-sm">
                               {candidate.avatar}
                             </div>
                             <div>
@@ -287,6 +348,13 @@ export default function MyUnlocks() {
                               <span className="text-slate-700">{candidate.phone}</span>
                             </div>
                           </div>
+                        </TableCell>
+
+                        <TableCell>
+                          <Badge className="bg-green-100 text-[#2D5F3F] hover:bg-green-100">
+                            <ShieldCheck className="w-3 h-3 mr-1" />
+                            {candidate.vettingScore}/100
+                          </Badge>
                         </TableCell>
 
                         <TableCell>
@@ -316,7 +384,7 @@ export default function MyUnlocks() {
 
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Link href={`/profile/${candidate.id}`}>
+                            <Link href={`/profile/${candidate.candidateId}`}>
                               <Button variant="outline" size="sm">
                                 <Eye className="w-4 h-4 mr-1" />
                                 View
@@ -332,7 +400,7 @@ export default function MyUnlocks() {
                               onClick={() => toggleContacted(candidate.id)}
                               className={
                                 !contactedStatus[candidate.id]
-                                  ? "bg-teal-600 hover:bg-teal-700"
+                                  ? "bg-[#2D5F3F] hover:bg-[#1a3a26]"
                                   : ""
                               }
                             >
@@ -348,7 +416,7 @@ export default function MyUnlocks() {
 
               {filteredCandidates.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-slate-600">No candidates match your filters</p>
+                  <p className="text-slate-600">No professionals match your filters</p>
                 </div>
               )}
             </>

@@ -1,19 +1,21 @@
 import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/Hero";
 import { WhyChoose } from "@/components/WhyChoose";
+import { AIComparison } from "@/components/AIComparison";
 import { HowItWorks } from "@/components/HowItWorks";
 
 export default function Home() {
   return (
     <>
-      <SEO 
-        title="ResourceMatch.AI - Connect with Pre-Vetted Filipino Talent"
-        description="500+ verified professionals. Browse free, unlock from $1.50-$3. Plans from $49/month with up to 40 unlocks included."
-        url="https://resourcematch.ai"
+      <SEO
+        title="ResourceMatch - AI-Vetted Senior Filipino Professionals"
+        description="Hire pre-vetted senior Filipino professionals with 5-10+ years experience. AI-powered 4-layer vetting pipeline. From $25/unlock."
+        url="https://resourcematch.ph"
       />
       <main>
         <Hero />
         <WhyChoose />
+        <AIComparison />
         <HowItWorks />
       </main>
     </>

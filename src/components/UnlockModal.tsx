@@ -5,20 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
-  Lock,
   Unlock,
   CheckCircle2,
   Mail,
   Phone,
   FileText,
   Shield,
+  ShieldCheck,
   Clock,
   Users,
   Download,
   Sparkles,
   CreditCard,
   Building2,
-  X
 } from "lucide-react";
 
 interface UnlockModalProps {
@@ -29,8 +28,7 @@ interface UnlockModalProps {
     name: string;
     title: string;
     avatar: string;
-    hourlyRate: string;
-    matchScore?: number;
+    vettingScore?: number;
   };
   onUnlockSuccess: (candidateId: string, contactInfo: {
     email: string;
@@ -88,22 +86,20 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
 
             {/* Candidate Preview */}
             <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white font-semibold text-xl">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#2D5F3F] to-[#1a3a26] flex items-center justify-center text-white font-semibold text-xl">
                 {candidate.avatar}
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-lg">{candidate.name}</h3>
                 <p className="text-slate-600 text-sm">{candidate.title}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="secondary" className="text-xs">
-                    {candidate.hourlyRate}
-                  </Badge>
-                  {candidate.matchScore && (
-                    <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 text-xs">
-                      ⭐ {candidate.matchScore}% Match
+                {candidate.vettingScore && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge className="bg-green-100 text-[#2D5F3F] hover:bg-green-100 text-xs">
+                      <ShieldCheck className="w-3 h-3 mr-1" />
+                      {candidate.vettingScore}/100 Vetted
                     </Badge>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -114,13 +110,13 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                 {[
                   { icon: Mail, text: "Full contact information (email & phone)" },
                   { icon: FileText, text: "Complete resume and work history" },
-                  { icon: Users, text: "Verified manager references" },
-                  { icon: Shield, text: "Personality assessment & DISC profile" },
+                  { icon: Users, text: "Verified professional references" },
+                  { icon: Shield, text: "AI vetting results and scores" },
                   { icon: Clock, text: "30-day contact guarantee" },
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-4 h-4 text-teal-600" />
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-4 h-4 text-[#2D5F3F]" />
                     </div>
                     <span className="text-slate-700">{item.text}</span>
                   </div>
@@ -129,12 +125,12 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
             </div>
 
             {/* Pricing */}
-            <div className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-lg p-4 border border-teal-200">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-slate-700">One-time payment</span>
-                <span className="text-3xl font-bold text-teal-600">$3</span>
+                <span className="text-slate-700">One-time unlock</span>
+                <span className="text-3xl font-bold text-[#2D5F3F]">$25</span>
               </div>
-              <p className="text-xs text-slate-600">Instant access • No subscription required</p>
+              <p className="text-xs text-slate-600">Instant access • Credits never expire • No subscription required</p>
             </div>
 
             {/* Payment Form */}
@@ -207,7 +203,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                     key={index}
                     className="flex items-center gap-2 text-xs text-slate-600"
                   >
-                    <badge.icon className="w-4 h-4 text-teal-600" />
+                    <badge.icon className="w-4 h-4 text-[#2D5F3F]" />
                     <span>{badge.text}</span>
                   </div>
                 ))}
@@ -215,7 +211,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white shadow-lg"
+                className="w-full bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white shadow-lg"
                 disabled={isProcessing}
               >
                 {isProcessing ? (
@@ -226,7 +222,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                 ) : (
                   <>
                     <Unlock className="w-4 h-4 mr-2" />
-                    Unlock Profile for $3
+                    Unlock Profile for $25
                   </>
                 )}
               </Button>
@@ -250,21 +246,21 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
               <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border-2 border-green-200 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Mail className="w-5 h-5 text-teal-600" />
+                    <Mail className="w-5 h-5 text-[#2D5F3F]" />
                     <span className="text-sm text-slate-600">Email:</span>
                   </div>
                   <span className="font-semibold text-slate-900">{contactInfo.email}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Phone className="w-5 h-5 text-teal-600" />
+                    <Phone className="w-5 h-5 text-[#2D5F3F]" />
                     <span className="text-sm text-slate-600">Phone:</span>
                   </div>
                   <span className="font-semibold text-slate-900">{contactInfo.phone}</span>
                 </div>
                 <Button
                   variant="outline"
-                  className="w-full mt-2 border-teal-300 hover:bg-teal-50"
+                  className="w-full mt-2 border-green-300 hover:bg-green-50"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download Full Resume
@@ -280,7 +276,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                   Close
                 </Button>
                 <Button
-                  className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white"
+                  className="flex-1 bg-gradient-to-r from-[#2D5F3F] to-[#1a3a26] hover:from-[#1a3a26] hover:to-[#2D5F3F] text-white"
                   onClick={() => {
                     handleClose();
                     window.location.href = `/profile/${candidate.id}`;
