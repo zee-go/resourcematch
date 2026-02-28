@@ -27,17 +27,18 @@ import type {
   ResumeAnalysisResult,
   ScenarioQuestion,
 } from "@/lib/vetting-types";
-import { getAuthUserId } from "@/lib/supabase-server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const supabaseUserId = await getAuthUserId(req, res);
-  if (!supabaseUserId) {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session?.user?.id) {
     return { redirect: { destination: "/login?redirect=/admin/vetting", permanent: false } };
   }
 
   const company = await prisma.company.findUnique({
-    where: { supabaseUserId },
+    where: { userId: session.user.id },
     select: { email: true },
   });
 

@@ -1,22 +1,24 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
-import { getAuthUserId } from "@/lib/supabase-server";
+import { getServerAuthSession } from "@/lib/auth";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const supabaseUserId = await getAuthUserId(req, res);
+  const session = await getServerAuthSession(req, res);
 
-  if (!supabaseUserId) {
+  if (!session?.user?.id) {
     return res.status(401).json({ error: "Not authenticated" });
   }
+
+  const userId = session.user.id;
 
   // GET — return company profile
   if (req.method === "GET") {
     try {
-      let company = await prisma.company.findUnique({
-        where: { supabaseUserId },
+      const company = await prisma.company.findUnique({
+        where: { userId },
         select: {
           id: true,
           email: true,
@@ -35,39 +37,6 @@ export default async function handler(
         },
       });
 
-      if (!company) {
-        // Auto-create company profile if it doesn't exist yet
-        const { data } = await (await import("@/lib/supabase-server")).createSupabaseServerClient(req, res).auth.getUser();
-        if (data.user) {
-          company = await prisma.company.create({
-            data: {
-              supabaseUserId,
-              email: data.user.email || "",
-              companyName: data.user.user_metadata?.company_name || null,
-              companyWebsite: data.user.user_metadata?.company_website || null,
-              industry: data.user.user_metadata?.industry || null,
-              monthlyBudgetMin: data.user.user_metadata?.monthly_budget_min || null,
-            },
-            select: {
-              id: true,
-              email: true,
-              companyName: true,
-              companyWebsite: true,
-              companySize: true,
-              industry: true,
-              monthlyBudgetMin: true,
-              verified: true,
-              credits: true,
-              subscriptionTier: true,
-              subscriptionStatus: true,
-              monthlyUnlocksUsed: true,
-              monthlyUnlocksLimit: true,
-              createdAt: true,
-            },
-          });
-        }
-      }
-
       return res.status(200).json({ company });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
@@ -81,7 +50,7 @@ export default async function handler(
 
     try {
       const company = await prisma.company.update({
-        where: { supabaseUserId },
+        where: { userId },
         data: {
           ...(companyName !== undefined && { companyName }),
           ...(companyWebsite !== undefined && { companyWebsite }),

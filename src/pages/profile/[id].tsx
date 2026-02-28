@@ -57,14 +57,15 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
 
   try {
     const { prisma } = await import("@/lib/prisma");
-    const { getAuthUserId } = await import("@/lib/supabase-server");
+    const { getServerSession } = await import("next-auth/next");
+    const { authOptions } = await import("@/lib/auth");
 
     // Check unlock status
     let hasUnlocked = false;
-    const supabaseUserId = await getAuthUserId(context.req, context.res);
-    if (supabaseUserId) {
+    const session = await getServerSession(context.req, context.res, authOptions);
+    if (session?.user?.id) {
       const company = await prisma.company.findUnique({
-        where: { supabaseUserId },
+        where: { userId: session.user.id },
       });
       if (company) {
         const unlock = await prisma.unlock.findUnique({

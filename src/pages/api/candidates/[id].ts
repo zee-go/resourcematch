@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
-import { getAuthUserId } from "@/lib/supabase-server";
+import { getServerAuthSession } from "@/lib/auth";
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,12 +19,12 @@ export default async function handler(
 
   try {
     // Check if user is authenticated and has unlocked this candidate
-    const supabaseUserId = await getAuthUserId(req, res);
+    const session = await getServerAuthSession(req, res);
     let hasUnlocked = false;
 
-    if (supabaseUserId) {
+    if (session?.user?.id) {
       const company = await prisma.company.findUnique({
-        where: { supabaseUserId },
+        where: { userId: session.user.id },
       });
 
       if (company) {

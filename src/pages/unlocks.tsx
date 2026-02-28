@@ -58,10 +58,11 @@ interface UnlocksProps {
 
 export const getServerSideProps: GetServerSideProps<UnlocksProps> = async (context) => {
   try {
-    const { getAuthUserId } = await import("@/lib/supabase-server");
-    const supabaseUserId = await getAuthUserId(context.req, context.res);
+    const { getServerSession } = await import("next-auth/next");
+    const { authOptions } = await import("@/lib/auth");
+    const session = await getServerSession(context.req, context.res, authOptions);
 
-    if (!supabaseUserId) {
+    if (!session?.user?.id) {
       return {
         redirect: {
           destination: "/login?redirect=/unlocks",
@@ -72,7 +73,7 @@ export const getServerSideProps: GetServerSideProps<UnlocksProps> = async (conte
 
     const { prisma } = await import("@/lib/prisma");
     const company = await prisma.company.findUnique({
-      where: { supabaseUserId },
+      where: { userId: session.user.id },
     });
 
     if (!company) {

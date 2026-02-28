@@ -1,19 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
-import { getAuthUserId } from "@/lib/supabase-server";
+import { getServerAuthSession } from "@/lib/auth";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const supabaseUserId = await getAuthUserId(req, res);
+  const session = await getServerAuthSession(req, res);
 
-  if (!supabaseUserId) {
+  if (!session?.user?.id) {
     return res.status(401).json({ error: "Not authenticated" });
   }
 
   const company = await prisma.company.findUnique({
-    where: { supabaseUserId },
+    where: { userId: session.user.id },
   });
 
   if (!company) {
@@ -111,7 +111,6 @@ export default async function handler(
         company.subscriptionTier &&
         company.subscriptionStatus === "ACTIVE"
       ) {
-        // Unlimited for Enterprise
         if (company.subscriptionTier === "ENTERPRISE") {
           deductedFrom = "subscription";
         } else if (
@@ -136,7 +135,6 @@ export default async function handler(
 
       // Execute unlock in a transaction
       const result = await prisma.$transaction(async (tx) => {
-        // Deduct credit
         if (deductedFrom === "credits") {
           await tx.company.update({
             where: { id: company.id },
@@ -149,7 +147,6 @@ export default async function handler(
           });
         }
 
-        // Create unlock
         const unlock = await tx.unlock.create({
           data: {
             companyId: company.id,

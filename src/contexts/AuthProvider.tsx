@@ -1,6 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
-import type { User, Session } from "@supabase/supabase-js";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 
 interface CompanyProfile {
   id: string;
@@ -18,9 +17,14 @@ interface CompanyProfile {
   monthlyUnlocksLimit: number | null;
 }
 
+interface AuthUser {
+  id: string;
+  email: string;
+  name?: string | null;
+}
+
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
   company: CompanyProfile | null;
   loading: boolean;
   signOut: () => Promise<void>;
@@ -29,7 +33,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
   company: null,
   loading: true,
   signOut: async () => {},
@@ -37,13 +40,10 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [supabase] = useState(() => createSupabaseBrowserClient());
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const { data: session, status } = useSession();
   const [company, setCompany] = useState<CompanyProfile | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  const fetchCompany = async () => {
+  const fetchCompany = useCallback(async () => {
     try {
       const res = await fetch("/api/user/me");
       if (res.ok) {
@@ -55,56 +55,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       setCompany(null);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    const initAuth = async () => {
-      const {
-        data: { session: initialSession },
-      } = await supabase.auth.getSession();
+    if (status === "authenticated" && session?.user) {
+      fetchCompany();
+    } else if (status === "unauthenticated") {
+      setCompany(null);
+    }
+  }, [status, session, fetchCompany]);
 
-      setSession(initialSession);
-      setUser(initialSession?.user ?? null);
-
-      if (initialSession?.user) {
-        await fetchCompany();
-      }
-
-      setLoading(false);
-    };
-
-    initAuth();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-
-      if (newSession?.user) {
-        await fetchCompany();
-      } else {
-        setCompany(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+  const user: AuthUser | null =
+    session?.user
+      ? {
+          id: session.user.id,
+          email: session.user.email || "",
+          name: session.user.name,
+        }
+      : null;
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
     setCompany(null);
+    await nextAuthSignOut({ callbackUrl: "/" });
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        session,
         company,
-        loading,
+        loading: status === "loading",
         signOut,
         refreshCompany: fetchCompany,
       }}

@@ -23,7 +23,7 @@ import {
   ArrowLeft,
   CheckCircle2,
 } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { signIn } from "next-auth/react";
 
 type Step = "credentials" | "company";
 
@@ -74,48 +74,39 @@ export default function SignupPage() {
       return;
     }
 
-    const supabase = createSupabaseBrowserClient();
-
-    // Create auth user
-    const { data, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          company_name: companyName,
-          company_website: companyWebsite,
-          company_size: companySize,
-          industry,
-          monthly_budget_min: parseInt(monthlyBudgetMin),
-        },
-      },
+    // Register user + company via API
+    const registerRes = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        companyName,
+        companyWebsite,
+        companySize,
+        industry,
+        monthlyBudgetMin: parseInt(monthlyBudgetMin),
+      }),
     });
 
-    if (authError) {
-      setError(authError.message);
+    if (!registerRes.ok) {
+      const data = await registerRes.json();
+      setError(data.error || "Registration failed");
       setIsLoading(false);
       return;
     }
 
-    // Create company profile via API
-    if (data.user) {
-      try {
-        await fetch("/api/auth/callback", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            supabaseUserId: data.user.id,
-            email,
-            companyName,
-            companyWebsite,
-            companySize,
-            industry,
-            monthlyBudgetMin: parseInt(monthlyBudgetMin),
-          }),
-        });
-      } catch {
-        // Company profile will be created on first API call if this fails
-      }
+    // Auto-login after registration
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Account created but login failed. Please try logging in.");
+      setIsLoading(false);
+      return;
     }
 
     router.push("/dashboard");
