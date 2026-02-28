@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
+import { getAuthUserId } from "@/lib/supabase-server";
 import type { CompanySize } from "@prisma/client";
 
 const VALID_SIZES: CompanySize[] = ["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"];
@@ -12,8 +13,13 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  // Verify the caller is authenticated via Supabase
+  const authenticatedUserId = await getAuthUserId(req, res);
+  if (!authenticatedUserId) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+
   const {
-    supabaseUserId,
     email,
     companyName,
     companyWebsite,
@@ -22,8 +28,11 @@ export default async function handler(
     monthlyBudgetMin,
   } = req.body;
 
-  if (!supabaseUserId || !email) {
-    return res.status(400).json({ error: "supabaseUserId and email are required" });
+  // Use the authenticated user's ID instead of trusting client-supplied value
+  const supabaseUserId = authenticatedUserId;
+
+  if (!email) {
+    return res.status(400).json({ error: "email is required" });
   }
 
   // Auto-verify if business email domain matches company website

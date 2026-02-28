@@ -1,9 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiResponse } from "next";
 import type {
   ScenarioGenerationRequest,
   ScenarioQuestion,
   APIResponse,
 } from "@/lib/vetting-types";
+import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAuth";
+import { withRateLimit } from "@/server/middleware/withRateLimit";
 
 const VERTICALS: Record<string, string> = {
   ecommerce: "E-commerce Operations",
@@ -43,8 +45,8 @@ Return a JSON array with exactly this structure (no markdown, just raw JSON):
 Make scenarios realistic and based on common challenges in ${verticalName}. Vary difficulty levels.`;
 }
 
-export default async function handler(
-  req: NextApiRequest,
+async function handler(
+  req: AuthenticatedRequest,
   res: NextApiResponse<APIResponse<ScenarioQuestion[]>>
 ) {
   if (req.method !== "POST") {
@@ -120,3 +122,8 @@ export default async function handler(
     });
   }
 }
+
+export default withRateLimit(
+  { limit: 10, windowSeconds: 60 },
+  withAdmin(handler)
+);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { GetServerSideProps } from "next";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +27,27 @@ import type {
   ResumeAnalysisResult,
   ScenarioQuestion,
 } from "@/lib/vetting-types";
+import { getAuthUserId } from "@/lib/supabase-server";
+import { prisma } from "@/lib/prisma";
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const supabaseUserId = await getAuthUserId(req, res);
+  if (!supabaseUserId) {
+    return { redirect: { destination: "/login?redirect=/admin/vetting", permanent: false } };
+  }
+
+  const company = await prisma.company.findUnique({
+    where: { supabaseUserId },
+    select: { email: true },
+  });
+
+  const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim());
+  if (!company || !adminEmails.includes(company.email)) {
+    return { notFound: true };
+  }
+
+  return { props: {} };
+};
 
 type ActiveTab = "resume" | "scenarios";
 

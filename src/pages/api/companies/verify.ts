@@ -1,12 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
+import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAuth";
+import { withRateLimit } from "@/server/middleware/withRateLimit";
 
-/**
- * Admin endpoint to manually verify a company.
- * In production, this should be protected by admin authentication.
- */
-export default async function handler(
-  req: NextApiRequest,
+async function handler(
+  req: AuthenticatedRequest,
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
@@ -34,3 +32,8 @@ export default async function handler(
     return res.status(500).json({ error: `Failed to verify company: ${message}` });
   }
 }
+
+export default withRateLimit(
+  { limit: 5, windowSeconds: 60 },
+  withAdmin(handler)
+);

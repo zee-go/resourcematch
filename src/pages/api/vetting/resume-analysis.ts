@@ -1,9 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiResponse } from "next";
 import type {
   ResumeAnalysisRequest,
   ResumeAnalysisResult,
   APIResponse,
 } from "@/lib/vetting-types";
+import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAuth";
+import { withRateLimit } from "@/server/middleware/withRateLimit";
 
 const VERTICALS: Record<string, string> = {
   ecommerce: "E-commerce Operations",
@@ -51,8 +53,8 @@ Scoring guidelines:
 Be rigorous but fair. Focus on concrete evidence from the resume.`;
 }
 
-export default async function handler(
-  req: NextApiRequest,
+async function handler(
+  req: AuthenticatedRequest,
   res: NextApiResponse<APIResponse<ResumeAnalysisResult>>
 ) {
   if (req.method !== "POST") {
@@ -135,3 +137,8 @@ export default async function handler(
     });
   }
 }
+
+export default withRateLimit(
+  { limit: 10, windowSeconds: 60 },
+  withAdmin(handler)
+);
