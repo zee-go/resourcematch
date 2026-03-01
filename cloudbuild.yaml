@@ -18,16 +18,19 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "${_REGION}-docker.pkg.dev/$PROJECT_ID/resourcematch/app:latest"]
 
-  # Run Prisma migrations against Cloud SQL (via public IP during build)
-  - name: "gcr.io/cloud-builders/docker"
-    entrypoint: "sh"
+  # Run Prisma migrations via Cloud SQL Auth Proxy
+  - name: "node:20"
+    entrypoint: "bash"
     args:
       - "-c"
       - |
-        docker run --rm \
-          -e DATABASE_URL=$$DATABASE_URL \
-          ${_REGION}-docker.pkg.dev/$PROJECT_ID/resourcematch/app:$SHORT_SHA \
-          npx prisma migrate deploy
+        curl -so /workspace/cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.1/cloud-sql-proxy.linux.amd64
+        chmod +x /workspace/cloud-sql-proxy
+        mkdir -p /cloudsql
+        /workspace/cloud-sql-proxy --unix-socket=/cloudsql ${_CLOUD_SQL_INSTANCE} &
+        sleep 5
+        cd /workspace
+        npx prisma@6 migrate deploy
     secretEnv: ["DATABASE_URL"]
 
   # Deploy to Cloud Run with Cloud SQL connector
