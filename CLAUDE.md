@@ -19,7 +19,7 @@ Key differentiators:
 
 - **Framework**: Next.js 15.2.8, React 18.3.1, TypeScript 5
 - **Database**: Prisma ORM + PostgreSQL (Cloud SQL on GCP)
-- **Auth**: Supabase (email/password, cookie-based sessions)
+- **Auth**: NextAuth.js 4.24 (CredentialsProvider, JWT sessions, PrismaAdapter)
 - **UI**: Tailwind CSS 3.4.1, shadcn/ui (New York style), 48+ Radix UI primitives
 - **Fonts**: Montserrat (headings), Karla (body), JetBrains Mono (code)
 - **Colors**: Evening Sea `#04443C` (primary), Raw Sienna `#D38B53` (accent), Lochinvar `#399A8B` (secondary), Iceberg `#DBF3EB` (light)
@@ -45,14 +45,15 @@ src/
     unlocks.tsx              # Unlocked profiles history (from DB)
     billing.tsx              # Credit balance, subscription, purchase history
     profile/[id].tsx         # Full candidate profile + vetting results
-    login.tsx                # Supabase email/password login
+    login.tsx                # NextAuth email/password login
     signup.tsx               # 2-step signup (credentials → company details)
     admin/vetting.tsx        # Internal: AI vetting pipeline admin tool
     payments/
       success.tsx            # Post-checkout success
       cancel.tsx             # Post-checkout cancel
     api/
-      auth/callback.ts       # Company profile creation after signup
+      auth/[...nextauth].ts  # NextAuth dynamic route handler
+      auth/register.ts       # User registration + company creation
       user/me.ts             # Company profile CRUD
       candidates/
         index.ts             # Search/filter candidates (public)
@@ -72,6 +73,9 @@ src/
       vetting/
         resume-analysis.ts   # Layer 1: AI resume analysis via Claude API
         scenario-assessment.ts # Layer 2: AI scenario questions
+        video-interview.ts   # Layer 3: Video interview evaluation
+        reference-check.ts   # Layer 4: Reference verification
+        evaluate-response.ts # Layer 2 supplement: scenario answer scoring
       companies/verify.ts    # Admin: manually verify a company
     _app.tsx                 # App wrapper with AuthProvider
     _document.tsx            # HTML document + SEO
@@ -96,7 +100,7 @@ src/
   server/
     stripe.ts                # Stripe client + credit pack/subscription tier configs
     middleware/
-      withAuth.ts            # Supabase auth + admin middleware
+      withAuth.ts            # NextAuth session + admin middleware
       withMethods.ts         # HTTP method restriction
       withValidation.ts      # Zod body/query validation
       withRateLimit.ts       # In-memory IP+route rate limiter
@@ -105,8 +109,7 @@ src/
 
   lib/
     prisma.ts                # Prisma client singleton
-    supabase-server.ts       # Supabase server client + getAuthUserId()
-    supabase-browser.ts      # Supabase browser client
+    auth.ts                  # NextAuth config (CredentialsProvider, PrismaAdapter)
     stripe-client.ts         # Client-side loadStripe singleton
     candidates.ts            # Mock candidate data (fallback)
     vetting-types.ts         # TypeScript interfaces for AI vetting pipeline
@@ -154,7 +157,7 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 
 ## Current State
 
-- Full backend: 21 API routes, Prisma schema, Supabase auth, Stripe payments
+- Full backend: 21 API routes, Prisma schema, NextAuth.js, Stripe payments
 - Database: 10 seeded candidates with vetting profiles
 - Frontend connected to API: dashboard, profile, unlocks, hire, billing
 - UnlockModal uses credit system (raw card form removed)

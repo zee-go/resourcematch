@@ -6,6 +6,7 @@ import type {
 } from "@/lib/vetting-types";
 import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAuth";
 import { withRateLimit } from "@/server/middleware/withRateLimit";
+import { prisma } from "@/lib/prisma";
 
 const VERTICALS: Record<string, string> = {
   ecommerce: "E-commerce Operations",
@@ -127,6 +128,37 @@ async function handler(
       layer: "resume_analysis",
       completedAt: new Date().toISOString(),
     };
+
+    // Persist to database if candidateId provided
+    const { candidateId } = req.body as ResumeAnalysisRequest;
+    if (candidateId) {
+      await prisma.vettingLayerResult.upsert({
+        where: {
+          candidateId_layer: {
+            candidateId,
+            layer: "RESUME_ANALYSIS",
+          },
+        },
+        create: {
+          candidateId,
+          layer: "RESUME_ANALYSIS",
+          score: result.score,
+          passed: result.passed,
+          summary: result.summary,
+          details: result.details,
+          resultJson: JSON.parse(JSON.stringify(result)),
+          completedAt: new Date(),
+        },
+        update: {
+          score: result.score,
+          passed: result.passed,
+          summary: result.summary,
+          details: result.details,
+          resultJson: JSON.parse(JSON.stringify(result)),
+          completedAt: new Date(),
+        },
+      });
+    }
 
     return res.status(200).json({ success: true, data: result });
   } catch (error) {

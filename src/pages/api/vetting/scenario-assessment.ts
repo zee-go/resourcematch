@@ -6,6 +6,7 @@ import type {
 } from "@/lib/vetting-types";
 import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAuth";
 import { withRateLimit } from "@/server/middleware/withRateLimit";
+import { prisma } from "@/lib/prisma";
 
 const VERTICALS: Record<string, string> = {
   ecommerce: "E-commerce Operations",
@@ -112,6 +113,35 @@ async function handler(
     }
 
     const questions = JSON.parse(content) as ScenarioQuestion[];
+
+    // Persist to database if candidateId provided
+    const { candidateId } = req.body as ScenarioGenerationRequest;
+    if (candidateId) {
+      await prisma.vettingLayerResult.upsert({
+        where: {
+          candidateId_layer: {
+            candidateId,
+            layer: "SCENARIO_ASSESSMENT",
+          },
+        },
+        create: {
+          candidateId,
+          layer: "SCENARIO_ASSESSMENT",
+          score: 0,
+          passed: false,
+          summary: `Generated ${questions.length} scenario questions`,
+          details: questions.map((q) => q.scenario.slice(0, 100)),
+          resultJson: JSON.parse(JSON.stringify({ questions })),
+          completedAt: new Date(),
+        },
+        update: {
+          summary: `Generated ${questions.length} scenario questions`,
+          details: questions.map((q) => q.scenario.slice(0, 100)),
+          resultJson: JSON.parse(JSON.stringify({ questions })),
+          completedAt: new Date(),
+        },
+      });
+    }
 
     return res.status(200).json({ success: true, data: questions });
   } catch (error) {

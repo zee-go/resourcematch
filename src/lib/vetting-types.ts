@@ -95,13 +95,55 @@ export interface VettingProfile {
 export interface ResumeAnalysisRequest {
   resumeText: string;
   targetVertical: string;
+  candidateId?: number;
   candidateName?: string;
 }
 
 export interface ScenarioGenerationRequest {
   vertical: string;
   experienceLevel: string;
+  candidateId?: number;
   count?: number;
+}
+
+export interface VideoInterviewRequest {
+  candidateId: number;
+  interviewNotes: string;
+  communicationRating: number; // 1-10
+  professionalismRating: number; // 1-10
+  englishLevel: "basic" | "intermediate" | "advanced" | "native";
+  targetVertical: string;
+}
+
+export interface ReferenceCheckRequest {
+  candidateId: number;
+  references: {
+    name: string;
+    company: string;
+    role: string;
+    relationship: string;
+    feedback: string;
+    rating: number; // 1-5
+    verified: boolean;
+  }[];
+  targetVertical: string;
+}
+
+export interface ScenarioEvaluationRequest {
+  candidateId: number;
+  questionId: string;
+  scenario: string;
+  response: string;
+  evaluationCriteria: string[];
+  targetVertical: string;
+}
+
+export interface ScenarioEvaluationResult extends VettingResult {
+  layer: "scenario_evaluation";
+  questionId: string;
+  strengthsShown: string[];
+  areasForImprovement: string[];
+  criteriaScores: { criterion: string; score: number; feedback: string }[];
 }
 
 export interface APIResponse<T> {

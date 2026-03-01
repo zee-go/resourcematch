@@ -9,20 +9,15 @@
 
 ## In Progress
 
-(none — last batch completed)
+- **Deploy to GCP Cloud Run** — Dockerfile ready, Cloud SQL + Artifact Registry + Secret Manager all provisioned. Need to build image, deploy service, seed DB, map domain.
 
 ## Pending
 
-- **Clean up Softgen artifacts** — Remove `@softgenai/element-tagger` dev dep, turbo rules in `next.config.mjs`
-- **Wire Stripe payments** — Connect credit pack purchases ($25/100/250) and subscription tiers ($149/$299/$599) to Stripe Checkout
-- **Add database** — Candidates, unlocks, user accounts, credit balances. Supabase or similar.
-- **Deploy to Vercel** — Connect `zee-go/resourcematch` to Vercel, verify builds
-- **Cloudflare DNS setup** — Transfer resourcematch.ph from Wix nameservers, A record → Vercel
-- **Complete vetting pipeline** — Add Layer 3 (video interview evaluation) and Layer 4 (reference check) API routes
+- **Cloudflare DNS setup** — Transfer resourcematch.ph from Wix nameservers, map to Cloud Run
+- **Stripe test mode verification** — Create test products/prices in Stripe Dashboard, end-to-end test with 4242 card
 - **Candidate intake form** — Allow professionals to submit profiles for vetting
 - **Blog infrastructure** — Copy MDX system from goscale (blog listing, post page, sitemap, @tailwindcss/typography)
 - **Recruitment SEO agent** — New agent in `zee-go/agent` project, Tuesday 10 AM schedule
-- **DNS cutover from Wix** — Final migration after all above is complete
 
 ### Future Projects
 
@@ -38,18 +33,36 @@
 
 ## Completed (Recent)
 
+- **2026-02-28 — Vetting pipeline complete (all 4 layers)**
+  - Created Layer 3 (video-interview.ts) and Layer 4 (reference-check.ts) API routes
+  - Created evaluate-response.ts for scenario answer scoring
+  - Added Prisma persistence to all 4 vetting routes (upsert to VettingLayerResult)
+  - Added Video Interview and Reference Check tabs to admin/vetting.tsx
+  - Added request types (VideoInterviewRequest, ReferenceCheckRequest, ScenarioEvaluationRequest)
+
+- **2026-02-28 — Softgen cleanup**
+  - Deleted logs/ directory, added to .gitignore
+  - Rewrote README.md (was "# Your Softgen App")
+
+- **2026-02-28 — Documentation update**
+  - Updated CLAUDE.md: replaced Supabase references with NextAuth.js, added new vetting routes
+  - Updated active.md: reflected completed tasks
+
+- **2026-02-28 — Full backend infrastructure**
+  - Database: Prisma schema with 14 models, PostgreSQL on Cloud SQL
+  - Auth: Migrated from Supabase Auth to NextAuth.js (CredentialsProvider, JWT, PrismaAdapter)
+  - API: 21 routes (candidates, unlocks, credits, payments, vetting, auth, admin)
+  - Stripe: Checkout, webhook, portal, credits — fully wired
+  - Pages: dashboard, profile, unlocks, billing, hire — all using getServerSideProps with Prisma
+  - Docker: Multi-stage Dockerfile for Cloud Run deployment
+
 - **2026-02-28 — Senior talent pivot (full website rebuild)**
   - Repositioned from "Thinking Workers / AI-augmented" to "AI-Vetted Senior Filipino Professionals"
-  - Created centralized candidate data model (`src/lib/candidates.ts`) with 10 senior mock candidates
-  - Rewrote all landing page sections: Hero, WhyChoose, AIComparison (→ vetting pipeline), HowItWorks
-  - Updated dashboard + all sub-components: filters, stats, AI matching, candidate cards
-  - Rewrote hire.tsx with new pricing ($25/unlock, $149-$599/mo subscriptions)
-  - Rewrote profile/[id].tsx with vetting results, portfolio/case studies, vertical badges
-  - Updated UnlockModal ($3→$25, hourlyRate→vettingScore)
-  - Updated unlocks.tsx with senior candidate data
+  - Created centralized candidate data model with 10 senior mock candidates
+  - Rewrote all landing page sections: Hero, WhyChoose, AIComparison, HowItWorks
+  - Updated dashboard + all sub-components
   - Built AI vetting pipeline: type definitions, resume analysis API, scenario assessment API
   - Created internal admin vetting page (`/admin/vetting`)
-  - Updated CLAUDE.md, active.md, decisions.md
 
 ---
 
