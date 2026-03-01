@@ -41,12 +41,12 @@ export function SearchFilters({
   const availableSkills = [
     "Shopify",
     "Amazon Seller Central",
-    "Medical Billing",
-    "HIPAA Compliance",
     "QuickBooks",
     "Financial Modeling",
-    "Google Ads",
-    "SEO",
+    "Inventory Management",
+    "Supply Chain",
+    "Xero",
+    "Bookkeeping",
     "Team Leadership",
     "Operations Management",
   ];
@@ -121,9 +121,7 @@ export function SearchFilters({
             <SelectContent>
               <SelectItem value="all">All Verticals</SelectItem>
               <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
-              <SelectItem value="healthcare">Healthcare Admin</SelectItem>
               <SelectItem value="accounting">Accounting & Finance</SelectItem>
-              <SelectItem value="marketing">Digital Marketing</SelectItem>
             </SelectContent>
           </Select>
         </div>

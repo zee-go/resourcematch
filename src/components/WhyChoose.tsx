@@ -15,14 +15,14 @@ export function WhyChoose() {
       title: "Senior-Level Experience",
       benefits: [
         "Minimum 5 years domain experience in your target vertical",
-        "Professionals who have managed teams, built systems, and solved complex problems"
+        "Experts who have managed teams, built systems, and solved complex problems"
       ],
     },
     {
       icon: Building2,
       title: "Vertical Specialization",
       benefits: [
-        "E-commerce operations, healthcare admin, accounting, and digital marketing",
+        "E-commerce operations and accounting & finance",
         "Role-specific vetting scenarios tailored to your industry"
       ],
     },
@@ -46,7 +46,7 @@ export function WhyChoose() {
             <span className="text-primary">ResourceMatch</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Senior professionals, rigorously vetted, ready to deliver.
+            Senior talent, rigorously vetted, ready to deliver.
           </p>
         </div>
 

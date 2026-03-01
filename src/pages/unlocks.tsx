@@ -222,7 +222,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
     <>
       <SEO
         title="My Unlocked Profiles - ResourceMatch"
-        description="Manage your unlocked senior professional profiles and contact information on ResourceMatch."
+        description="Manage your unlocked senior talent profiles and contact information on ResourceMatch."
       />
 
       <div className="min-h-screen bg-slate-50">
@@ -233,7 +233,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2">My Unlocked Profiles</h1>
             <p className="text-slate-600">
-              Manage and track all professionals you've unlocked
+              Manage and track all talent you've unlocked
             </p>
           </div>
 
@@ -247,12 +247,12 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                 No profiles unlocked yet
               </h3>
               <p className="text-slate-600 mb-6 max-w-md mx-auto">
-                Browse our vetted senior professionals and unlock profiles to access their full
+                Browse our vetted senior talent and unlock profiles to access their full
                 contact information and vetting results.
               </p>
               <Link href="/dashboard">
                 <Button className="bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white">
-                  Browse Professionals
+                  Browse Talent
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
@@ -330,7 +330,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Professional</TableHead>
+                      <TableHead>Talent</TableHead>
                       <TableHead>Contact Info</TableHead>
                       <TableHead>Vetting Score</TableHead>
                       <TableHead>Unlocked Date</TableHead>
@@ -434,7 +434,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
 
               {filteredCandidates.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-slate-600">No professionals match your filters</p>
+                  <p className="text-slate-600">No results match your filters</p>
                 </div>
               )}
             </>

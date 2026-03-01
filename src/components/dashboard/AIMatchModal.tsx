@@ -73,7 +73,7 @@ export function AIMatchModal({
           </DialogTitle>
           <DialogDescription className="text-base">
             Describe your ideal candidate and our AI will match you with
-            vetted senior professionals based on skills, experience, and vertical fit.
+            vetted senior talent based on skills, experience, and vertical fit.
           </DialogDescription>
         </DialogHeader>
 
@@ -115,9 +115,7 @@ export function AIMatchModal({
               <SelectContent>
                 <SelectItem value="all">All Verticals</SelectItem>
                 <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
-                <SelectItem value="healthcare">Healthcare Admin</SelectItem>
                 <SelectItem value="accounting">Accounting & Finance</SelectItem>
-                <SelectItem value="marketing">Digital Marketing</SelectItem>
               </SelectContent>
             </Select>
           </div>

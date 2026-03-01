@@ -165,7 +165,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                 {[
                   { icon: Mail, text: "Full contact information (email & phone)" },
                   { icon: FileText, text: "Complete resume and work history" },
-                  { icon: Users, text: "Verified professional references" },
+                  { icon: Users, text: "Verified references" },
                   { icon: Shield, text: "AI vetting results and scores" },
                   { icon: Clock, text: "30-day contact guarantee" },
                 ].map((item, index) => (

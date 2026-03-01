@@ -116,7 +116,7 @@ export default function SignupPage() {
     <>
       <SEO
         title="Sign Up - ResourceMatch"
-        description="Create your ResourceMatch account to hire AI-vetted senior Filipino professionals."
+        description="Create your ResourceMatch account to hire AI-vetted senior Filipino talent."
       />
 
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
@@ -338,7 +338,7 @@ export default function SignupPage() {
                     <div className="flex gap-2">
                       <CheckCircle2 className="w-4 h-4 text-[#04443C] mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-[#04443C]">
-                        We verify companies to protect our professionals from lowball offers.
+                        We verify companies to protect our talent from lowball offers.
                         Verified employers get priority access and a trusted badge.
                       </p>
                     </div>

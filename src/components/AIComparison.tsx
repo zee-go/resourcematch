@@ -9,7 +9,7 @@ const vettingLayers = [
     title: "Resume & Career Analysis",
     description: "AI parses resumes and LinkedIn profiles to score career trajectory, detect red flags, and verify experience depth. Only candidates with 5+ years relevant experience proceed.",
     icon: FileSearch,
-    color: "from-[#04443C] to-[#3a7a50]",
+    color: "from-[#04443C] to-[#399A8B]",
   },
   {
     number: 2,
@@ -23,7 +23,7 @@ const vettingLayers = [
     title: "Video Interview Analysis",
     description: "Speech-to-text transcription analyzed by AI for communication clarity, problem-solving approach, and cultural fit. Video clips are included in candidate profiles.",
     icon: Video,
-    color: "from-[#04443C] to-[#3a7a50]",
+    color: "from-[#04443C] to-[#399A8B]",
   },
   {
     number: 4,
@@ -52,7 +52,7 @@ export function AIComparison() {
             <span className="text-primary">Vetting Pipeline</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Every professional on ResourceMatch passes rigorous AI-powered evaluation before their profile goes live.
+            Every expert on ResourceMatch passes rigorous AI-powered evaluation before their profile goes live.
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export function AIComparison() {
               size="lg"
               className="bg-[#04443C] hover:bg-[#022C27] text-white px-8 h-14 text-lg group"
             >
-              Browse Vetted Professionals
+              Browse Vetted Talent
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>

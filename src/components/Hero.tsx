@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5 pt-16">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
@@ -27,7 +27,7 @@ export function Hero() {
 
           {/* Main headline */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-center mb-6 leading-tight animate-slide-up-delay-1">
-            Hire Senior Filipino Professionals,{" "}
+            Hire Senior Filipino Talent,{" "}
             <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               Vetted
             </span>{" "}
@@ -36,7 +36,7 @@ export function Hero() {
 
           {/* Subheadline */}
           <p className="text-xl sm:text-2xl text-muted-foreground text-center max-w-3xl mx-auto mb-12 animate-slide-up-delay-2">
-            5-10+ years of experience in e-commerce, healthcare, finance, and marketing. Every candidate passes our 4-layer AI vetting pipeline before you see their profile.
+            5-10+ years of experience in e-commerce operations and accounting & finance. Every candidate passes our 4-layer AI vetting pipeline before you see their profile.
           </p>
 
           {/* CTA Buttons */}
@@ -46,17 +46,19 @@ export function Hero() {
                 size="lg"
                 className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105"
               >
-                Browse Vetted Professionals
+                Browse Vetted Talent
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-8 py-6 border-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105"
-            >
-              Apply as Professional
-            </Button>
+            <Link href="/apply">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 py-6 border-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              >
+                Apply as an Expert
+              </Button>
+            </Link>
           </div>
 
           {/* Key Stats */}

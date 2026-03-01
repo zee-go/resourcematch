@@ -260,7 +260,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
 
               {/* Vetting Score */}
               <div className="flex flex-col items-end gap-2">
-                <div className="bg-gradient-to-r from-[#04443C] to-[#3a7a50] text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                <div className="bg-gradient-to-r from-[#04443C] to-[#399A8B] text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
                   <ShieldCheck className="w-5 h-5" />
                   <span className="font-bold text-lg">
                     {candidate.vettingScore}/100

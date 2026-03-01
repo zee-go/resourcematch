@@ -8,8 +8,8 @@ interface SEOProps {
 }
 
 export function SEOElements({
-  title = "ResourceMatch - AI-Vetted Senior Filipino Professionals",
-  description = "Hire pre-vetted senior Filipino professionals with 5-10+ years experience. AI-powered vetting across resume analysis, scenario assessments, and video interviews. From $25/unlock.",
+  title = "ResourceMatch - AI-Vetted Senior Filipino Talent",
+  description = "Hire pre-vetted senior Filipino talent with 5-10+ years experience. AI-powered vetting across resume analysis, scenario assessments, and video interviews. From $25/unlock.",
   image = "/og-image.png",
   url,
 }: SEOProps) {

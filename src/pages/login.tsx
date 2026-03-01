@@ -41,7 +41,7 @@ export default function LoginPage() {
     <>
       <SEO
         title="Log In - ResourceMatch"
-        description="Log in to your ResourceMatch account to access vetted senior professionals."
+        description="Log in to your ResourceMatch account to access vetted senior talent."
       />
 
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">

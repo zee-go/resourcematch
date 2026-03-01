@@ -5,7 +5,7 @@ export function StatsCards() {
     {
       icon: Users,
       value: "200+",
-      label: "Vetted Senior Professionals",
+      label: "Vetted Senior Talent",
       description: "5-10+ years experience, AI-verified",
       gradient: "from-[#04443C] to-[#022C27]",
     },

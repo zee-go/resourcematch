@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Building2,
@@ -24,7 +25,7 @@ const companySteps: Step[] = [
   {
     number: 1,
     title: "Search Vetted Talent",
-    description: "Browse portfolio-style profiles of senior professionals",
+    description: "Browse portfolio-style profiles of senior talent",
     icon: <Search className="w-8 h-8" />,
     detail: "Filter by vertical, experience level, and availability. Every candidate has passed our 4-layer AI vetting pipeline. View case studies, vetting scores, and video introductions at no cost."
   },
@@ -86,7 +87,7 @@ export function HowItWorks() {
             How It <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Works</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Simple, transparent processes for both companies and professionals
+            Simple, transparent processes for companies and talent
           </p>
         </div>
 
@@ -117,7 +118,7 @@ export function HowItWorks() {
               `}
             >
               <UserCheck className="w-5 h-5" />
-              For Professionals
+              For Talent
             </button>
           </div>
         </div>
@@ -203,26 +204,30 @@ export function HowItWorks() {
         <div className="text-center space-y-6 animate-fade-in" style={{ animationDelay: "500ms" }}>
           {activeTab === "companies" ? (
             <>
-              <Button
-                size="lg"
-                className="bg-[#04443C] hover:bg-[#022C27] text-white px-8 h-14 text-lg group"
-              >
-                Browse Vetted Professionals
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <Link href="/dashboard">
+                <Button
+                  size="lg"
+                  className="bg-[#04443C] hover:bg-[#022C27] text-white px-8 h-14 text-lg group"
+                >
+                  Browse Vetted Talent
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
               <p className="text-sm text-muted-foreground">
                 No credit card required to browse profiles
               </p>
             </>
           ) : (
             <>
-              <Button
-                size="lg"
-                className="bg-[#D38B53] hover:bg-[#B47646] text-white px-8 h-14 text-lg group"
-              >
-                Apply as a Professional
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <Link href="/apply">
+                <Button
+                  size="lg"
+                  className="bg-[#D38B53] hover:bg-[#B47646] text-white px-8 h-14 text-lg group"
+                >
+                  Apply as an Expert
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
               <p className="text-sm text-muted-foreground">
                 Application review takes 3-5 business days
               </p>

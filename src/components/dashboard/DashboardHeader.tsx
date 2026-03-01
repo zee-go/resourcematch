@@ -37,7 +37,7 @@ export function DashboardHeader() {
                 className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
               >
                 <Users className="w-4 h-4 mr-2" />
-                Find Professionals
+                Browse Talent
               </Button>
             </Link>
             {user && (

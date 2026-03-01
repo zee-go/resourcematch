@@ -22,7 +22,7 @@ export function AIBanner({ onMatchClick }: AIBannerProps) {
                 </span>
               </div>
               <p className="text-white/90 text-sm">
-                Describe your role and let our AI match you with vetted senior professionals
+                Describe your role and let our AI match you with vetted senior talent
               </p>
             </div>
           </div>

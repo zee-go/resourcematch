@@ -46,7 +46,7 @@ export function CandidateResults({
       {/* Results Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-900">
-          {totalCount} Professional{totalCount !== 1 ? "s" : ""} Found
+          {totalCount} Result{totalCount !== 1 ? "s" : ""} Found
         </h2>
         <div className="text-sm text-slate-600">
           Showing {candidates.length} result{candidates.length !== 1 ? "s" : ""}
@@ -252,7 +252,7 @@ export function CandidateResults({
             <SearchIcon className="w-8 h-8 text-slate-400" />
           </div>
           <h3 className="text-xl font-semibold text-slate-900 mb-2">
-            No professionals found
+            No results found
           </h3>
           <p className="text-slate-600 mb-6">
             Try adjusting your filters or search criteria

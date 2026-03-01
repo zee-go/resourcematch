@@ -41,9 +41,7 @@ interface PreviewCandidate {
 
 const VERTICAL_LABELS: Record<string, string> = {
   ecommerce: "E-commerce Operations",
-  healthcare: "Healthcare Admin",
   accounting: "Accounting & Finance",
-  marketing: "Digital Marketing",
 };
 
 interface HirePageProps {
@@ -165,7 +163,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
   ];
 
   const stats = [
-    { icon: Users, value: "200+", label: "Vetted Senior Professionals" },
+    { icon: Users, value: "200+", label: "Vetted Senior Talent" },
     { icon: ShieldCheck, value: "4-Layer", label: "AI Vetting Pipeline" },
     { icon: DollarSign, value: "$25", label: "Per Profile Unlock" },
     { icon: Star, value: "92%", label: "Client Match Rate" },
@@ -256,8 +254,8 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
   return (
     <>
       <SEO
-        title="Hire AI-Vetted Senior Filipino Professionals - ResourceMatch"
-        description="Pre-vetted senior Filipino professionals with 5-10+ years experience. 4-layer AI vetting pipeline. From $25/unlock."
+        title="Hire AI-Vetted Senior Filipino Talent - ResourceMatch"
+        description="Pre-vetted senior Filipino talent with 5-10+ years experience. 4-layer AI vetting pipeline. From $25/unlock."
       />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
@@ -273,7 +271,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                 <Link href="/dashboard">
                   <Button variant="outline" size="lg">
                     <Users className="mr-2 h-4 w-4" />
-                    Browse Professionals
+                    Browse Talent
                   </Button>
                 </Link>
               </div>
@@ -299,7 +297,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                 className="text-5xl md:text-7xl font-bold text-slate-900 leading-tight animate-fade-in"
                 style={{ animationDelay: "100ms" }}
               >
-                Hire Senior Professionals{" "}
+                Hire Senior Talent{" "}
                 <span className="bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
                   Vetted by AI
                 </span>
@@ -322,7 +320,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                     size="lg"
                     className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30 hover:shadow-xl transition-all"
                   >
-                    Browse Vetted Professionals
+                    Browse Vetted Talent
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
@@ -346,13 +344,13 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                 <div className="text-center mb-16">
                   <Badge className="mb-4 bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50">
                     <ShieldCheck className="w-3 h-3 mr-1" />
-                    AI-Vetted Professionals
+                    AI-Vetted Talent
                   </Badge>
                   <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
                     Meet Our Senior Talent
                   </h2>
                   <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                    Every professional has passed our 4-layer AI vetting pipeline and brings 5-10+
+                    Every expert has passed our 4-layer AI vetting pipeline and brings 5-10+
                     years of domain expertise.
                   </p>
                 </div>
@@ -460,7 +458,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                       size="lg"
                       className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
                     >
-                      Browse All Vetted Professionals
+                      Browse All Vetted Talent
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
@@ -715,7 +713,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                 Ready to Hire Vetted Senior Talent?
               </h2>
               <p className="text-xl text-slate-600">
-                Browse AI-vetted senior professionals with 5-10+ years experience. From $25/unlock.
+                Browse AI-vetted senior talent with 5-10+ years experience. From $25/unlock.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                 <Link href="/dashboard">
@@ -723,7 +721,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                     size="lg"
                     className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
                   >
-                    Browse Vetted Professionals
+                    Browse Vetted Talent
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>

@@ -9,9 +9,7 @@ import { withRateLimit } from "@/server/middleware/withRateLimit";
 
 const VERTICALS: Record<string, string> = {
   ecommerce: "E-commerce Operations",
-  healthcare: "Healthcare Administration",
   accounting: "Accounting & Finance",
-  marketing: "Digital Marketing",
 };
 
 function buildEvaluationPrompt(data: ScenarioEvaluationRequest): string {
