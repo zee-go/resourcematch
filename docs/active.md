@@ -9,12 +9,12 @@
 
 ## In Progress
 
-- **Deploy to GCP Cloud Run** — Dockerfile ready, Cloud SQL + Artifact Registry + Secret Manager all provisioned. Need to build image, deploy service, seed DB, map domain.
+- **Public access for Cloud Run** — GCP org policy blocks `allUsers`. Options: (1) override org policy in GCP Console, or (2) set up Global External Load Balancer with serverless NEG (recommended for production — adds custom domain, managed SSL, CDN).
 
 ## Pending
 
-- **Cloudflare DNS setup** — Transfer resourcematch.ph from Wix nameservers, map to Cloud Run
-- **Stripe test mode verification** — Create test products/prices in Stripe Dashboard, end-to-end test with 4242 card
+- **Cloudflare DNS setup** — Transfer resourcematch.ph from Wix nameservers, map to Cloud Run / Load Balancer
+- **Stripe test mode verification** — Create test products/prices in Stripe Dashboard, add price IDs to Secret Manager, end-to-end test with 4242 card
 - **Candidate intake form** — Allow professionals to submit profiles for vetting
 - **Blog infrastructure** — Copy MDX system from goscale (blog listing, post page, sitemap, @tailwindcss/typography)
 - **Recruitment SEO agent** — New agent in `zee-go/agent` project, Tuesday 10 AM schedule
@@ -32,6 +32,15 @@
 ---
 
 ## Completed (Recent)
+
+- **2026-03-01 — Deployed to GCP Cloud Run**
+  - Built Docker image via Cloud Build, pushed to Artifact Registry (`asia-southeast1`)
+  - Deployed Cloud Run service: `resourcematch-155063280413.asia-southeast1.run.app`
+  - Created service account `resourcematch-run` with Cloud SQL Client + Secret Manager accessor roles
+  - 8 secrets injected from Secret Manager (DATABASE_URL, NEXTAUTH_*, STRIPE_*, ANTHROPIC_API_KEY, ADMIN_EMAILS)
+  - Cloud SQL Auth Proxy: pushed Prisma schema + seeded 10 candidates
+  - All endpoints verified: landing (200), /api/health (200), /api/candidates (200, 10 candidates)
+  - Blocker: GCP org policy `iam.allowedPolicyMemberDomains` blocks public `allUsers` access (403 without auth token)
 
 - **2026-02-28 — Vetting pipeline complete (all 4 layers)**
   - Created Layer 3 (video-interview.ts) and Layer 4 (reference-check.ts) API routes

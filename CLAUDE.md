@@ -162,7 +162,9 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Frontend connected to API: dashboard, profile, unlocks, hire, billing
 - UnlockModal uses credit system (raw card form removed)
 - Stripe Checkout wired for credit packs + subscriptions
-- GCP deployment ready: Dockerfile, cloudbuild.yaml, security headers
+- Deployed to GCP Cloud Run: `resourcematch-155063280413.asia-southeast1.run.app`
+- Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
+- Public access pending: org policy blocks `allUsers` (needs LB or policy override)
 - Domain: resourcematch.ph
 - GitHub: zee-go/resourcematch
 
