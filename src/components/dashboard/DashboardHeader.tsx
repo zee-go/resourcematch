@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Building2,
   Users,
   CreditCard,
   Unlock,
@@ -13,6 +12,7 @@ import {
   FileText,
   UserCircle,
 } from "lucide-react";
+import { LogoIcon } from "@/components/LogoIcon";
 import { useAuth } from "@/contexts/AuthProvider";
 
 export function DashboardHeader() {
@@ -27,9 +27,7 @@ export function DashboardHeader() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
+            <LogoIcon className="w-8 h-8 group-hover:scale-105 transition-transform" color="accent" />
             <span className="text-xl font-bold text-[#04443C]">
               ResourceMatch
             </span>

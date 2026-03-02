@@ -29,6 +29,7 @@ import {
   X,
 } from "lucide-react";
 import { signIn } from "next-auth/react";
+import { LogoIcon } from "@/components/LogoIcon";
 
 type Role = "company" | "candidate";
 type Step = "role" | "credentials" | "details";
@@ -229,9 +230,7 @@ export default function SignupPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5 text-white" />
-              </div>
+              <LogoIcon className="w-10 h-10" color="accent" />
               <span className="text-2xl font-bold text-slate-900">
                 ResourceMatch
               </span>

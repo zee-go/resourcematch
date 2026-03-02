@@ -166,7 +166,7 @@ export default function JobBoard({ jobs, page, totalPages, total }: JobBoardProp
     <>
       <SEO
         title="Jobs — Senior Filipino Professionals | ResourceMatch"
-        description="Browse open positions for senior Filipino professionals. Find full-time, part-time, and contract roles in accounting, finance, and e-commerce operations."
+        description="Browse open positions for senior Filipino professionals. Find full-time, part-time, and contract roles in accounting, finance, and operations management."
       />
 
       <div className="min-h-screen bg-slate-50">

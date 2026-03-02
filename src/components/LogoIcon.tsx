@@ -1,0 +1,38 @@
+interface LogoIconProps {
+  className?: string;
+  color?: "primary" | "white" | "accent";
+}
+
+const colorMap = {
+  primary: "fill-[#04443C]",
+  white: "fill-white",
+  accent: "fill-[#D38B53]",
+};
+
+export function LogoIcon({ className = "w-6 h-6", color = "primary" }: LogoIconProps) {
+  const fillClass = colorMap[color];
+  return (
+    <svg
+      viewBox="0 0 1280 1280"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path
+        className={fillClass}
+        d="M581.84,1163.63V1280H0V698.21H116.37A464.13,464.13,0,0,1,445.53,834.52c6.89,6.9,13.54,13.94,19.94,21.28a461,461,0,0,1,54.12,75.14A463.27,463.27,0,0,1,581.84,1163.63Z"
+      />
+      <path
+        className={fillClass}
+        d="M1280,1163.63V1280H698.21V698.21H814.58A464.61,464.61,0,0,1,930.9,712.88c122.32,31.42,225.15,111.4,286.85,218.06A463.27,463.27,0,0,1,1280,1163.63Z"
+      />
+      <path
+        className={fillClass}
+        d="M989.1,290.9a289.85,289.85,0,0,1-58.2,174.67,295.74,295.74,0,0,1-27,31.07,290,290,0,0,1-205.7,85.2V0a290,290,0,0,1,205.7,85.2,295.74,295.74,0,0,1,27,31.07A289.62,289.62,0,0,1,989.1,290.9Z"
+      />
+      <path
+        className={fillClass}
+        d="M290.9,290.9a290.11,290.11,0,0,1-85.2,205.74A290,290,0,0,1,0,581.84V0A290,290,0,0,1,205.7,85.2,290,290,0,0,1,290.9,290.9Z"
+      />
+    </svg>
+  );
+}

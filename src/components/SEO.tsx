@@ -10,14 +10,16 @@ interface SEOProps {
 export function SEOElements({
   title = "ResourceMatch - AI-Vetted Senior Filipino Talent",
   description = "Hire pre-vetted senior Filipino talent with 5-10+ years experience. AI-powered vetting across resume analysis, scenario assessments, and video interviews. From $25/unlock.",
-  image = "/og-image.png",
+  image = "/og-image.jpg",
   url,
 }: SEOProps) {
   return (
     <>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="icon" href="/favicon.ico" />
+      <link rel="icon" href="/logo-icon.svg" type="image/svg+xml" />
+      <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
+      <link rel="apple-touch-icon" href="/logo-icon-accent.svg" />
 
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />

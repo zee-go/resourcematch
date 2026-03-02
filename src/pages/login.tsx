@@ -5,7 +5,8 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
+import { Loader2, Mail, Lock, ArrowRight } from "lucide-react";
+import { LogoIcon } from "@/components/LogoIcon";
 import { signIn, getSession } from "next-auth/react";
 
 export default function LoginPage() {
@@ -56,9 +57,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5 text-white" />
-              </div>
+              <LogoIcon className="w-10 h-10" color="accent" />
               <span className="text-2xl font-bold text-slate-900">
                 ResourceMatch
               </span>

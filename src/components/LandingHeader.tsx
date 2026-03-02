@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Building2, Menu, X, LogIn } from "lucide-react";
+import { Menu, X, LogIn } from "lucide-react";
+import { LogoIcon } from "@/components/LogoIcon";
 
 export function LandingHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -42,9 +43,7 @@ export function LandingHeader() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
+            <LogoIcon className="w-8 h-8 group-hover:scale-105 transition-transform" color="accent" />
             <span
               className={`text-xl font-bold transition-colors ${
                 scrolled ? "text-[#04443C]" : "text-[#04443C]"

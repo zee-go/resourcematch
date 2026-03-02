@@ -72,7 +72,7 @@ export const candidates: Candidate[] = [
     tools: ["Helium 10", "Jungle Scout", "Zapier", "Google Analytics", "Klaviyo", "Claude"],
     location: "Manila, Philippines",
     rating: 4.9,
-    summary: "Seasoned e-commerce operations leader with 10+ years scaling DTC brands and Amazon stores. Previously managed $2M+ monthly revenue accounts and led teams of 8-12. Specialized in inventory forecasting, supplier negotiations, and multi-channel fulfillment optimization.",
+    summary: "Seasoned operations leader with 10+ years scaling DTC brands and Amazon stores. Previously managed $2M+ monthly revenue accounts and led teams of 8-12. Specialized in inventory forecasting, supplier negotiations, and multi-channel fulfillment optimization.",
     caseStudies: [
       {
         title: "Scaled Shopify DTC Brand from $50K to $500K Monthly Revenue",
