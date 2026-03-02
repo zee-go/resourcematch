@@ -486,6 +486,11 @@ async function main() {
 
   console.log(`\nSeeded ${candidates.length} candidates with case studies, references, and vetting results.`);
 
+  // Fix autoincrement sequence after inserting explicit IDs
+  await prisma.$executeRawUnsafe(
+    `SELECT setval(pg_get_serial_sequence('candidates', 'id'), (SELECT MAX(id) FROM candidates))`
+  );
+
   // ─── Seed Demo Companies & Jobs ────────────────────────────
   console.log("\nSeeding demo companies and jobs...");
 
