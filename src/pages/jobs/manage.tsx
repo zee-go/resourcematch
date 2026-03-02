@@ -62,7 +62,7 @@ const statusConfig: Record<
 };
 
 const verticalLabels: Record<string, string> = {
-  ecommerce: "E-commerce",
+  ecommerce: "Operations Management",
   accounting: "Accounting & Finance",
 };
 

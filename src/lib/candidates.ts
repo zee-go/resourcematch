@@ -54,7 +54,7 @@ export interface Candidate {
 }
 
 export const verticalLabels: Record<Vertical, string> = {
-  ecommerce: "E-commerce Operations",
+  ecommerce: "Operations Management",
   accounting: "Accounting & Finance",
 };
 
@@ -63,7 +63,7 @@ export const candidates: Candidate[] = [
     id: 1,
     name: "Patricia M.",
     fullName: "Patricia Marie Domingo",
-    title: "Senior E-commerce Operations Manager",
+    title: "Senior Operations Manager",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
     vertical: "ecommerce",
     experience: 10,

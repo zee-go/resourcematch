@@ -8,7 +8,7 @@ import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAu
 import { withRateLimit } from "@/server/middleware/withRateLimit";
 
 const VERTICALS: Record<string, string> = {
-  ecommerce: "E-commerce Operations",
+  ecommerce: "Operations Management",
   accounting: "Accounting & Finance",
 };
 

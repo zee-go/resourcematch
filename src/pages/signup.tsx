@@ -484,10 +484,10 @@ export default function SignupPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ecommerce">E-commerce / Retail</SelectItem>
-                        <SelectItem value="healthcare">Healthcare</SelectItem>
                         <SelectItem value="finance">Finance / Accounting</SelectItem>
                         <SelectItem value="saas">SaaS / Technology</SelectItem>
                         <SelectItem value="agency">Agency / Consulting</SelectItem>
+                        <SelectItem value="manufacturing">Manufacturing / Logistics</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>

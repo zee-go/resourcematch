@@ -9,7 +9,7 @@ import { withRateLimit } from "@/server/middleware/withRateLimit";
 import { prisma } from "@/lib/prisma";
 
 const VERTICALS: Record<string, string> = {
-  ecommerce: "E-commerce Operations",
+  ecommerce: "Operations Management",
   accounting: "Accounting & Finance",
 };
 

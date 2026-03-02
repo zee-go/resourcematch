@@ -40,7 +40,7 @@ interface PreviewCandidate {
 }
 
 const VERTICAL_LABELS: Record<string, string> = {
-  ecommerce: "E-commerce Operations",
+  ecommerce: "Operations Management",
   accounting: "Accounting & Finance",
 };
 

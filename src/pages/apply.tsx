@@ -265,7 +265,7 @@ export default function ApplyPage() {
                       <SelectValue placeholder="Select vertical..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
+                      <SelectItem value="ecommerce">Operations Management</SelectItem>
                       <SelectItem value="accounting">Accounting & Finance</SelectItem>
                     </SelectContent>
                   </Select>

@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 
 const verticalLabels: Record<string, string> = {
-  ecommerce: "E-commerce Operations",
+  ecommerce: "Operations Management",
   accounting: "Accounting & Finance",
 };
 
@@ -585,7 +585,7 @@ export default function JobDetail({ job }: JobDetailProps) {
                 </h3>
                 <p className="text-green-100 text-sm mb-4">
                   Reach senior Filipino professionals vetted by AI across
-                  accounting, finance, and e-commerce.
+                  accounting, finance, and operations management.
                 </p>
                 <Link href="/jobs/post">
                   <Button

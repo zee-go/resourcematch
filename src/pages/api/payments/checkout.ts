@@ -11,13 +11,16 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { packId } = req.body;
+  const { packId, returnTo } = req.body;
 
   if (!packId || !(packId in CREDIT_PACKS)) {
     return res.status(400).json({
       error: "Invalid pack. Must be one of: " + Object.keys(CREDIT_PACKS).join(", "),
     });
   }
+
+  // Validate returnTo is a relative path (prevent open redirect)
+  const safeReturnTo = typeof returnTo === "string" && returnTo.startsWith("/") ? returnTo : null;
 
   const pack = CREDIT_PACKS[packId as PackKey];
 
@@ -65,7 +68,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         credits: pack.credits.toString(),
         type: "credit_pack",
       },
-      success_url: `${req.headers.origin}/payments/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.origin}/payments/success?session_id={CHECKOUT_SESSION_ID}${safeReturnTo ? `&returnTo=${encodeURIComponent(safeReturnTo)}` : ""}`,
       cancel_url: `${req.headers.origin}/payments/cancel`,
     });
 

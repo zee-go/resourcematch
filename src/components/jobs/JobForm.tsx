@@ -123,7 +123,7 @@ export function JobForm({
         </Label>
         <Input
           id="title"
-          placeholder="e.g., Senior E-commerce Operations Manager"
+          placeholder="e.g., Senior Operations Manager"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={isLoading}
@@ -160,7 +160,7 @@ export function JobForm({
               <SelectValue placeholder="Select vertical..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
+              <SelectItem value="ecommerce">Operations Management</SelectItem>
               <SelectItem value="accounting">Accounting & Finance</SelectItem>
             </SelectContent>
           </Select>

@@ -88,7 +88,7 @@ export function AIMatchModal({
             </label>
             <Input
               id="jobTitle"
-              placeholder="e.g., Senior E-commerce Operations Manager"
+              placeholder="e.g., Senior Operations Manager"
               value={jobTitle}
               onChange={(e) => setJobTitle(e.target.value)}
               disabled={isMatching}
@@ -114,7 +114,7 @@ export function AIMatchModal({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Verticals</SelectItem>
-                <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
+                <SelectItem value="ecommerce">Operations Management</SelectItem>
                 <SelectItem value="accounting">Accounting & Finance</SelectItem>
               </SelectContent>
             </Select>

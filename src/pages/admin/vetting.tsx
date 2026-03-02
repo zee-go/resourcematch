@@ -355,10 +355,8 @@ export default function VettingAdmin() {
                         <SelectValue placeholder="Select vertical..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
-                        <SelectItem value="healthcare">Healthcare Administration</SelectItem>
+                        <SelectItem value="ecommerce">Operations Management</SelectItem>
                         <SelectItem value="accounting">Accounting & Finance</SelectItem>
-                        <SelectItem value="marketing">Digital Marketing</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -541,10 +539,8 @@ export default function VettingAdmin() {
                         <SelectValue placeholder="Select vertical..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
-                        <SelectItem value="healthcare">Healthcare Administration</SelectItem>
+                        <SelectItem value="ecommerce">Operations Management</SelectItem>
                         <SelectItem value="accounting">Accounting & Finance</SelectItem>
-                        <SelectItem value="marketing">Digital Marketing</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -702,10 +698,8 @@ export default function VettingAdmin() {
                         <SelectValue placeholder="Select vertical..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
-                        <SelectItem value="healthcare">Healthcare Administration</SelectItem>
+                        <SelectItem value="ecommerce">Operations Management</SelectItem>
                         <SelectItem value="accounting">Accounting & Finance</SelectItem>
-                        <SelectItem value="marketing">Digital Marketing</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -890,10 +884,8 @@ export default function VettingAdmin() {
                         <SelectValue placeholder="Select vertical..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
-                        <SelectItem value="healthcare">Healthcare Administration</SelectItem>
+                        <SelectItem value="ecommerce">Operations Management</SelectItem>
                         <SelectItem value="accounting">Accounting & Finance</SelectItem>
-                        <SelectItem value="marketing">Digital Marketing</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

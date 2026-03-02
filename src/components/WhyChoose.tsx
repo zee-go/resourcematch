@@ -22,7 +22,7 @@ export function WhyChoose() {
       icon: Building2,
       title: "Vertical Specialization",
       benefits: [
-        "E-commerce operations and accounting & finance",
+        "Operations management and accounting & finance",
         "Role-specific vetting scenarios tailored to your industry"
       ],
     },

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { SEO } from "@/components/SEO";
@@ -7,6 +8,25 @@ import { CheckCircle2, ArrowRight } from "lucide-react";
 export default function PaymentSuccess() {
   const router = useRouter();
   const sessionId = router.query.session_id;
+  const returnTo = typeof router.query.returnTo === "string" ? router.query.returnTo : null;
+  const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    if (!returnTo || !router.isReady) return;
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          router.push(returnTo);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [returnTo, router.isReady, router]);
 
   return (
     <>
@@ -26,17 +46,28 @@ export default function PaymentSuccess() {
               Payment Successful
             </h1>
             <p className="text-slate-600 mb-6">
-              Your credits have been added to your account. You can now unlock
-              senior professional profiles.
+              Your credits have been added to your account.
+              {returnTo
+                ? ` Redirecting back in ${countdown}...`
+                : " You can now unlock senior professional profiles."}
             </p>
 
             <div className="flex flex-col gap-3">
-              <Link href="/dashboard">
-                <Button className="w-full bg-[#04443C] hover:bg-[#022C27] text-white">
-                  Browse Candidates
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
+              {returnTo ? (
+                <Link href={returnTo}>
+                  <Button className="w-full bg-[#04443C] hover:bg-[#022C27] text-white">
+                    Return to Profile
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/dashboard">
+                  <Button className="w-full bg-[#04443C] hover:bg-[#022C27] text-white">
+                    Browse Candidates
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              )}
               <Link href="/billing">
                 <Button variant="outline" className="w-full">
                   View Billing

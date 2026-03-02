@@ -19,6 +19,9 @@ import {
   AlertCircle,
   CreditCard,
   Coins,
+  Loader2,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 
 interface UnlockModalProps {
@@ -38,11 +41,18 @@ interface UnlockModalProps {
   }) => void;
 }
 
+const creditPacks = [
+  { id: "pack_1", credits: 1, price: 25, perUnlock: "25.00" },
+  { id: "pack_5", credits: 5, price: 100, perUnlock: "20.00", popular: true },
+  { id: "pack_15", credits: 15, price: 250, perUnlock: "16.67" },
+];
+
 export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: UnlockModalProps) {
   const router = useRouter();
   const { user, company, refreshCompany } = useAuth();
-  const [step, setStep] = useState<"confirm" | "success" | "error">("confirm");
+  const [step, setStep] = useState<"confirm" | "buy_credits" | "success" | "error">("confirm");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [loadingPack, setLoadingPack] = useState<string | null>(null);
   const [contactInfo, setContactInfo] = useState<{ email: string; phone: string; fullName: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [errorAction, setErrorAction] = useState("");
@@ -122,12 +132,37 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
     setErrorMessage("");
     setErrorAction("");
     setContactInfo(null);
+    setLoadingPack(null);
     onClose();
   };
 
   const handleBuyCredits = () => {
-    handleClose();
-    router.push("/hire");
+    setStep("buy_credits");
+  };
+
+  const handlePurchasePack = async (packId: string) => {
+    if (!user) {
+      router.push(`/login?redirect=/profile/${candidate.id}`);
+      return;
+    }
+
+    setLoadingPack(packId);
+    try {
+      const res = await fetch("/api/payments/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ packId, returnTo: `/profile/${candidate.id}` }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Checkout failed:", error);
+    } finally {
+      setLoadingPack(null);
+    }
   };
 
   return (
@@ -264,6 +299,98 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                   Sign In to Unlock
                 </Button>
               )}
+            </div>
+          </>
+        )}
+
+        {step === "buy_credits" && (
+          <>
+            <DialogHeader>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setStep("confirm")}
+                  className="p-1 h-auto"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+                <DialogTitle className="text-2xl font-bold">Buy Credits</DialogTitle>
+              </div>
+            </DialogHeader>
+
+            <p className="text-slate-600 text-sm">
+              Choose a credit pack to unlock {candidate.name}&apos;s profile.
+            </p>
+
+            <div className="space-y-3">
+              {creditPacks.map((pack) => (
+                <button
+                  key={pack.id}
+                  onClick={() => handlePurchasePack(pack.id)}
+                  disabled={!!loadingPack}
+                  className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all hover:shadow-md ${
+                    pack.popular
+                      ? "border-purple-500 bg-purple-50/50"
+                      : "border-slate-200 hover:border-slate-300"
+                  } ${loadingPack === pack.id ? "opacity-70" : ""}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg ${
+                      pack.popular
+                        ? "bg-purple-600 text-white"
+                        : "bg-slate-100 text-slate-700"
+                    }`}>
+                      {pack.credits}
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold text-slate-900">
+                        {pack.credits} Credit{pack.credits !== 1 ? "s" : ""}
+                        {pack.popular && (
+                          <span className="ml-2 text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
+                            BEST VALUE
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-slate-500">${pack.perUnlock} per unlock</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {loadingPack === pack.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                    ) : (
+                      <>
+                        <span className="text-lg font-bold text-slate-900">${pack.price}</span>
+                        <ArrowRight className="w-4 h-4 text-slate-400" />
+                      </>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Upsell */}
+            <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-4 border border-teal-200">
+              <p className="text-sm font-medium text-teal-900 mb-1">
+                Think you&apos;re hiring more people?
+              </p>
+              <p className="text-xs text-teal-700 mb-2">
+                Save with a monthly subscription — from $149/mo with 10 unlocks included.
+              </p>
+              <button
+                onClick={() => {
+                  handleClose();
+                  router.push("/hire#subscriptions");
+                }}
+                className="text-xs font-semibold text-teal-700 hover:text-teal-900 underline underline-offset-2"
+              >
+                View subscription plans →
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-slate-500 justify-center">
+              <Shield className="w-3.5 h-3.5" />
+              <span>Secure checkout via Stripe. Credits never expire.</span>
             </div>
           </>
         )}

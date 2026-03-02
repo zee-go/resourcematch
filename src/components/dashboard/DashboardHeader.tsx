@@ -50,17 +50,6 @@ export function DashboardHeader() {
               </Link>
             )}
 
-            {/* Browse Jobs — visible to all */}
-            <Link href="/jobs">
-              <Button
-                variant="ghost"
-                className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
-              >
-                <Briefcase className="w-4 h-4 mr-2" />
-                Browse Jobs
-              </Button>
-            </Link>
-
             {/* Company-specific nav */}
             {user && isCompany && (
               <>
@@ -97,6 +86,15 @@ export function DashboardHeader() {
             {/* Candidate-specific nav */}
             {user && isCandidate && (
               <>
+                <Link href="/jobs">
+                  <Button
+                    variant="ghost"
+                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                  >
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    Browse Jobs
+                  </Button>
+                </Link>
                 <Link href="/candidate/applications">
                   <Button
                     variant="ghost"

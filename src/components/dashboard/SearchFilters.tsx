@@ -120,7 +120,7 @@ export function SearchFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Verticals</SelectItem>
-              <SelectItem value="ecommerce">E-commerce Operations</SelectItem>
+              <SelectItem value="ecommerce">Operations Management</SelectItem>
               <SelectItem value="accounting">Accounting & Finance</SelectItem>
             </SelectContent>
           </Select>

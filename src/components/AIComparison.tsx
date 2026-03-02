@@ -14,7 +14,7 @@ const vettingLayers = [
   {
     number: 2,
     title: "Scenario Assessments",
-    description: "AI-generated role-specific scenarios for each vertical. E-commerce candidates handle inventory crises. Healthcare admins navigate compliance scenarios. Real judgment, not multiple choice.",
+    description: "AI-generated role-specific scenarios for each vertical. Operations candidates handle logistics crises. Finance teams navigate compliance scenarios. Real judgment, not multiple choice.",
     icon: ClipboardCheck,
     color: "from-[#D38B53] to-[#B47646]",
   },

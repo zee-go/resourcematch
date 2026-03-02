@@ -56,7 +56,7 @@ export function JobSearchFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Verticals</SelectItem>
-            <SelectItem value="ecommerce">E-commerce</SelectItem>
+            <SelectItem value="ecommerce">Operations Management</SelectItem>
             <SelectItem value="accounting">Accounting & Finance</SelectItem>
           </SelectContent>
         </Select>
