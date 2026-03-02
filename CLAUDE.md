@@ -34,7 +34,7 @@ Key differentiators:
 
 ```
 prisma/
-  schema.prisma              # Database schema (Company, Candidate, Unlock, etc.)
+  schema.prisma              # Database schema (17 models — see below)
   seed.ts                    # Seed 10 mock candidates
 
 src/
@@ -47,17 +47,41 @@ src/
     profile/[id].tsx         # Full candidate profile + vetting results
     login.tsx                # NextAuth email/password login
     signup.tsx               # 2-step signup (credentials → company details)
+    apply.tsx                # Candidate intake/application page
+    jobs/
+      index.tsx              # Browse job listings (public)
+      post.tsx               # Create a free job posting (company)
+      manage.tsx             # Manage posted jobs (company)
+      [id].tsx               # View job details
+      [id]/edit.tsx          # Edit job posting
+    candidate/
+      profile.tsx            # Candidate profile management
+      applications.tsx       # Candidate's application history
     admin/vetting.tsx        # Internal: AI vetting pipeline admin tool
+    404.tsx                  # Not found page
     payments/
       success.tsx            # Post-checkout success
       cancel.tsx             # Post-checkout cancel
     api/
+      health.ts              # Health check endpoint
       auth/[...nextauth].ts  # NextAuth dynamic route handler
       auth/register.ts       # User registration + company creation
+      auth/register-candidate.ts # Candidate user registration
       user/me.ts             # Company profile CRUD
+      candidate/
+        me.ts                # Candidate profile CRUD
+        applications.ts      # Candidate's applications list
       candidates/
         index.ts             # Search/filter candidates (public)
         [id].ts              # Single candidate (locked fields hidden unless unlocked)
+      jobs/
+        index.ts             # List + create jobs
+        [id].ts              # Job details + update
+        [id]/applications/
+          index.ts           # Job applications list
+          [applicationId].ts # Manage single application
+      applications/
+        index.ts             # Create application (candidate applies to job)
       unlocks/
         index.ts             # List + create unlocks (atomic credit transactions)
         [id].ts              # Mark contacted
@@ -76,7 +100,9 @@ src/
         video-interview.ts   # Layer 3: Video interview evaluation
         reference-check.ts   # Layer 4: Reference verification
         evaluate-response.ts # Layer 2 supplement: scenario answer scoring
-      companies/verify.ts    # Admin: manually verify a company
+      companies/
+        verify.ts            # Admin: manually verify a company
+        verify-ai.ts         # AI-powered company verification
     _app.tsx                 # App wrapper with AuthProvider
     _document.tsx            # HTML document + SEO
 
@@ -85,6 +111,7 @@ src/
     WhyChoose.tsx            # Value prop cards
     AIComparison.tsx         # 4-layer vetting pipeline showcase
     HowItWorks.tsx           # 2-tab process (companies/professionals)
+    LandingHeader.tsx        # Landing page navigation header
     UnlockModal.tsx          # Credit-based unlock dialog (calls /api/unlocks)
     SEO.tsx                  # SEO head component
     ThemeSwitch.tsx          # Dark mode toggle
@@ -94,7 +121,12 @@ src/
       AIMatchModal.tsx       # AI-powered talent matching form
       SearchFilters.tsx      # Search + vertical/experience/skill filters
       CandidateResults.tsx   # Candidate grid with unlock integration
-      StatsCards.tsx          # Platform stats
+      StatsCards.tsx         # Platform stats
+    jobs/
+      JobCard.tsx            # Job listing card component
+      JobForm.tsx            # Job creation/edit form
+      JobSearchFilters.tsx   # Job search + filters
+      ApplicationCard.tsx    # Job application card component
     ui/                      # shadcn/ui primitives
 
   server/
@@ -124,6 +156,10 @@ src/
   styles/
     globals.css              # Tailwind + CSS variables + fonts
 ```
+
+### Prisma Models
+
+User, Account, Session, VerificationToken, Company, Candidate, CaseStudy, Reference, VettingProfile, VettingLayerResult, Unlock, CreditPurchase, SavedCandidate, CompanyRating, Application, Job, JobApplication
 
 ## Pricing Model
 
@@ -157,14 +193,17 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 
 ## Current State
 
-- Full backend: 21 API routes, Prisma schema, NextAuth.js, Stripe payments
-- Database: 10 seeded candidates with vetting profiles
-- Frontend connected to API: dashboard, profile, unlocks, hire, billing
+- Full backend: 31 API routes, 17 Prisma models, NextAuth.js, Stripe payments
+- Frontend: 22 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD), candidate portal, apply intake
+- Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL
+- Free job posting: companies post jobs, candidates apply, application management pipeline
+- Candidate accounts: separate registration, profile management, application tracking
+- AI company verification: automated legitimacy checks via Claude API
 - UnlockModal uses credit system (raw card form removed)
 - Stripe Checkout wired for credit packs + subscriptions
-- Deployed to GCP Cloud Run: `resourcematch-155063280413.asia-southeast1.run.app`
+- Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
-- Public access pending: org policy blocks `allUsers` (needs LB or policy override)
+- Last deployed: 2026-03-02 (commit 0de6c63)
 - Domain: resourcematch.ph
 - GitHub: zee-go/resourcematch
 
