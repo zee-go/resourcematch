@@ -2,7 +2,13 @@
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('COMPANY', 'CANDIDATE');
+
+-- CreateEnum
 CREATE TYPE "CompanySize" AS ENUM ('SOLO', 'SMALL', 'MEDIUM', 'LARGE', 'ENTERPRISE');
+
+-- CreateEnum
+CREATE TYPE "CompanyVerificationStatus" AS ENUM ('UNVERIFIED', 'PENDING', 'VERIFIED', 'REJECTED');
 
 -- CreateEnum
 CREATE TYPE "SubscriptionTier" AS ENUM ('STARTER', 'GROWTH', 'ENTERPRISE');
@@ -11,7 +17,7 @@ CREATE TYPE "SubscriptionTier" AS ENUM ('STARTER', 'GROWTH', 'ENTERPRISE');
 CREATE TYPE "SubscriptionStatus" AS ENUM ('ACTIVE', 'CANCELED', 'PAST_DUE', 'TRIALING');
 
 -- CreateEnum
-CREATE TYPE "Vertical" AS ENUM ('ecommerce', 'healthcare', 'accounting', 'marketing');
+CREATE TYPE "Vertical" AS ENUM ('ecommerce', 'accounting');
 
 -- CreateEnum
 CREATE TYPE "Availability" AS ENUM ('Full-time', 'Part-time', 'Contract');
@@ -25,12 +31,22 @@ CREATE TYPE "VettingLayer" AS ENUM ('RESUME_ANALYSIS', 'SCENARIO_ASSESSMENT', 'V
 -- CreateEnum
 CREATE TYPE "PurchaseType" AS ENUM ('CREDIT_PACK', 'SUBSCRIPTION');
 
+-- CreateEnum
+CREATE TYPE "ApplicationStatus" AS ENUM ('PENDING', 'REVIEWING', 'APPROVED', 'REJECTED');
+
+-- CreateEnum
+CREATE TYPE "JobStatus" AS ENUM ('DRAFT', 'OPEN', 'CLOSED');
+
+-- CreateEnum
+CREATE TYPE "JobApplicationStatus" AS ENUM ('PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password_hash" TEXT NOT NULL,
     "name" TEXT,
+    "role" "UserRole" NOT NULL DEFAULT 'COMPANY',
     "email_verified" TIMESTAMP(3),
     "image" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -86,6 +102,11 @@ CREATE TABLE "companies" (
     "monthly_budget_min" INTEGER,
     "verified" BOOLEAN NOT NULL DEFAULT false,
     "verified_at" TIMESTAMP(3),
+    "verification_status" "CompanyVerificationStatus" NOT NULL DEFAULT 'UNVERIFIED',
+    "verification_score" INTEGER,
+    "verification_summary" TEXT,
+    "verification_details" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "verified_via" TEXT,
     "credits" INTEGER NOT NULL DEFAULT 0,
     "free_unlocks_used" INTEGER NOT NULL DEFAULT 0,
     "stripe_customer_id" TEXT,
@@ -104,6 +125,7 @@ CREATE TABLE "companies" (
 -- CreateTable
 CREATE TABLE "candidates" (
     "id" SERIAL NOT NULL,
+    "user_id" TEXT,
     "name" TEXT NOT NULL,
     "full_name" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -233,6 +255,62 @@ CREATE TABLE "company_ratings" (
     CONSTRAINT "company_ratings_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "applications" (
+    "id" TEXT NOT NULL,
+    "full_name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" TEXT,
+    "linkedin_url" TEXT,
+    "vertical" "Vertical" NOT NULL,
+    "experience" INTEGER NOT NULL,
+    "resume_text" TEXT,
+    "skills" TEXT[],
+    "bio" TEXT,
+    "status" "ApplicationStatus" NOT NULL DEFAULT 'PENDING',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "applications_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "jobs" (
+    "id" TEXT NOT NULL,
+    "company_id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "vertical" "Vertical" NOT NULL,
+    "experience_min" INTEGER NOT NULL DEFAULT 5,
+    "experience_max" INTEGER,
+    "availability" "Availability" NOT NULL,
+    "salary_min" INTEGER,
+    "salary_max" INTEGER,
+    "skills" TEXT[],
+    "location" TEXT DEFAULT 'Remote',
+    "status" "JobStatus" NOT NULL DEFAULT 'DRAFT',
+    "expires_at" TIMESTAMP(3),
+    "published_at" TIMESTAMP(3),
+    "closed_at" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "jobs_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "job_applications" (
+    "id" TEXT NOT NULL,
+    "job_id" TEXT NOT NULL,
+    "candidate_id" INTEGER NOT NULL,
+    "cover_letter" TEXT,
+    "status" "JobApplicationStatus" NOT NULL DEFAULT 'PENDING',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "job_applications_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
@@ -261,6 +339,9 @@ CREATE UNIQUE INDEX "companies_stripe_customer_id_key" ON "companies"("stripe_cu
 CREATE UNIQUE INDEX "companies_subscription_id_key" ON "companies"("subscription_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "candidates_user_id_key" ON "candidates"("user_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "vetting_profiles_candidate_id_key" ON "vetting_profiles"("candidate_id");
 
 -- CreateIndex
@@ -278,6 +359,18 @@ CREATE UNIQUE INDEX "saved_candidates_company_id_candidate_id_key" ON "saved_can
 -- CreateIndex
 CREATE UNIQUE INDEX "company_ratings_company_id_candidate_id_key" ON "company_ratings"("company_id", "candidate_id");
 
+-- CreateIndex
+CREATE INDEX "jobs_status_published_at_idx" ON "jobs"("status", "published_at");
+
+-- CreateIndex
+CREATE INDEX "jobs_company_id_status_idx" ON "jobs"("company_id", "status");
+
+-- CreateIndex
+CREATE INDEX "job_applications_candidate_id_created_at_idx" ON "job_applications"("candidate_id", "created_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "job_applications_job_id_candidate_id_key" ON "job_applications"("job_id", "candidate_id");
+
 -- AddForeignKey
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -286,6 +379,9 @@ ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user
 
 -- AddForeignKey
 ALTER TABLE "companies" ADD CONSTRAINT "companies_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "candidates" ADD CONSTRAINT "candidates_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "case_studies" ADD CONSTRAINT "case_studies_candidate_id_fkey" FOREIGN KEY ("candidate_id") REFERENCES "candidates"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -320,3 +416,11 @@ ALTER TABLE "company_ratings" ADD CONSTRAINT "company_ratings_company_id_fkey" F
 -- AddForeignKey
 ALTER TABLE "company_ratings" ADD CONSTRAINT "company_ratings_candidate_id_fkey" FOREIGN KEY ("candidate_id") REFERENCES "candidates"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+-- AddForeignKey
+ALTER TABLE "jobs" ADD CONSTRAINT "jobs_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "job_applications" ADD CONSTRAINT "job_applications_job_id_fkey" FOREIGN KEY ("job_id") REFERENCES "jobs"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "job_applications" ADD CONSTRAINT "job_applications_candidate_id_fkey" FOREIGN KEY ("candidate_id") REFERENCES "candidates"("id") ON DELETE CASCADE ON UPDATE CASCADE;
