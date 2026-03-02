@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShieldCheck, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const redirect = (router.query.redirect as string) || "/dashboard";
+  const explicitRedirect = router.query.redirect as string | undefined;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +34,14 @@ export default function LoginPage() {
       return;
     }
 
-    router.push(redirect);
+    // If there's an explicit redirect, use it. Otherwise, route by role.
+    if (explicitRedirect) {
+      router.push(explicitRedirect);
+    } else {
+      const session = await getSession();
+      const role = (session?.user as { role?: string })?.role;
+      router.push(role === "CANDIDATE" ? "/jobs" : "/dashboard");
+    }
   };
 
   return (

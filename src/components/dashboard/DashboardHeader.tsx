@@ -9,11 +9,17 @@ import {
   LogIn,
   LogOut,
   ShieldCheck,
+  Briefcase,
+  FileText,
+  UserCircle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 
 export function DashboardHeader() {
-  const { user, company, loading, signOut } = useAuth();
+  const { user, company, candidate, loading, signOut } = useAuth();
+
+  const isCompany = user?.role === "COMPANY" || (!user?.role && !!company);
+  const isCandidate = user?.role === "CANDIDATE";
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
@@ -31,16 +37,32 @@ export function DashboardHeader() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            <Link href="/dashboard">
+            {/* Browse Talent — visible to all except candidates */}
+            {!isCandidate && (
+              <Link href="/dashboard">
+                <Button
+                  variant="ghost"
+                  className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Browse Talent
+                </Button>
+              </Link>
+            )}
+
+            {/* Browse Jobs — visible to all */}
+            <Link href="/jobs">
               <Button
                 variant="ghost"
                 className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
               >
-                <Users className="w-4 h-4 mr-2" />
-                Browse Talent
+                <Briefcase className="w-4 h-4 mr-2" />
+                Browse Jobs
               </Button>
             </Link>
-            {user && (
+
+            {/* Company-specific nav */}
+            {user && isCompany && (
               <>
                 <Link href="/unlocks">
                   <Button
@@ -49,6 +71,15 @@ export function DashboardHeader() {
                   >
                     <Unlock className="w-4 h-4 mr-2" />
                     My Unlocks
+                  </Button>
+                </Link>
+                <Link href="/jobs/manage">
+                  <Button
+                    variant="ghost"
+                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    My Jobs
                   </Button>
                 </Link>
                 <Link href="/hire">
@@ -62,6 +93,30 @@ export function DashboardHeader() {
                 </Link>
               </>
             )}
+
+            {/* Candidate-specific nav */}
+            {user && isCandidate && (
+              <>
+                <Link href="/candidate/applications">
+                  <Button
+                    variant="ghost"
+                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    My Applications
+                  </Button>
+                </Link>
+                <Link href="/candidate/profile">
+                  <Button
+                    variant="ghost"
+                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                  >
+                    <UserCircle className="w-4 h-4 mr-2" />
+                    My Profile
+                  </Button>
+                </Link>
+              </>
+            )}
           </nav>
 
           {/* Auth Section */}
@@ -70,29 +125,42 @@ export function DashboardHeader() {
               <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse" />
             ) : user ? (
               <div className="flex items-center gap-3">
-                {/* Credits Badge */}
-                {company && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-100 text-[#04443C] hidden sm:flex"
-                  >
-                    <CreditCard className="w-3 h-3 mr-1" />
-                    {company.credits} credits
-                  </Badge>
+                {/* Company badges */}
+                {isCompany && company && (
+                  <>
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-100 text-[#04443C] hidden sm:flex"
+                    >
+                      <CreditCard className="w-3 h-3 mr-1" />
+                      {company.credits} credits
+                    </Badge>
+                    {company.verified && (
+                      <Badge className="bg-blue-100 text-blue-700 hidden sm:flex">
+                        <ShieldCheck className="w-3 h-3 mr-1" />
+                        Verified
+                      </Badge>
+                    )}
+                  </>
                 )}
 
-                {/* Verified Badge */}
-                {company?.verified && (
-                  <Badge className="bg-blue-100 text-blue-700 hidden sm:flex">
-                    <ShieldCheck className="w-3 h-3 mr-1" />
-                    Verified
+                {/* Candidate badge */}
+                {isCandidate && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-amber-100 text-amber-800 hidden sm:flex"
+                  >
+                    <UserCircle className="w-3 h-3 mr-1" />
+                    Professional
                   </Badge>
                 )}
 
                 {/* User Info & Logout */}
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-600 hidden sm:inline">
-                    {company?.companyName || user.email}
+                    {isCompany
+                      ? company?.companyName || user.email
+                      : candidate?.fullName || user.email}
                   </span>
                   <Button
                     variant="outline"

@@ -5,6 +5,8 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -22,29 +24,55 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
+  UserCircle,
+  Plus,
+  X,
 } from "lucide-react";
 import { signIn } from "next-auth/react";
 
-type Step = "credentials" | "company";
+type Role = "company" | "candidate";
+type Step = "role" | "credentials" | "details";
 
 export default function SignupPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>("credentials");
+  const [step, setStep] = useState<Step>("role");
+  const [role, setRole] = useState<Role | null>(null);
 
-  // Step 1: Credentials
+  // Step 2: Credentials
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Step 2: Company Details
+  // Step 3: Company Details
   const [companyName, setCompanyName] = useState("");
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [companySize, setCompanySize] = useState("");
   const [industry, setIndustry] = useState("");
   const [monthlyBudgetMin, setMonthlyBudgetMin] = useState("");
 
+  // Step 3: Candidate Details
+  const [fullName, setFullName] = useState("");
+  const [title, setTitle] = useState("");
+  const [vertical, setVertical] = useState("");
+  const [experience, setExperience] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
+  const [tools, setTools] = useState<string[]>([]);
+  const [toolInput, setToolInput] = useState("");
+  const [location, setLocation] = useState("");
+  const [summary, setSummary] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const handleRoleSelect = (selectedRole: Role) => {
+    setRole(selectedRole);
+    setError("");
+    setStep("credentials");
+  };
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,10 +88,34 @@ export default function SignupPage() {
       return;
     }
 
-    setStep("company");
+    setStep("details");
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const addSkill = () => {
+    const trimmed = skillInput.trim();
+    if (trimmed && !skills.includes(trimmed)) {
+      setSkills([...skills, trimmed]);
+    }
+    setSkillInput("");
+  };
+
+  const removeSkill = (skill: string) => {
+    setSkills(skills.filter((s) => s !== skill));
+  };
+
+  const addTool = () => {
+    const trimmed = toolInput.trim();
+    if (trimmed && !tools.includes(trimmed)) {
+      setTools([...tools, trimmed]);
+    }
+    setToolInput("");
+  };
+
+  const removeTool = (tool: string) => {
+    setTools(tools.filter((t) => t !== tool));
+  };
+
+  const handleCompanySignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
@@ -74,7 +126,6 @@ export default function SignupPage() {
       return;
     }
 
-    // Register user + company via API
     const registerRes = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -96,7 +147,6 @@ export default function SignupPage() {
       return;
     }
 
-    // Auto-login after registration
     const result = await signIn("credentials", {
       email,
       password,
@@ -112,11 +162,66 @@ export default function SignupPage() {
     router.push("/dashboard");
   };
 
+  const handleCandidateSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    if (!fullName.trim() || !title.trim() || !vertical || !experience || !availability) {
+      setError("Please fill in all required fields");
+      setIsLoading(false);
+      return;
+    }
+
+    const registerRes = await fetch("/api/auth/register-candidate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        fullName,
+        title,
+        vertical,
+        experience: parseInt(experience),
+        availability,
+        skills,
+        tools,
+        location,
+        summary,
+        salaryMin: salaryMin ? parseInt(salaryMin) : undefined,
+        salaryMax: salaryMax ? parseInt(salaryMax) : undefined,
+      }),
+    });
+
+    if (!registerRes.ok) {
+      const data = await registerRes.json();
+      setError(data.error || "Registration failed");
+      setIsLoading(false);
+      return;
+    }
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Account created but login failed. Please try logging in.");
+      setIsLoading(false);
+      return;
+    }
+
+    router.push("/jobs");
+  };
+
+  const stepIndex = step === "role" ? 0 : step === "credentials" ? 1 : 2;
+
   return (
     <>
       <SEO
         title="Sign Up - ResourceMatch"
-        description="Create your ResourceMatch account to hire AI-vetted senior Filipino talent."
+        description="Create your ResourceMatch account to hire AI-vetted senior Filipino talent or showcase your professional skills."
       />
 
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
@@ -136,42 +241,106 @@ export default function SignupPage() {
           {/* Progress */}
           <div className="flex items-center gap-3 mb-6">
             <div
-              className={`flex-1 h-1 rounded-full ${step === "credentials" || step === "company" ? "bg-[#04443C]" : "bg-slate-200"}`}
+              className={`flex-1 h-1 rounded-full ${stepIndex >= 0 ? "bg-[#04443C]" : "bg-slate-200"}`}
             />
             <div
-              className={`flex-1 h-1 rounded-full ${step === "company" ? "bg-[#04443C]" : "bg-slate-200"}`}
+              className={`flex-1 h-1 rounded-full ${stepIndex >= 1 ? "bg-[#04443C]" : "bg-slate-200"}`}
+            />
+            <div
+              className={`flex-1 h-1 rounded-full ${stepIndex >= 2 ? "bg-[#04443C]" : "bg-slate-200"}`}
             />
           </div>
 
           {/* Form Card */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-            {step === "credentials" ? (
+            {step === "role" && (
+              <>
+                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                  Join ResourceMatch
+                </h1>
+                <p className="text-slate-600 mb-6">
+                  Step 1: How would you like to use ResourceMatch?
+                </p>
+
+                <div className="space-y-4">
+                  <button
+                    type="button"
+                    onClick={() => handleRoleSelect("company")}
+                    className="w-full text-left border-2 border-slate-200 rounded-xl p-5 hover:border-[#04443C] hover:bg-[#04443C]/5 transition-all duration-200 group"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-[#04443C]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#04443C]/20 transition-colors">
+                        <Building2 className="w-6 h-6 text-[#04443C]" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                          I&apos;m Hiring
+                        </h3>
+                        <p className="text-sm text-slate-600">
+                          Find senior Filipino talent for your team
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleRoleSelect("candidate")}
+                    className="w-full text-left border-2 border-slate-200 rounded-xl p-5 hover:border-[#04443C] hover:bg-[#04443C]/5 transition-all duration-200 group"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-[#D38B53]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D38B53]/20 transition-colors">
+                        <UserCircle className="w-6 h-6 text-[#D38B53]" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                          I&apos;m a Professional
+                        </h3>
+                        <p className="text-sm text-slate-600">
+                          Showcase your skills and find opportunities
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </>
+            )}
+
+            {step === "credentials" && (
               <>
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">
                   Create your account
                 </h1>
                 <p className="text-slate-600 mb-6">
-                  Step 1: Set up your login credentials
+                  Step 2: Set up your login credentials
                 </p>
 
                 <form onSubmit={handleCredentialsSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Business Email</Label>
+                    <Label htmlFor="email">
+                      {role === "company" ? "Business Email" : "Email Address"}
+                    </Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <Input
                         id="email"
                         type="email"
-                        placeholder="you@company.com"
+                        placeholder={
+                          role === "company"
+                            ? "you@company.com"
+                            : "you@email.com"
+                        }
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         className="pl-10"
                       />
                     </div>
-                    <p className="text-xs text-slate-500">
-                      Use your business email for faster verification
-                    </p>
+                    {role === "company" && (
+                      <p className="text-xs text-slate-500">
+                        Use your business email for faster verification
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -213,25 +382,40 @@ export default function SignupPage() {
                     </div>
                   )}
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
-                  >
-                    Continue
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setStep("role");
+                        setError("");
+                      }}
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      Back
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1 bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
+                    >
+                      Continue
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
                 </form>
               </>
-            ) : (
+            )}
+
+            {step === "details" && role === "company" && (
               <>
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">
                   Company details
                 </h1>
                 <p className="text-slate-600 mb-6">
-                  Step 2: Tell us about your company
+                  Step 3: Tell us about your company
                 </p>
 
-                <form onSubmit={handleSignup} className="space-y-4">
+                <form onSubmit={handleCompanySignup} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="companyName">
                       Company Name <span className="text-red-500">*</span>
@@ -329,7 +513,7 @@ export default function SignupPage() {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-slate-500">
-                      This ensures you're matched with professionals in your budget range
+                      This ensures you&apos;re matched with professionals in your budget range
                     </p>
                   </div>
 
@@ -340,6 +524,299 @@ export default function SignupPage() {
                       <p className="text-xs text-[#04443C]">
                         We verify companies to protect our talent from lowball offers.
                         Verified employers get priority access and a trusted badge.
+                      </p>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setStep("credentials");
+                        setError("");
+                      }}
+                      disabled={isLoading}
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      Back
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="flex-1 bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          Create Account
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </>
+            )}
+
+            {step === "details" && role === "candidate" && (
+              <>
+                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                  Professional profile
+                </h1>
+                <p className="text-slate-600 mb-6">
+                  Step 3: Tell us about your experience
+                </p>
+
+                <form onSubmit={handleCandidateSignup} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">
+                      Full Name <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="fullName"
+                      placeholder="Juan dela Cruz"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="title">
+                      Professional Title <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="title"
+                      placeholder="Senior Accountant"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>
+                        Vertical <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={vertical}
+                        onValueChange={setVertical}
+                        disabled={isLoading}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ecommerce">E-commerce Ops</SelectItem>
+                          <SelectItem value="accounting">Accounting & Finance</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="experience">
+                        Years Exp. <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="experience"
+                        type="number"
+                        min="0"
+                        max="50"
+                        placeholder="e.g. 7"
+                        value={experience}
+                        onChange={(e) => setExperience(e.target.value)}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>
+                      Availability <span className="text-red-500">*</span>
+                    </Label>
+                    <Select
+                      value={availability}
+                      onValueChange={setAvailability}
+                      disabled={isLoading}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select availability..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="FULL_TIME">Full-time</SelectItem>
+                        <SelectItem value="PART_TIME">Part-time</SelectItem>
+                        <SelectItem value="CONTRACT">Contract</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Skills tag input */}
+                  <div className="space-y-2">
+                    <Label>Skills</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g. Financial Reporting"
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addSkill();
+                          }
+                        }}
+                        disabled={isLoading}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={addSkill}
+                        disabled={isLoading || !skillInput.trim()}
+                        className="flex-shrink-0"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {skills.map((skill) => (
+                          <Badge
+                            key={skill}
+                            variant="secondary"
+                            className="pl-2.5 pr-1 py-1 gap-1"
+                          >
+                            {skill}
+                            <button
+                              type="button"
+                              onClick={() => removeSkill(skill)}
+                              className="ml-0.5 hover:bg-slate-300/50 rounded-full p-0.5"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tools tag input */}
+                  <div className="space-y-2">
+                    <Label>Tools & Software</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g. QuickBooks, Shopify"
+                        value={toolInput}
+                        onChange={(e) => setToolInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addTool();
+                          }
+                        }}
+                        disabled={isLoading}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={addTool}
+                        disabled={isLoading || !toolInput.trim()}
+                        className="flex-shrink-0"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {tools.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {tools.map((tool) => (
+                          <Badge
+                            key={tool}
+                            variant="secondary"
+                            className="pl-2.5 pr-1 py-1 gap-1"
+                          >
+                            {tool}
+                            <button
+                              type="button"
+                              onClick={() => removeTool(tool)}
+                              className="ml-0.5 hover:bg-slate-300/50 rounded-full p-0.5"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      placeholder="e.g. Manila, Philippines"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="summary">Professional Summary</Label>
+                    <Textarea
+                      id="summary"
+                      placeholder="Brief overview of your experience and expertise..."
+                      value={summary}
+                      onChange={(e) => setSummary(e.target.value)}
+                      disabled={isLoading}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="salaryMin">Min Salary (USD/mo)</Label>
+                      <Input
+                        id="salaryMin"
+                        type="number"
+                        min="0"
+                        placeholder="e.g. 1500"
+                        value={salaryMin}
+                        onChange={(e) => setSalaryMin(e.target.value)}
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="salaryMax">Max Salary (USD/mo)</Label>
+                      <Input
+                        id="salaryMax"
+                        type="number"
+                        min="0"
+                        placeholder="e.g. 3000"
+                        value={salaryMax}
+                        onChange={(e) => setSalaryMax(e.target.value)}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Info banner */}
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="flex gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#04443C] mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-[#04443C]">
+                        After signing up, you&apos;ll go through our AI vetting process
+                        to verify your skills and get matched with top employers.
                       </p>
                     </div>
                   </div>

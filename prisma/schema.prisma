@@ -14,16 +14,23 @@ model User {
   email         String    @unique
   passwordHash  String    @map("password_hash")
   name          String?
+  role          UserRole  @default(COMPANY)
   emailVerified DateTime? @map("email_verified")
   image         String?
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  accounts Account[]
-  sessions Session[]
-  company  Company?
+  accounts  Account[]
+  sessions  Session[]
+  company   Company?
+  candidate Candidate?
 
   @@map("users")
+}
+
+enum UserRole {
+  COMPANY
+  CANDIDATE
 }
 
 model Account {
@@ -69,33 +76,39 @@ model VerificationToken {
 // ─── Company Profile ─────────────────────────────────────────
 
 model Company {
-  id                  String              @id @default(uuid())
-  userId              String              @unique @map("user_id")
-  email               String              @unique
-  companyName         String?             @map("company_name")
-  companyWebsite      String?             @map("company_website")
-  companySize         CompanySize?        @map("company_size")
-  industry            String?
-  monthlyBudgetMin    Int?                @map("monthly_budget_min") // in USD
-  verified            Boolean             @default(false)
-  verifiedAt          DateTime?           @map("verified_at")
-  credits             Int                 @default(0)
-  freeUnlocksUsed     Int                 @default(0) @map("free_unlocks_used")
-  stripeCustomerId    String?             @unique @map("stripe_customer_id")
-  subscriptionId      String?             @unique @map("subscription_id")
-  subscriptionTier    SubscriptionTier?   @map("subscription_tier")
-  subscriptionStatus  SubscriptionStatus? @map("subscription_status")
-  monthlyUnlocksUsed  Int                 @default(0) @map("monthly_unlocks_used")
-  monthlyUnlocksLimit Int?                @map("monthly_unlocks_limit")
-  billingCycleStart   DateTime?           @map("billing_cycle_start")
-  createdAt           DateTime            @default(now()) @map("created_at")
-  updatedAt           DateTime            @updatedAt @map("updated_at")
+  id                    String                     @id @default(uuid())
+  userId                String                     @unique @map("user_id")
+  email                 String                     @unique
+  companyName           String?                    @map("company_name")
+  companyWebsite        String?                    @map("company_website")
+  companySize           CompanySize?               @map("company_size")
+  industry              String?
+  monthlyBudgetMin      Int?                       @map("monthly_budget_min") // in USD
+  verified              Boolean                    @default(false)
+  verifiedAt            DateTime?                  @map("verified_at")
+  verificationStatus    CompanyVerificationStatus  @default(UNVERIFIED) @map("verification_status")
+  verificationScore     Int?                       @map("verification_score")    // 0-100
+  verificationSummary   String?                    @map("verification_summary")  @db.Text
+  verificationDetails   String[]                   @default([]) @map("verification_details")
+  verifiedVia           String?                    @map("verified_via")          // "ai", "admin", "email_domain"
+  credits               Int                        @default(0)
+  freeUnlocksUsed       Int                        @default(0) @map("free_unlocks_used")
+  stripeCustomerId      String?                    @unique @map("stripe_customer_id")
+  subscriptionId        String?                    @unique @map("subscription_id")
+  subscriptionTier      SubscriptionTier?          @map("subscription_tier")
+  subscriptionStatus    SubscriptionStatus?        @map("subscription_status")
+  monthlyUnlocksUsed    Int                        @default(0) @map("monthly_unlocks_used")
+  monthlyUnlocksLimit   Int?                       @map("monthly_unlocks_limit")
+  billingCycleStart     DateTime?                  @map("billing_cycle_start")
+  createdAt             DateTime                   @default(now()) @map("created_at")
+  updatedAt             DateTime                   @updatedAt @map("updated_at")
 
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   unlocks         Unlock[]
   creditPurchases CreditPurchase[]
   savedCandidates SavedCandidate[]
   ratings         CompanyRating[]
+  jobs            Job[]
 
   @@map("companies")
 }
@@ -106,6 +119,13 @@ enum CompanySize {
   MEDIUM      // 11-50
   LARGE       // 51-200
   ENTERPRISE  // 200+
+}
+
+enum CompanyVerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
 }
 
 enum SubscriptionTier {
@@ -125,6 +145,7 @@ enum SubscriptionStatus {
 
 model Candidate {
   id           Int          @id @default(autoincrement())
+  userId       String?      @unique @map("user_id")
   name         String       // Display name, e.g., "Patricia M."
   fullName     String       @map("full_name")
   title        String
@@ -155,13 +176,15 @@ model Candidate {
   createdAt    DateTime     @default(now()) @map("created_at")
   updatedAt    DateTime     @updatedAt @map("updated_at")
 
-  caseStudies    CaseStudy[]
-  references     Reference[]
-  vettingLayers  VettingLayerResult[]
-  vettingProfile VettingProfile?
-  unlocks        Unlock[]
-  savedBy        SavedCandidate[]
-  companyRatings CompanyRating[]
+  user            User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  caseStudies     CaseStudy[]
+  references      Reference[]
+  vettingLayers   VettingLayerResult[]
+  vettingProfile  VettingProfile?
+  unlocks         Unlock[]
+  savedBy         SavedCandidate[]
+  companyRatings  CompanyRating[]
+  jobApplications JobApplication[]
 
   @@map("candidates")
 }
@@ -340,5 +363,65 @@ enum ApplicationStatus {
   PENDING
   REVIEWING
   APPROVED
+  REJECTED
+}
+
+// ─── Jobs & Job Applications ──────────────────────────────
+
+model Job {
+  id            String       @id @default(uuid())
+  companyId     String       @map("company_id")
+  title         String
+  description   String       @db.Text
+  vertical      Vertical
+  experienceMin Int          @default(5) @map("experience_min")
+  experienceMax Int?         @map("experience_max")
+  availability  Availability
+  salaryMin     Int?         @map("salary_min")   // monthly USD
+  salaryMax     Int?         @map("salary_max")   // monthly USD
+  skills        String[]
+  location      String?      @default("Remote")
+  status        JobStatus    @default(DRAFT)
+  expiresAt     DateTime?    @map("expires_at")
+  publishedAt   DateTime?    @map("published_at")
+  closedAt      DateTime?    @map("closed_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+
+  @@index([status, publishedAt])
+  @@index([companyId, status])
+  @@map("jobs")
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+model JobApplication {
+  id          String               @id @default(uuid())
+  jobId       String               @map("job_id")
+  candidateId Int                  @map("candidate_id")
+  coverLetter String?              @map("cover_letter") @db.Text
+  status      JobApplicationStatus @default(PENDING)
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, candidateId])
+  @@index([candidateId, createdAt])
+  @@map("job_applications")
+}
+
+enum JobApplicationStatus {
+  PENDING
+  REVIEWED
+  SHORTLISTED
   REJECTED
 }

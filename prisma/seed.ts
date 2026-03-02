@@ -1,4 +1,5 @@
-import { PrismaClient, Vertical, Availability, VettingStatus, VettingLayer } from "@prisma/client";
+import { PrismaClient, Vertical, Availability, VettingStatus, VettingLayer, JobStatus } from "@prisma/client";
+import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -484,6 +485,260 @@ async function main() {
   }
 
   console.log(`\nSeeded ${candidates.length} candidates with case studies, references, and vetting results.`);
+
+  // ─── Seed Demo Companies & Jobs ────────────────────────────
+  console.log("\nSeeding demo companies and jobs...");
+
+  // Create demo users for companies (password: "Demo1234!")
+  const demoPasswordHash = "$2b$10$demohashdemohashdemohaOdemohashdemohashdemohashdemo"; // placeholder
+
+  const demoCompanies = [
+    {
+      email: "hiring@techscale.com",
+      companyName: "TechScale Ventures",
+      companyWebsite: "https://techscale.com",
+      companySize: "MEDIUM" as const,
+      industry: "Technology",
+      verified: true,
+      verificationStatus: "VERIFIED" as const,
+      verifiedVia: "email_domain",
+    },
+    {
+      email: "talent@pacificretail.com",
+      companyName: "Pacific Retail Group",
+      companyWebsite: "https://pacificretail.com",
+      companySize: "LARGE" as const,
+      industry: "Retail / E-commerce",
+      verified: true,
+      verificationStatus: "VERIFIED" as const,
+      verifiedVia: "ai",
+    },
+    {
+      email: "hr@summitfinancial.com",
+      companyName: "Summit Financial Services",
+      companyWebsite: "https://summitfinancial.com",
+      companySize: "SMALL" as const,
+      industry: "Financial Services",
+      verified: true,
+      verificationStatus: "VERIFIED" as const,
+      verifiedVia: "ai",
+    },
+  ];
+
+  const companyIds: string[] = [];
+
+  for (const comp of demoCompanies) {
+    const userId = randomUUID();
+    const companyId = randomUUID();
+
+    // Skip if company email already exists
+    const existing = await prisma.company.findUnique({ where: { email: comp.email } });
+    if (existing) {
+      companyIds.push(existing.id);
+      console.log(`  Skipped existing company: ${comp.companyName}`);
+      continue;
+    }
+
+    await prisma.user.create({
+      data: {
+        id: userId,
+        email: comp.email,
+        passwordHash: demoPasswordHash,
+        name: comp.companyName,
+        role: "COMPANY",
+      },
+    });
+
+    await prisma.company.create({
+      data: {
+        id: companyId,
+        userId,
+        email: comp.email,
+        companyName: comp.companyName,
+        companyWebsite: comp.companyWebsite,
+        companySize: comp.companySize,
+        industry: comp.industry,
+        verified: comp.verified,
+        verificationStatus: comp.verificationStatus,
+        verifiedVia: comp.verifiedVia,
+        verifiedAt: new Date(),
+        credits: 10,
+      },
+    });
+
+    companyIds.push(companyId);
+    console.log(`  Seeded company: ${comp.companyName}`);
+  }
+
+  // Sample jobs across verticals
+  const now = new Date();
+
+  interface SeedJob {
+    companyIndex: number;
+    title: string;
+    description: string;
+    vertical: Vertical;
+    experienceMin: number;
+    experienceMax: number | null;
+    availability: Availability;
+    salaryMin: number | null;
+    salaryMax: number | null;
+    skills: string[];
+    location: string;
+    status: JobStatus;
+    daysAgo: number; // how many days ago it was published
+  }
+
+  const sampleJobs: SeedJob[] = [
+    {
+      companyIndex: 0,
+      title: "Senior Shopify Developer & Store Manager",
+      description: "We're looking for an experienced Shopify professional to manage and optimize our portfolio of 5 DTC brands on Shopify Plus. You'll own the entire storefront experience — from theme customization and app integrations to conversion optimization and performance monitoring.\n\nKey responsibilities:\n- Manage day-to-day Shopify Plus store operations across 5 brands\n- Implement A/B tests and conversion optimization experiments\n- Coordinate with design and marketing teams on product launches\n- Monitor site performance, uptime, and checkout flow\n- Manage third-party app ecosystem (Klaviyo, Yotpo, Recharge, etc.)\n\nThis is a full-time remote position with overlap required during US business hours (EST).",
+      vertical: "ecommerce",
+      experienceMin: 5,
+      experienceMax: 10,
+      availability: "FULL_TIME",
+      salaryMin: 2500,
+      salaryMax: 4000,
+      skills: ["Shopify Plus", "Liquid", "Conversion Optimization", "A/B Testing", "App Integrations", "Google Analytics"],
+      location: "Remote",
+      status: "OPEN",
+      daysAgo: 3,
+    },
+    {
+      companyIndex: 0,
+      title: "E-commerce Operations Analyst",
+      description: "Join our operations team to drive data-informed decisions across our e-commerce portfolio. You'll build dashboards, analyze customer behavior, and optimize our supply chain and fulfillment operations.\n\nWhat you'll do:\n- Build and maintain reporting dashboards in Looker/Tableau\n- Analyze sales, inventory, and fulfillment data to identify trends\n- Develop demand forecasting models for inventory planning\n- Partner with ops managers to streamline fulfillment workflows\n- Create weekly performance reports for leadership\n\nIdeal candidate has strong SQL skills and experience with e-commerce platforms.",
+      vertical: "ecommerce",
+      experienceMin: 5,
+      experienceMax: 8,
+      availability: "FULL_TIME",
+      salaryMin: 2000,
+      salaryMax: 3000,
+      skills: ["Data Analytics", "SQL", "Tableau", "Inventory Planning", "Demand Forecasting", "Excel/VBA"],
+      location: "Remote",
+      status: "OPEN",
+      daysAgo: 7,
+    },
+    {
+      companyIndex: 1,
+      title: "Senior Amazon Marketplace Manager",
+      description: "Pacific Retail Group is expanding our Amazon presence across US, CA, and UK marketplaces. We need an experienced Amazon specialist to manage our seller accounts, optimize listings, and scale our advertising.\n\nResponsibilities:\n- Manage Amazon Seller Central accounts across 3 marketplaces\n- Optimize product listings (titles, bullets, A+ content, images)\n- Run and scale Amazon PPC campaigns (Sponsored Products, Brands, Display)\n- Monitor account health, resolve suspensions, and manage compliance\n- Coordinate with supply chain team on FBA inventory planning\n- Track competitor activity and adjust pricing strategy\n\nYou should have deep experience with Amazon's ecosystem and a proven track record of growing marketplace revenue.",
+      vertical: "ecommerce",
+      experienceMin: 6,
+      experienceMax: null,
+      availability: "FULL_TIME",
+      salaryMin: 2500,
+      salaryMax: 3500,
+      skills: ["Amazon Seller Central", "Amazon PPC", "Product Listing Optimization", "FBA", "Marketplace Strategy", "Data Analytics"],
+      location: "Remote",
+      status: "OPEN",
+      daysAgo: 2,
+    },
+    {
+      companyIndex: 1,
+      title: "Supply Chain & Fulfillment Coordinator",
+      description: "We're hiring a supply chain professional to coordinate fulfillment operations across our multi-channel retail business. This role bridges our warehouse teams, 3PL partners, and e-commerce platforms.\n\nKey duties:\n- Coordinate daily fulfillment operations across Shopify, Amazon FBA, and wholesale channels\n- Manage relationships with 3PL partners and negotiate rates\n- Track and resolve shipping issues, returns, and inventory discrepancies\n- Implement process improvements to reduce shipping costs and delivery times\n- Generate weekly logistics reports and KPI tracking\n\nContract position with potential to convert to full-time.",
+      vertical: "ecommerce",
+      experienceMin: 5,
+      experienceMax: 8,
+      availability: "CONTRACT",
+      salaryMin: 2000,
+      salaryMax: 2800,
+      skills: ["Supply Chain Management", "3PL Management", "ShipStation", "Inventory Management", "Logistics", "Process Improvement"],
+      location: "Remote",
+      status: "OPEN",
+      daysAgo: 10,
+    },
+    {
+      companyIndex: 2,
+      title: "Senior Bookkeeper (US Clients)",
+      description: "Summit Financial Services is looking for a senior bookkeeper to manage full-cycle bookkeeping for our portfolio of US-based small business clients. You'll work directly with 10-15 clients, handling everything from bank reconciliations to monthly closes.\n\nWhat we need:\n- Full-cycle bookkeeping for 10-15 small business clients\n- Monthly bank and credit card reconciliations\n- Accounts payable and accounts receivable management\n- Monthly close and financial statement preparation\n- Payroll processing and tax filing support\n- Client communication and onboarding of new accounts\n\nMust be proficient in QuickBooks Online and have experience with US accounting standards.",
+      vertical: "accounting",
+      experienceMin: 5,
+      experienceMax: null,
+      availability: "FULL_TIME",
+      salaryMin: 2000,
+      salaryMax: 3000,
+      skills: ["QuickBooks Online", "Bookkeeping", "Bank Reconciliation", "Accounts Payable", "Accounts Receivable", "Payroll"],
+      location: "Remote",
+      status: "OPEN",
+      daysAgo: 5,
+    },
+    {
+      companyIndex: 2,
+      title: "Tax Preparation Specialist",
+      description: "We need an experienced tax professional to join our team for US individual and small business tax preparation. This is a part-time role with increased hours during tax season (Jan-Apr).\n\nResponsibilities:\n- Prepare individual (1040) and small business (1065, 1120S) tax returns\n- Review client documents and identify deductions/credits\n- Communicate with clients to gather missing information\n- Stay current on tax law changes and updates\n- Support senior tax managers during audit responses\n\nCPA or EA certification preferred. Must have experience with US federal and state tax returns.",
+      vertical: "accounting",
+      experienceMin: 7,
+      experienceMax: 12,
+      availability: "PART_TIME",
+      salaryMin: 2500,
+      salaryMax: 3500,
+      skills: ["Tax Preparation", "1040", "1065", "1120S", "Tax Planning", "IRS Compliance"],
+      location: "Remote",
+      status: "OPEN",
+      daysAgo: 1,
+    },
+    {
+      companyIndex: 2,
+      title: "Financial Controller",
+      description: "Summit Financial Services is hiring a financial controller to oversee financial operations for two of our mid-market clients ($10M-$30M revenue). You'll manage month-end close, financial reporting, and budget vs. actuals analysis.\n\nKey responsibilities:\n- Own the month-end close process (target: 5 business days)\n- Prepare monthly financial statements and variance analysis\n- Manage budget creation and quarterly forecasting\n- Coordinate with external auditors during annual audit\n- Implement and maintain internal controls\n- Mentor and review work of junior bookkeeping staff\n\nStrong financial modeling skills and experience with NetSuite or QuickBooks Enterprise required.",
+      vertical: "accounting",
+      experienceMin: 8,
+      experienceMax: null,
+      availability: "FULL_TIME",
+      salaryMin: 3000,
+      salaryMax: 4500,
+      skills: ["Financial Modeling", "Month-End Close", "Financial Reporting", "Budgeting", "Internal Controls", "NetSuite"],
+      location: "Remote",
+      status: "OPEN",
+      daysAgo: 14,
+    },
+    {
+      companyIndex: 0,
+      title: "Email Marketing & Retention Specialist",
+      description: "We're looking for a lifecycle marketing specialist to own our email and SMS programs across multiple DTC brands. You'll drive customer retention and repeat purchases through automated flows and targeted campaigns.\n\nWhat you'll do:\n- Design and execute email/SMS marketing campaigns in Klaviyo\n- Build and optimize automated flows (welcome, abandoned cart, post-purchase, win-back)\n- Segment audiences and personalize messaging based on behavior\n- Run A/B tests on subject lines, content, and send times\n- Report on campaign performance and customer lifetime value metrics\n- Collaborate with creative team on email design and copy\n\nMust have hands-on Klaviyo experience and a portfolio of past campaigns.",
+      vertical: "ecommerce",
+      experienceMin: 5,
+      experienceMax: 8,
+      availability: "FULL_TIME",
+      salaryMin: 2000,
+      salaryMax: 3000,
+      skills: ["Klaviyo", "Email Marketing", "SMS Marketing", "Marketing Automation", "A/B Testing", "Customer Retention"],
+      location: "Remote",
+      status: "OPEN",
+      daysAgo: 6,
+    },
+  ];
+
+  for (const job of sampleJobs) {
+    const publishedAt = new Date(now.getTime() - job.daysAgo * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(publishedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+    await prisma.job.create({
+      data: {
+        companyId: companyIds[job.companyIndex],
+        title: job.title,
+        description: job.description,
+        vertical: job.vertical,
+        experienceMin: job.experienceMin,
+        experienceMax: job.experienceMax,
+        availability: job.availability,
+        salaryMin: job.salaryMin,
+        salaryMax: job.salaryMax,
+        skills: job.skills,
+        location: job.location,
+        status: job.status,
+        publishedAt,
+        expiresAt,
+      },
+    });
+
+    console.log(`  Seeded job: ${job.title}`);
+  }
+
+  console.log(`\nSeeded ${demoCompanies.length} companies and ${sampleJobs.length} jobs.`);
 }
 
 main()

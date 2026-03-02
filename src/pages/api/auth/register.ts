@@ -77,6 +77,8 @@ export default async function handler(
           monthlyBudgetMin: monthlyBudgetMin ? parseInt(monthlyBudgetMin) : null,
           verified,
           verifiedAt: verified ? new Date() : null,
+          verificationStatus: verified ? "VERIFIED" : "UNVERIFIED",
+          verifiedVia: verified ? "email_domain" : null,
           credits: 0,
         },
       });
