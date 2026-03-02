@@ -11,7 +11,7 @@ Core message: "Hire Senior Filipino Professionals, Vetted by AI"
 Key differentiators:
 - 4-layer AI vetting pipeline: Resume Analysis → Scenario Assessment → Video Interview → Reference Verification
 - Senior-only talent pool (5-10+ years experience, no entry-level)
-- Vertical specialization: Accounting & Finance, Operations Management (Healthcare Admin and Digital Marketing deferred to month 6+)
+- Vertical specialization: Finance & Accounting, Operations Management (Healthcare Admin and Digital Marketing deferred to month 6+)
 - Portfolio-style profiles with case studies and vetting scores
 - Pay-per-unlock pricing ($25/profile) + subscription plans
 
@@ -187,7 +187,7 @@ Each layer produces a 0-100 score. Composite vetting score determines candidate 
 
 | Vertical | Focus Areas |
 |----------|-------------|
-| Accounting & Finance | QuickBooks, financial modeling, compliance |
+| Finance & Accounting | QuickBooks, financial modeling, compliance |
 | Operations Management | Shopify, Amazon, inventory, fulfillment, logistics |
 
 Future verticals (month 6+): Healthcare Admin, Digital Marketing

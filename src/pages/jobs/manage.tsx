@@ -63,7 +63,7 @@ const statusConfig: Record<
 
 const verticalLabels: Record<string, string> = {
   ecommerce: "Operations Management",
-  accounting: "Accounting & Finance",
+  accounting: "Finance & Accounting",
 };
 
 export const getServerSideProps: GetServerSideProps<ManageJobsProps> = async (

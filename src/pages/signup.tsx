@@ -617,8 +617,8 @@ export default function SignupPage() {
                           <SelectValue placeholder="Select..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ecommerce">E-commerce Ops</SelectItem>
-                          <SelectItem value="accounting">Accounting & Finance</SelectItem>
+                          <SelectItem value="ecommerce">Operations Management</SelectItem>
+                          <SelectItem value="accounting">Finance & Accounting</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

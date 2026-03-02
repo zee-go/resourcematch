@@ -148,8 +148,8 @@ export default function CandidateApplicationsPage() {
                             </span>
                             <Badge variant="outline" className="text-xs">
                               {app.job.vertical === "ecommerce"
-                                ? "E-commerce"
-                                : "Accounting"}
+                                ? "Operations"
+                                : "Finance"}
                             </Badge>
                           </div>
                         </div>

@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 
 const VERTICALS: Record<string, string> = {
   ecommerce: "Operations Management",
-  accounting: "Accounting & Finance",
+  accounting: "Finance & Accounting",
 };
 
 function buildScenarioPrompt(

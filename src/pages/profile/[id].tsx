@@ -28,6 +28,7 @@ import {
   Building2,
   TrendingUp,
 } from "lucide-react";
+import { LogoIcon } from "@/components/LogoIcon";
 
 const AVAILABILITY_LABELS: Record<string, string> = {
   FULL_TIME: "Full-time",
@@ -189,13 +190,9 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                   Back to Search
                 </Button>
               </Link>
-              <Link href="/">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#04443C] to-[#022C27] flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="font-bold text-lg">ResourceMatch</span>
-                </div>
+              <Link href="/" className="flex items-center gap-2">
+                <LogoIcon className="w-8 h-8" color="accent" />
+                <span className="font-bold text-lg">ResourceMatch</span>
               </Link>
             </div>
           </div>

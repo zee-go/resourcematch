@@ -32,8 +32,8 @@ function formatSalary(min: number | null, max: number | null): string | null {
 }
 
 const verticalLabels: Record<string, string> = {
-  ecommerce: "E-commerce",
-  accounting: "Accounting & Finance",
+  ecommerce: "Operations Management",
+  accounting: "Finance & Accounting",
 };
 
 const availabilityLabels: Record<string, string> = {

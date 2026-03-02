@@ -24,6 +24,7 @@ import {
   Crown,
   Loader2,
 } from "lucide-react";
+import { LogoIcon } from "@/components/LogoIcon";
 
 interface PreviewCandidate {
   id: number;
@@ -41,7 +42,7 @@ interface PreviewCandidate {
 
 const VERTICAL_LABELS: Record<string, string> = {
   ecommerce: "Operations Management",
-  accounting: "Accounting & Finance",
+  accounting: "Finance & Accounting",
 };
 
 interface HirePageProps {
@@ -264,7 +265,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <Link href="/" className="flex items-center gap-2">
-                <Building2 className="h-8 w-8 text-teal-700" />
+                <LogoIcon className="w-8 h-8" color="accent" />
                 <span className="text-2xl font-bold text-slate-900">ResourceMatch</span>
               </Link>
               <div className="flex items-center gap-4">

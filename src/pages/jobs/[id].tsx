@@ -27,7 +27,7 @@ import {
 
 const verticalLabels: Record<string, string> = {
   ecommerce: "Operations Management",
-  accounting: "Accounting & Finance",
+  accounting: "Finance & Accounting",
 };
 
 const availabilityLabels: Record<string, string> = {

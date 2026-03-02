@@ -57,7 +57,7 @@ export function JobSearchFilters({
           <SelectContent>
             <SelectItem value="all">All Verticals</SelectItem>
             <SelectItem value="ecommerce">Operations Management</SelectItem>
-            <SelectItem value="accounting">Accounting & Finance</SelectItem>
+            <SelectItem value="accounting">Finance & Accounting</SelectItem>
           </SelectContent>
         </Select>
 

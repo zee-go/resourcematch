@@ -55,7 +55,7 @@ export interface Candidate {
 
 export const verticalLabels: Record<Vertical, string> = {
   ecommerce: "Operations Management",
-  accounting: "Accounting & Finance",
+  accounting: "Finance & Accounting",
 };
 
 export const candidates: Candidate[] = [

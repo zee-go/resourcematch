@@ -84,7 +84,7 @@ export function HowItWorks() {
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            How It <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Works</span>
+            How It <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Works</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Simple, transparent processes for companies and talent

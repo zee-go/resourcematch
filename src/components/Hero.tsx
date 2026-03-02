@@ -36,7 +36,7 @@ export function Hero() {
 
           {/* Subheadline */}
           <p className="text-xl sm:text-2xl text-muted-foreground text-center max-w-3xl mx-auto mb-12 animate-slide-up-delay-2">
-            5-10+ years of experience in operations management and accounting & finance. Every candidate passes our 4-layer AI vetting pipeline before you see their profile.
+            5-10+ years of experience in operations management and finance & accounting. Every candidate passes our 4-layer AI vetting pipeline before you see their profile.
           </p>
 
           {/* CTA Buttons */}

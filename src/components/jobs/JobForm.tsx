@@ -161,7 +161,7 @@ export function JobForm({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ecommerce">Operations Management</SelectItem>
-              <SelectItem value="accounting">Accounting & Finance</SelectItem>
+              <SelectItem value="accounting">Finance & Accounting</SelectItem>
             </SelectContent>
           </Select>
         </div>
