@@ -11,7 +11,7 @@ Core message: "Hire Senior Filipino Professionals, Vetted by AI"
 Key differentiators:
 - 4-layer AI vetting pipeline: Resume Analysis → Scenario Assessment → Video Interview → Reference Verification
 - Senior-only talent pool (5-10+ years experience, no entry-level)
-- Vertical specialization: Accounting & Finance, E-commerce Operations (Healthcare Admin and Digital Marketing deferred to month 6+)
+- Vertical specialization: Accounting & Finance, Operations Management (Healthcare Admin and Digital Marketing deferred to month 6+)
 - Portfolio-style profiles with case studies and vetting scores
 - Pay-per-unlock pricing ($25/profile) + subscription plans
 
@@ -112,8 +112,9 @@ src/
     AIComparison.tsx         # 4-layer vetting pipeline showcase
     HowItWorks.tsx           # 2-tab process (companies/professionals)
     LandingHeader.tsx        # Landing page navigation header
-    UnlockModal.tsx          # Credit-based unlock dialog (calls /api/unlocks)
-    SEO.tsx                  # SEO head component
+    UnlockModal.tsx          # Credit-based unlock dialog with inline credit plans
+    LogoIcon.tsx             # Brand logo SVG component (primary/white/accent)
+    SEO.tsx                  # SEO head component (SVG favicon, branded OG image)
     ThemeSwitch.tsx          # Dark mode toggle
     dashboard/
       DashboardHeader.tsx    # Nav + auth status + credits badge
@@ -187,7 +188,7 @@ Each layer produces a 0-100 score. Composite vetting score determines candidate 
 | Vertical | Focus Areas |
 |----------|-------------|
 | Accounting & Finance | QuickBooks, financial modeling, compliance |
-| E-commerce Operations | Shopify, Amazon, inventory, fulfillment |
+| Operations Management | Shopify, Amazon, inventory, fulfillment, logistics |
 
 Future verticals (month 6+): Healthcare Admin, Digital Marketing
 
@@ -199,11 +200,15 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Free job posting: companies post jobs, candidates apply, application management pipeline
 - Candidate accounts: separate registration, profile management, application tracking
 - AI company verification: automated legitimacy checks via Claude API
-- UnlockModal uses credit system (raw card form removed)
-- Stripe Checkout wired for credit packs + subscriptions
+- UnlockModal with inline credit plan selection + post-purchase redirect back to profile
+- Stripe Checkout wired for credit packs + subscriptions (returnTo flow)
+- Brand logo: LogoIcon component renders actual ResourceMatch lettermark SVG (Raw Sienna accent in headers)
+- Favicon: SVG primary + PNG fallback, branded OG image (web devices mockup)
+- Logo assets in `public/`: logo-icon.svg, logo-icon-white.svg, logo-icon-accent.svg, logo-horizontal.png, logo-horizontal-white.png
+- "Browse Jobs" nav link restricted to candidate role only
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
-- Last deployed: 2026-03-02 (commit 0de6c63)
+- Last deployed: 2026-03-02 (commit 915e535)
 - Domain: resourcematch.ph
 - GitHub: zee-go/resourcematch
 
