@@ -20,17 +20,17 @@ export const CREDIT_PACKS = {
 export const SUBSCRIPTION_TIERS = {
   STARTER: {
     monthlyUnlocks: 10,
-    priceId: process.env.STRIPE_STARTER_PRICE_ID || "",
+    priceId: process.env.STRIPE_STARTER_PRICE_ID ?? "",
     label: "Starter",
   },
   GROWTH: {
     monthlyUnlocks: 25,
-    priceId: process.env.STRIPE_GROWTH_PRICE_ID || "",
+    priceId: process.env.STRIPE_GROWTH_PRICE_ID ?? "",
     label: "Growth",
   },
   ENTERPRISE: {
     monthlyUnlocks: 999, // effectively unlimited
-    priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID || "",
+    priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID ?? "",
     label: "Enterprise",
   },
 } as const;

@@ -231,7 +231,7 @@ export default function SignupPage() {
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
               <LogoIcon className="w-10 h-10" color="accent" />
-              <span className="text-2xl font-bold text-slate-900">
+              <span className="text-2xl font-heading font-bold text-slate-900">
                 ResourceMatch
               </span>
             </Link>

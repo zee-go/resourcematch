@@ -58,7 +58,7 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
               <LogoIcon className="w-10 h-10" color="accent" />
-              <span className="text-2xl font-bold text-slate-900">
+              <span className="text-2xl font-heading font-bold text-slate-900">
                 ResourceMatch
               </span>
             </Link>
@@ -106,6 +106,15 @@ export default function LoginPage() {
                     className="pl-10"
                   />
                 </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Link
+                  href="/reset-password"
+                  className="text-sm text-[#04443C] hover:underline"
+                >
+                  Forgot password?
+                </Link>
               </div>
 
               {error && (

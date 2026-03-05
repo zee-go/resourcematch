@@ -30,7 +30,9 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+              // unsafe-inline needed for Next.js __NEXT_DATA__ inline scripts
+              // unsafe-eval removed — only needed in dev for webpack HMR
+              "script-src 'self' 'unsafe-inline' https://js.stripe.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
@@ -42,6 +44,9 @@ const nextConfig = {
       },
     ];
   },
+  // CORS: Not configured — Next.js API routes use same-origin policy by default.
+  // API is only accessible from resourcematch.ph. If cross-origin access is
+  // needed (mobile app, subdomain API), add explicit CORS headers here.
 };
 
 export default nextConfig;

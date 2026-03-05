@@ -103,7 +103,7 @@ src/
       companies/
         verify.ts            # Admin: manually verify a company
         verify-ai.ts         # AI-powered company verification
-    _app.tsx                 # App wrapper with AuthProvider
+    _app.tsx                 # App wrapper with AuthProvider + ErrorBoundary
     _document.tsx            # HTML document + SEO
 
   components/
@@ -111,6 +111,7 @@ src/
     WhyChoose.tsx            # Value prop cards
     AIComparison.tsx         # 4-layer vetting pipeline showcase
     HowItWorks.tsx           # 2-tab process (companies/professionals)
+    Footer.tsx               # Site footer (legal links, platform nav, contact)
     LandingHeader.tsx        # Landing page navigation header
     UnlockModal.tsx          # Credit-based unlock dialog with inline credit plans
     LogoIcon.tsx             # Brand logo SVG component (primary/white/accent)
@@ -194,8 +195,8 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 
 ## Current State
 
-- Full backend: 31 API routes, 17 Prisma models, NextAuth.js, Stripe payments
-- Frontend: 22 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD), candidate portal, apply intake
+- Full backend: 33 API routes, 17 Prisma models, NextAuth.js, Stripe payments
+- Frontend: 24 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD), candidate portal, apply intake, privacy, terms
 - Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL
 - Free job posting: companies post jobs, candidates apply, application management pipeline
 - Candidate accounts: separate registration, profile management, application tracking
@@ -205,10 +206,15 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Brand logo: LogoIcon component renders actual ResourceMatch lettermark SVG (Raw Sienna accent in headers)
 - Favicon: SVG primary + PNG fallback, branded OG image (web devices mockup)
 - Logo assets in `public/`: logo-icon.svg, logo-icon-white.svg, logo-icon-accent.svg, logo-horizontal.png, logo-horizontal-white.png
+- Security: Account lockout (5 failed logins → 15min lock), Zod-validated registration, rate-limited auth endpoints, CSP without unsafe-eval
+- Password reset flow: forgot-password + reset-password API routes using VerificationToken
+- Admin check uses JWT email (case-insensitive), not mutable company email
+- Global ErrorBoundary in _app.tsx, robots.txt, sitemap.xml, Privacy Policy, Terms of Service
+- Footer component on landing page with legal links + platform nav
 - "Browse Jobs" nav link restricted to candidate role only
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
-- Last deployed: 2026-03-03 (commit 34307de)
+- Last deployed: 2026-03-06 (commit 7e61bdf)
 - Domain: resourcematch.ph
 - GitHub: zee-go/resourcematch
 

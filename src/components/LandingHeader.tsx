@@ -45,7 +45,7 @@ export function LandingHeader() {
           <Link href="/" className="flex items-center gap-2 group">
             <LogoIcon className="w-8 h-8 group-hover:scale-105 transition-transform" color="accent" />
             <span
-              className={`text-xl font-bold transition-colors ${
+              className={`text-xl font-heading font-bold transition-colors ${
                 scrolled ? "text-[#04443C]" : "text-[#04443C]"
               }`}
             >

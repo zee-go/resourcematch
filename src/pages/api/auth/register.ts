@@ -1,40 +1,31 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import type { CompanySize } from "@prisma/client";
+import { z } from "zod";
+import { withMethods } from "@/server/middleware/withMethods";
+import { withBodyValidation } from "@/server/middleware/withValidation";
+import { withRateLimit } from "@/server/middleware/withRateLimit";
 
-const VALID_SIZES: CompanySize[] = ["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"];
+const registerSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  companyName: z.string().max(200).optional(),
+  companyWebsite: z.string().url().or(z.string().max(200)).optional(),
+  companySize: z.enum(["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"]).optional(),
+  industry: z.string().max(100).optional(),
+  monthlyBudgetMin: z.union([z.string(), z.number()]).optional(),
+});
 
-export default async function handler(
-  req: NextApiRequest,
+async function handler(
+  req: NextApiRequest & { body: z.infer<typeof registerSchema> },
   res: NextApiResponse
 ) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  const { email, password, companyName, companyWebsite, companySize, industry, monthlyBudgetMin } = req.body;
 
-  const {
-    email,
-    password,
-    companyName,
-    companyWebsite,
-    companySize,
-    industry,
-    monthlyBudgetMin,
-  } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
-  }
-
-  if (password.length < 8) {
-    return res.status(400).json({ error: "Password must be at least 8 characters" });
-  }
-
-  // Check if user already exists
+  // Check if user already exists — use generic error to prevent user enumeration
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return res.status(409).json({ error: "An account with this email already exists" });
+    return res.status(409).json({ error: "Registration failed. Please try again or sign in." });
   }
 
   // Auto-verify if business email domain matches company website
@@ -72,9 +63,9 @@ export default async function handler(
           email,
           companyName: companyName || null,
           companyWebsite: companyWebsite || null,
-          companySize: VALID_SIZES.includes(companySize) ? companySize : null,
+          companySize: companySize || null,
           industry: industry || null,
-          monthlyBudgetMin: monthlyBudgetMin ? parseInt(monthlyBudgetMin) : null,
+          monthlyBudgetMin: monthlyBudgetMin ? parseInt(String(monthlyBudgetMin)) : null,
           verified,
           verifiedAt: verified ? new Date() : null,
           verificationStatus: verified ? "VERIFIED" : "UNVERIFIED",
@@ -88,7 +79,11 @@ export default async function handler(
 
     return res.status(201).json({ success: true, userId: result.user.id });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return res.status(500).json({ error: `Registration failed: ${message}` });
+    return res.status(500).json({ error: "Registration failed. Please try again." });
   }
 }
+
+export default withRateLimit(
+  { limit: 5, windowSeconds: 60 },
+  withMethods(["POST"], withBodyValidation(registerSchema, handler))
+);

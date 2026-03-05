@@ -31,6 +31,10 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
+    maxAge: 15 * 24 * 60 * 60, // 15 days
+  },
+  jwt: {
+    maxAge: 15 * 24 * 60 * 60, // 15 days
   },
   pages: {
     signIn: "/login",
@@ -55,13 +59,46 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // Account lockout: 5 failed attempts → 15-minute lock
+        if (user.lockedUntil && user.lockedUntil > new Date()) {
+          return null;
+        }
+
+        // Clear expired lock
+        if (user.lockedUntil && user.lockedUntil <= new Date()) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { failedLoginAttempts: 0, lockedUntil: null },
+          });
+        }
+
         const isValid = await bcrypt.compare(
           credentials.password,
           user.passwordHash
         );
 
         if (!isValid) {
+          const attempts = user.failedLoginAttempts + 1;
+          const MAX_ATTEMPTS = 5;
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              failedLoginAttempts: attempts,
+              lockedUntil:
+                attempts >= MAX_ATTEMPTS
+                  ? new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+                  : null,
+            },
+          });
           return null;
+        }
+
+        // Reset on successful login
+        if (user.failedLoginAttempts > 0) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { failedLoginAttempts: 0, lockedUntil: null },
+          });
         }
 
         return {

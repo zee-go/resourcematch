@@ -25,18 +25,33 @@ interface RateLimitOptions {
 }
 
 /**
+ * Extract the client IP from the request.
+ * Behind Cloud Run's load balancer, the LB appends the real client IP
+ * to X-Forwarded-For — so the rightmost entry is the most trustworthy
+ * (cannot be spoofed by the client).
+ */
+function getClientIp(req: NextApiRequest): string {
+  const forwardedFor = req.headers["x-forwarded-for"] as string | undefined;
+  if (forwardedFor) {
+    const ips = forwardedFor.split(",").map((ip) => ip.trim());
+    return ips[ips.length - 1] || "unknown";
+  }
+  return req.socket.remoteAddress || "unknown";
+}
+
+/**
  * In-memory rate limiter. Uses IP + route as the key.
- * For production with multiple Cloud Run instances, consider Redis.
+ *
+ * NOTE: This in-memory store is per-instance only. For multi-instance
+ * Cloud Run deployments, migrate to Redis (e.g. Cloud Memorystore) or
+ * a database-backed store for accurate cross-instance rate limiting.
  */
 export function withRateLimit(
   options: RateLimitOptions,
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>
 ) {
   return async (req: NextApiRequest, res: NextApiResponse) => {
-    const ip =
-      (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
-      req.socket.remoteAddress ||
-      "unknown";
+    const ip = getClientIp(req);
 
     const key = `${ip}:${req.url}`;
     const now = Date.now();

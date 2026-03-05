@@ -192,7 +192,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
               </Link>
               <Link href="/" className="flex items-center gap-2">
                 <LogoIcon className="w-8 h-8" color="accent" />
-                <span className="font-bold text-lg">ResourceMatch</span>
+                <span className="font-heading font-bold text-lg">ResourceMatch</span>
               </Link>
             </div>
           </div>

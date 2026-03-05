@@ -10,7 +10,7 @@ export function Footer() {
           <div className="md:col-span-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-4">
               <LogoIcon className="w-8 h-8" color="accent" />
-              <span className="text-xl font-bold">ResourceMatch</span>
+              <span className="text-xl font-heading font-bold">ResourceMatch</span>
             </Link>
             <p className="text-white/70 text-sm max-w-sm">
               AI-vetted senior Filipino professionals with 5-10+ years experience.

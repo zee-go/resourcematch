@@ -266,7 +266,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
             <div className="flex items-center justify-between">
               <Link href="/" className="flex items-center gap-2">
                 <LogoIcon className="w-8 h-8" color="accent" />
-                <span className="text-2xl font-bold text-slate-900">ResourceMatch</span>
+                <span className="text-2xl font-heading font-bold text-slate-900">ResourceMatch</span>
               </Link>
               <div className="flex items-center gap-4">
                 <Link href="/dashboard">

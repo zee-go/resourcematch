@@ -5,12 +5,13 @@ import type { Company } from "@prisma/client";
 
 export interface AuthenticatedRequest extends NextApiRequest {
   userId: string;
+  userEmail: string;
   company: Company;
 }
 
 /**
  * Middleware that requires NextAuth authentication and loads the company profile.
- * Attaches `userId` and `company` to the request object.
+ * Attaches `userId`, `userEmail`, and `company` to the request object.
  */
 export function withAuth(
   handler: (req: AuthenticatedRequest, res: NextApiResponse) => Promise<void>
@@ -35,6 +36,7 @@ export function withAuth(
 
     const authReq = req as AuthenticatedRequest;
     authReq.userId = session.user.id;
+    authReq.userEmail = session.user.email;
     authReq.company = company;
 
     return handler(authReq, res);
@@ -43,13 +45,15 @@ export function withAuth(
 
 /**
  * Middleware that requires admin role (for vetting pipeline routes).
+ * Checks the User's email (from JWT session) against ADMIN_EMAILS,
+ * NOT the mutable company email field.
  */
 export function withAdmin(
   handler: (req: AuthenticatedRequest, res: NextApiResponse) => Promise<void>
 ) {
   return withAuth(async (req, res) => {
-    const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim());
-    if (!adminEmails.includes(req.company.email)) {
+    const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase());
+    if (!adminEmails.includes(req.userEmail.toLowerCase())) {
       return res.status(403).json({ error: "Admin access required" });
     }
     return handler(req, res);

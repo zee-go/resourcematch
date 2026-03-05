@@ -1,10 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import type { Vertical, Availability } from "@prisma/client";
+import { z } from "zod";
+import { withMethods } from "@/server/middleware/withMethods";
+import { withBodyValidation } from "@/server/middleware/withValidation";
+import { withRateLimit } from "@/server/middleware/withRateLimit";
 
-const VALID_VERTICALS: Vertical[] = ["ecommerce", "accounting"];
-const VALID_AVAILABILITY: Availability[] = ["FULL_TIME", "PART_TIME", "CONTRACT"];
+const registerCandidateSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  fullName: z.string().min(2, "Full name is required").max(100),
+  title: z.string().min(2, "Professional title is required").max(100),
+  vertical: z.enum(["ecommerce", "accounting"]),
+  experience: z.union([z.string(), z.number()]).transform((v) => Number(v)).pipe(z.number().int().min(1)),
+  availability: z.enum(["FULL_TIME", "PART_TIME", "CONTRACT"]),
+  skills: z.array(z.string()).optional(),
+  tools: z.array(z.string()).optional(),
+  location: z.string().min(2, "Location is required").max(100),
+  summary: z.string().max(2000).optional(),
+  salaryMin: z.union([z.string(), z.number()]).optional(),
+  salaryMax: z.union([z.string(), z.number()]).optional(),
+});
 
 function generateDisplayName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/);
@@ -14,66 +30,16 @@ function generateDisplayName(fullName: string): string {
   return `${firstName} ${lastInitial}.`;
 }
 
-export default async function handler(
-  req: NextApiRequest,
+async function handler(
+  req: NextApiRequest & { body: z.infer<typeof registerCandidateSchema> },
   res: NextApiResponse
 ) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  const { email, password, fullName, title, vertical, experience, availability, skills, tools, location, summary, salaryMin, salaryMax } = req.body;
 
-  const {
-    email,
-    password,
-    fullName,
-    title,
-    vertical,
-    experience,
-    availability,
-    skills,
-    tools,
-    location,
-    summary,
-    salaryMin,
-    salaryMax,
-  } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
-  }
-
-  if (password.length < 8) {
-    return res.status(400).json({ error: "Password must be at least 8 characters" });
-  }
-
-  if (!fullName?.trim()) {
-    return res.status(400).json({ error: "Full name is required" });
-  }
-
-  if (!title?.trim()) {
-    return res.status(400).json({ error: "Professional title is required" });
-  }
-
-  if (!VALID_VERTICALS.includes(vertical)) {
-    return res.status(400).json({ error: "Valid vertical is required" });
-  }
-
-  if (!experience || experience < 1) {
-    return res.status(400).json({ error: "Years of experience is required" });
-  }
-
-  if (!VALID_AVAILABILITY.includes(availability)) {
-    return res.status(400).json({ error: "Valid availability is required" });
-  }
-
-  if (!location?.trim()) {
-    return res.status(400).json({ error: "Location is required" });
-  }
-
-  // Check if user already exists
+  // Check if user already exists — use generic error to prevent user enumeration
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return res.status(409).json({ error: "An account with this email already exists" });
+    return res.status(409).json({ error: "Registration failed. Please try again or sign in." });
   }
 
   try {
@@ -98,7 +64,7 @@ export default async function handler(
           title: title.trim(),
           avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=04443C&color=fff`,
           vertical,
-          experience: parseInt(experience),
+          experience: Number(experience),
           availability,
           skills: Array.isArray(skills) ? skills : [],
           tools: Array.isArray(tools) ? tools : [],
@@ -108,8 +74,8 @@ export default async function handler(
           vettingScore: 0,
           verified: false,
           email,
-          salaryMin: salaryMin ? parseInt(salaryMin) : null,
-          salaryMax: salaryMax ? parseInt(salaryMax) : null,
+          salaryMin: salaryMin ? parseInt(String(salaryMin)) : null,
+          salaryMax: salaryMax ? parseInt(String(salaryMax)) : null,
         },
       });
 
@@ -118,7 +84,11 @@ export default async function handler(
 
     return res.status(201).json({ success: true, userId: result.user.id });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return res.status(500).json({ error: `Registration failed: ${message}` });
+    return res.status(500).json({ error: "Registration failed. Please try again." });
   }
 }
+
+export default withRateLimit(
+  { limit: 5, windowSeconds: 60 },
+  withMethods(["POST"], withBodyValidation(registerCandidateSchema, handler))
+);
