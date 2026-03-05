@@ -20,6 +20,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     const credits = parseInt(session.metadata.credits || "0", 10);
     if (credits <= 0) return;
 
+    // Idempotency: skip if this session was already processed
+    const existing = await prisma.creditPurchase.findFirst({
+      where: { stripeSessionId: session.id },
+    });
+    if (existing) return;
+
     await prisma.$transaction([
       prisma.company.update({
         where: { id: companyId },
@@ -43,6 +49,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     const tierConfig = SUBSCRIPTION_TIERS[tier];
 
     if (!tierConfig) return;
+
+    // Idempotency: skip if this subscription is already set on the company
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { subscriptionId: true },
+    });
+    if (company?.subscriptionId === (session.subscription as string)) return;
 
     await prisma.company.update({
       where: { id: companyId },
