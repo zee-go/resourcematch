@@ -214,7 +214,7 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - "Browse Jobs" nav link restricted to candidate role only
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
-- Last deployed: 2026-03-06 (commit 7e61bdf)
+- Last deployed: 2026-03-06 (commit 5284b44)
 - Domain: resourcematch.ph
 - GitHub: zee-go/resourcematch
 
