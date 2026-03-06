@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Building2,
-  CreditCard,
   ClipboardCheck,
   UserCheck,
   ArrowRight,
@@ -24,24 +23,24 @@ interface Step {
 const companySteps: Step[] = [
   {
     number: 1,
-    title: "Search Vetted Talent",
-    description: "Browse portfolio-style profiles of senior talent",
-    icon: <Search className="w-8 h-8" />,
-    detail: "Filter by vertical, experience level, and availability. Every candidate has passed our 4-layer AI vetting pipeline. View case studies, vetting scores, and video introductions at no cost."
+    title: "Post Jobs for Free",
+    description: "Create job listings and let vetted candidates come to you",
+    icon: <ClipboardCheck className="w-8 h-8" />,
+    detail: "Post unlimited job listings at no cost. AI-vetted senior professionals browse and apply directly to your openings. Review applications, filter by vertical and experience, and shortlist top candidates."
   },
   {
     number: 2,
-    title: "Purchase Credits",
-    description: "Credit packs from $25/unlock or monthly plans",
-    icon: <CreditCard className="w-8 h-8" />,
-    detail: "Buy credit packs (1 for $25, 5 for $100, 15 for $250) that never expire. Or subscribe: Starter ($149/mo, 10 unlocks), Growth ($299/mo, 25 unlocks), or Enterprise ($599/mo, unlimited)."
+    title: "Browse & Search Talent",
+    description: "Explore portfolio-style profiles of senior professionals",
+    icon: <Search className="w-8 h-8" />,
+    detail: "Filter by vertical, experience level, and availability. Every candidate has passed our 4-layer AI vetting pipeline. View case studies, vetting scores, and video introductions — all free to browse."
   },
   {
     number: 3,
     title: "Unlock & Connect",
-    description: "Get full profiles with contact info and references",
+    description: "Only pay when you're ready to reach out",
     icon: <Unlock className="w-8 h-8" />,
-    detail: "Unlock full profiles to access contact details, video introductions, verified references, and case studies. Connect directly with your hire — no middleman."
+    detail: "Use credits to unlock full contact details, verified references, and case studies. Credit packs start at $25/unlock and never expire. Connect directly with your hire — no middleman, no recurring fees required."
   }
 ];
 
@@ -84,7 +83,7 @@ export function HowItWorks() {
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            How It <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Works</span>
+            How It Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Simple, transparent processes for companies and talent
