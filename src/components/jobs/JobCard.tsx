@@ -67,7 +67,7 @@ export function JobCard({ job }: JobCardProps) {
         <div className="flex flex-wrap gap-2 mb-3">
           <Badge
             variant="secondary"
-            className="bg-green-50 text-[#04443C] text-xs"
+            className="bg-light text-primary text-xs"
           >
             {verticalLabels[job.vertical] || job.vertical}
           </Badge>
@@ -116,7 +116,7 @@ export function JobCard({ job }: JobCardProps) {
               </span>
             )}
             {salary && (
-              <span className="text-[#04443C] font-medium">{salary}</span>
+              <span className="text-primary font-medium">{salary}</span>
             )}
           </div>
           <div className="flex items-center gap-3">

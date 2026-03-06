@@ -4,9 +4,9 @@ interface LogoIconProps {
 }
 
 const colorMap = {
-  primary: "fill-[#04443C]",
+  primary: "fill-primary",
   white: "fill-white",
-  accent: "fill-[#D38B53]",
+  accent: "fill-accent",
 };
 
 export function LogoIcon({ className = "w-6 h-6", color = "primary" }: LogoIconProps) {

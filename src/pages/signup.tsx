@@ -240,13 +240,13 @@ export default function SignupPage() {
           {/* Progress */}
           <div className="flex items-center gap-3 mb-6">
             <div
-              className={`flex-1 h-1 rounded-full ${stepIndex >= 0 ? "bg-[#04443C]" : "bg-slate-200"}`}
+              className={`flex-1 h-1 rounded-full ${stepIndex >= 0 ? "bg-primary" : "bg-slate-200"}`}
             />
             <div
-              className={`flex-1 h-1 rounded-full ${stepIndex >= 1 ? "bg-[#04443C]" : "bg-slate-200"}`}
+              className={`flex-1 h-1 rounded-full ${stepIndex >= 1 ? "bg-primary" : "bg-slate-200"}`}
             />
             <div
-              className={`flex-1 h-1 rounded-full ${stepIndex >= 2 ? "bg-[#04443C]" : "bg-slate-200"}`}
+              className={`flex-1 h-1 rounded-full ${stepIndex >= 2 ? "bg-primary" : "bg-slate-200"}`}
             />
           </div>
 
@@ -265,11 +265,11 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => handleRoleSelect("company")}
-                    className="w-full text-left border-2 border-slate-200 rounded-xl p-5 hover:border-[#04443C] hover:bg-[#04443C]/5 transition-all duration-200 group"
+                    className="w-full text-left border-2 border-slate-200 rounded-xl p-5 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-[#04443C]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#04443C]/20 transition-colors">
-                        <Building2 className="w-6 h-6 text-[#04443C]" />
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                        <Building2 className="w-6 h-6 text-primary" />
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-slate-900 mb-1">
@@ -285,11 +285,11 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => handleRoleSelect("candidate")}
-                    className="w-full text-left border-2 border-slate-200 rounded-xl p-5 hover:border-[#04443C] hover:bg-[#04443C]/5 transition-all duration-200 group"
+                    className="w-full text-left border-2 border-slate-200 rounded-xl p-5 hover:border-primary hover:bg-primary/5 transition-all duration-200 group"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-[#D38B53]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D38B53]/20 transition-colors">
-                        <UserCircle className="w-6 h-6 text-[#D38B53]" />
+                      <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors">
+                        <UserCircle className="w-6 h-6 text-accent" />
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-slate-900 mb-1">
@@ -395,7 +395,7 @@ export default function SignupPage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="flex-1 bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
+                      className="flex-1 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white"
                     >
                       Continue
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -517,10 +517,10 @@ export default function SignupPage() {
                   </div>
 
                   {/* Why we ask */}
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="bg-light border border-green-200 rounded-lg p-3">
                     <div className="flex gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#04443C] mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-[#04443C]">
+                      <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-primary">
                         We verify companies to protect our talent from lowball offers.
                         Verified employers get priority access and a trusted badge.
                       </p>
@@ -549,7 +549,7 @@ export default function SignupPage() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
+                      className="flex-1 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white"
                     >
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -810,10 +810,10 @@ export default function SignupPage() {
                   </div>
 
                   {/* Info banner */}
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="bg-light border border-green-200 rounded-lg p-3">
                     <div className="flex gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#04443C] mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-[#04443C]">
+                      <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-primary">
                         After signing up, you&apos;ll go through our AI vetting process
                         to verify your skills and get matched with top employers.
                       </p>
@@ -842,7 +842,7 @@ export default function SignupPage() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
+                      className="flex-1 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white"
                     >
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -863,7 +863,7 @@ export default function SignupPage() {
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="text-[#04443C] font-semibold hover:underline"
+                  className="text-primary font-semibold hover:underline"
                 >
                   Log in
                 </Link>

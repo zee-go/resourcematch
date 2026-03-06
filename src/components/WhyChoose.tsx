@@ -69,7 +69,7 @@ export function WhyChoose() {
                 {/* Content */}
                 <div className="relative">
                   {/* Icon */}
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-[#04443C] to-[#399A8B] mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-7 h-7 text-white" strokeWidth={2} />
                   </div>
 

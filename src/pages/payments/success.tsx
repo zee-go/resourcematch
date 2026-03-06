@@ -55,14 +55,14 @@ export default function PaymentSuccess() {
             <div className="flex flex-col gap-3">
               {returnTo ? (
                 <Link href={returnTo}>
-                  <Button className="w-full bg-[#04443C] hover:bg-[#022C27] text-white">
+                  <Button className="w-full bg-primary hover:bg-primary-dark text-white">
                     Return to Profile
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
               ) : (
                 <Link href="/dashboard">
-                  <Button className="w-full bg-[#04443C] hover:bg-[#022C27] text-white">
+                  <Button className="w-full bg-primary hover:bg-primary-dark text-white">
                     Browse Candidates
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>

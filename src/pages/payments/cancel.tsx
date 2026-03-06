@@ -27,7 +27,7 @@ export default function PaymentCancel() {
 
             <div className="flex flex-col gap-3">
               <Link href="/hire">
-                <Button className="w-full bg-[#04443C] hover:bg-[#022C27] text-white">
+                <Button className="w-full bg-primary hover:bg-primary-dark text-white">
                   View Pricing
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>

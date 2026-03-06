@@ -22,7 +22,12 @@ Key differentiators:
 - **Auth**: NextAuth.js 4.24 (CredentialsProvider, JWT sessions, PrismaAdapter)
 - **UI**: Tailwind CSS 3.4.1, shadcn/ui (New York style), 48+ Radix UI primitives
 - **Fonts**: Montserrat (headings), Karla (body), JetBrains Mono (code)
-- **Colors**: Evening Sea `#04443C` (primary), Raw Sienna `#D38B53` (accent), Lochinvar `#399A8B` (secondary), Iceberg `#DBF3EB` (light)
+- **Colors**: All colors use CSS variable tokens via Tailwind — never hardcode hex values in components
+  - `primary` / `primary-dark` — Evening Sea `#04443C` / `#022C27`
+  - `accent` / `accent-dark` — Raw Sienna `#D38B53` / `#B47646`
+  - `secondary` — Lochinvar `#399A8B`
+  - `light` — Iceberg `#DBF3EB`
+  - Semantic status colors (green/red/yellow/blue) are allowed for success/error/pending/info states only
 - **Animations**: Framer Motion, custom fade-in/slide-up/scale-in
 - **Icons**: Lucide React
 - **AI**: Claude API (Anthropic) for vetting pipeline

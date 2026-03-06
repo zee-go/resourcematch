@@ -113,7 +113,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
       period: "/month",
       description: "For selective hiring",
       icon: Building2,
-      color: "teal",
+      color: "secondary",
       features: [
         "10 profile unlocks per month",
         "AI-powered candidate matching",
@@ -131,7 +131,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
       period: "/month",
       description: "For active hiring",
       icon: TrendingUp,
-      color: "orange",
+      color: "accent",
       features: [
         "25 profile unlocks per month",
         "All Starter features",
@@ -259,7 +259,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
         description="Pre-vetted senior Filipino talent with 5-10+ years experience. 4-layer AI vetting pipeline. From $25/unlock."
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-light/30">
         {/* Header */}
         <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
@@ -283,13 +283,13 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
         {/* Hero Section */}
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 -z-10">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-teal-200/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-200/20 rounded-full blur-3xl" />
+            <div className="absolute top-20 left-10 w-72 h-72 bg-secondary/20 rounded-full blur-3xl" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
           </div>
 
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto text-center space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-teal-700 font-medium animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-light border border-secondary/30 rounded-full text-primary font-medium animate-fade-in">
                 <ShieldCheck className="h-4 w-4" />
                 AI-Vetted Senior Talent
               </div>
@@ -299,7 +299,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                 style={{ animationDelay: "100ms" }}
               >
                 Hire Senior Talent{" "}
-                <span className="bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
                   Vetted by AI
                 </span>
               </h1>
@@ -319,7 +319,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                 <Link href="/dashboard">
                   <Button
                     size="lg"
-                    className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30 hover:shadow-xl transition-all"
+                    className="h-14 px-8 text-lg bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/30 hover:shadow-xl transition-all"
                   >
                     Browse Vetted Talent
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -339,11 +339,11 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
 
         {/* Candidate Preview Cards */}
         {previewCandidates.length > 0 && (
-          <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-teal-50/20">
+          <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-light/20">
             <div className="container mx-auto px-4">
               <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                  <Badge className="mb-4 bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50">
+                  <Badge className="mb-4 bg-light text-primary border-secondary/30 hover:bg-light">
                     <ShieldCheck className="w-3 h-3 mr-1" />
                     AI-Vetted Talent
                   </Badge>
@@ -360,10 +360,10 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                   {previewCandidates.map((candidate, index) => (
                     <div
                       key={candidate.id}
-                      className="group relative bg-white rounded-2xl border-2 border-slate-200 hover:border-teal-400 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
+                      className="group relative bg-white rounded-2xl border-2 border-slate-200 hover:border-secondary p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full" />
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/10 to-transparent rounded-bl-full" />
 
                       <div className="flex items-start justify-between mb-4">
                         <div className="relative">
@@ -387,7 +387,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                       </div>
 
                       <div className="mb-3">
-                        <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-teal-700 transition-colors">
+                        <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
                           {candidate.name}
                         </h3>
                         <p className="text-sm text-slate-600 font-medium">{candidate.title}</p>
@@ -416,7 +416,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                             {candidate.caseStudyTitle}
                           </p>
                           {candidate.caseStudyMetrics && (
-                            <p className="text-xs text-teal-700 font-medium mt-1">
+                            <p className="text-xs text-primary font-medium mt-1">
                               {candidate.caseStudyMetrics}
                             </p>
                           )}
@@ -444,7 +444,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                       </div>
 
                       <Link href={`/profile/${candidate.id}`}>
-                        <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white group-hover:shadow-lg transition-all">
+                        <Button className="w-full bg-secondary hover:bg-primary text-white group-hover:shadow-lg transition-all">
                           <Eye className="w-4 h-4 mr-2" />
                           View Profile
                         </Button>
@@ -457,7 +457,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                   <Link href="/dashboard">
                     <Button
                       size="lg"
-                      className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
+                      className="h-14 px-8 text-lg bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/30"
                     >
                       Browse All Vetted Talent
                       <ArrowRight className="ml-2 h-5 w-5" />
@@ -475,7 +475,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-12">
-                <Badge className="mb-4 bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-50">
+                <Badge className="mb-4 bg-secondary/10 text-secondary border-secondary hover:bg-secondary/10">
                   <Coins className="w-3 h-3 mr-1" />
                   Pay As You Go
                 </Badge>
@@ -494,13 +494,13 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                     key={pack.id}
                     className={`relative rounded-2xl p-6 border-2 text-center transition-all hover:shadow-xl ${
                       pack.popular
-                        ? "border-purple-500 shadow-lg shadow-purple-500/20 scale-105"
+                        ? "border-secondary shadow-lg shadow-secondary/20 scale-105"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
                     {pack.popular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-purple-600 text-white px-3 py-0.5 text-xs font-bold">
+                        <Badge className="bg-secondary text-white px-3 py-0.5 text-xs font-bold">
                           BEST VALUE
                         </Badge>
                       </div>
@@ -516,7 +516,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                       disabled={loadingPack === pack.id}
                       className={`w-full ${
                         pack.popular
-                          ? "bg-purple-600 hover:bg-purple-700 text-white"
+                          ? "bg-secondary hover:bg-secondary/90 text-white"
                           : "bg-slate-100 hover:bg-slate-200 text-slate-900"
                       }`}
                     >
@@ -547,7 +547,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-12">
-                <Badge className="mb-4 bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50">
+                <Badge className="mb-4 bg-light text-primary border-secondary/30 hover:bg-light">
                   <CreditCard className="w-3 h-3 mr-1" />
                   Monthly Plans
                 </Badge>
@@ -566,13 +566,13 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                     key={plan.tier}
                     className={`relative rounded-2xl p-8 border-2 transition-all hover:shadow-xl bg-white ${
                       plan.popular
-                        ? "border-teal-500 shadow-lg shadow-teal-500/20 scale-105"
+                        ? "border-secondary shadow-lg shadow-secondary/20 scale-105"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
                     {plan.popular && (
                       <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-teal-600 text-white px-4 py-1 text-sm font-bold">
+                        <Badge className="bg-secondary text-white px-4 py-1 text-sm font-bold">
                           <Zap className="w-3 h-3 mr-1" />
                           MOST POPULAR
                         </Badge>
@@ -582,19 +582,19 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                     <div className="mb-6">
                       <div
                         className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                          plan.color === "teal"
-                            ? "bg-teal-100"
-                            : plan.color === "orange"
-                              ? "bg-orange-100"
+                          plan.color === "secondary"
+                            ? "bg-light"
+                            : plan.color === "accent"
+                              ? "bg-accent/10"
                               : "bg-slate-100"
                         }`}
                       >
                         <plan.icon
                           className={`h-7 w-7 ${
-                            plan.color === "teal"
-                              ? "text-teal-700"
-                              : plan.color === "orange"
-                                ? "text-orange-600"
+                            plan.color === "secondary"
+                              ? "text-primary"
+                              : plan.color === "accent"
+                                ? "text-accent"
                                 : "text-slate-600"
                           }`}
                         />
@@ -614,10 +614,10 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                         <li key={i} className="flex items-start gap-3">
                           <CheckCircle2
                             className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                              plan.color === "teal"
-                                ? "text-teal-600"
-                                : plan.color === "orange"
-                                  ? "text-orange-600"
+                              plan.color === "secondary"
+                                ? "text-secondary"
+                                : plan.color === "accent"
+                                  ? "text-accent"
                                   : "text-slate-500"
                             }`}
                           />
@@ -631,7 +631,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                       disabled={loadingTier === plan.tier}
                       className={`w-full h-12 ${
                         plan.popular
-                          ? "bg-teal-700 hover:bg-teal-800 text-white"
+                          ? "bg-primary hover:bg-primary-dark text-white"
                           : "bg-slate-100 hover:bg-slate-200 text-slate-900"
                       }`}
                     >
@@ -674,7 +674,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
         </section>
 
         {/* Stats Row */}
-        <section className="py-16 bg-gradient-to-br from-teal-700 to-teal-900 relative overflow-hidden">
+        <section className="py-16 bg-gradient-to-br from-primary to-primary-dark relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div
               className="absolute top-0 left-0 w-full h-full"
@@ -699,7 +699,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                     </div>
                   </div>
                   <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.value}</div>
-                  <div className="text-sm text-teal-100">{stat.label}</div>
+                  <div className="text-sm text-primary-foreground/80">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -720,7 +720,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
                 <Link href="/dashboard">
                   <Button
                     size="lg"
-                    className="h-14 px-8 text-lg bg-teal-700 hover:bg-teal-800 text-white shadow-lg shadow-teal-700/30"
+                    className="h-14 px-8 text-lg bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/30"
                   >
                     Browse Vetted Talent
                     <ArrowRight className="ml-2 h-5 w-5" />

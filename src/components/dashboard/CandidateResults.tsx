@@ -65,7 +65,7 @@ export function CandidateResults({
               key={candidate.id}
               className={`bg-white rounded-xl shadow-sm border-2 hover:shadow-md transition-all duration-300 overflow-hidden group ${
                 topMatch
-                  ? "border-[#D38B53] ring-2 ring-[#D38B53]/20"
+                  ? "border-accent ring-2 ring-accent/20"
                   : "border-slate-200"
               }`}
               style={{
@@ -74,7 +74,7 @@ export function CandidateResults({
             >
               {/* AI Match Badge */}
               {topMatch && (
-                <div className="bg-gradient-to-r from-[#D38B53] to-[#B47646] px-4 py-2 flex items-center justify-between">
+                <div className="bg-gradient-to-r from-accent to-accent-dark px-4 py-2 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-white">
                     <Sparkles className="w-4 h-4" />
                     <span className="text-sm font-semibold">
@@ -116,7 +116,7 @@ export function CandidateResults({
                         </p>
                       </div>
                       {matchScore && !topMatch && (
-                        <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 flex-shrink-0">
+                        <Badge className="bg-accent/10 text-accent hover:bg-accent/10 flex-shrink-0">
                           {matchScore}% Match
                         </Badge>
                       )}
@@ -150,10 +150,10 @@ export function CandidateResults({
                       {candidate.availability}
                     </div>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-3 text-center">
-                    <ShieldCheck className="w-4 h-4 text-[#04443C] mx-auto mb-1" />
+                  <div className="bg-light rounded-lg p-3 text-center">
+                    <ShieldCheck className="w-4 h-4 text-primary mx-auto mb-1" />
                     <div className="text-xs text-slate-600">Vetting Score</div>
-                    <div className="text-sm font-semibold text-[#04443C]">
+                    <div className="text-sm font-semibold text-primary">
                       {candidate.vettingScore}/100
                     </div>
                   </div>
@@ -194,7 +194,7 @@ export function CandidateResults({
                       {candidate.caseStudies[0].title}
                     </p>
                     {candidate.caseStudies[0].metrics && (
-                      <p className="text-xs text-[#04443C] font-medium mt-1">
+                      <p className="text-xs text-primary font-medium mt-1">
                         {candidate.caseStudies[0].metrics}
                       </p>
                     )}
@@ -206,14 +206,14 @@ export function CandidateResults({
                   {unlocked ? (
                     <>
                       <Link href={`/profile/${candidate.id}`} className="flex-1">
-                        <Button className="w-full bg-[#04443C] hover:bg-[#022C27] text-white">
+                        <Button className="w-full bg-primary hover:bg-primary-dark text-white">
                           View Full Profile
                         </Button>
                       </Link>
                       <Link href={`/profile/${candidate.id}`}>
                         <Button
                           variant="outline"
-                          className="border-[#04443C] text-[#04443C] hover:bg-green-50"
+                          className="border-primary text-primary hover:bg-light"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -223,7 +223,7 @@ export function CandidateResults({
                     <>
                       <Button
                         onClick={() => setUnlockTarget(candidate)}
-                        className="flex-1 bg-[#D38B53] hover:bg-[#B47646] text-white"
+                        className="flex-1 bg-accent hover:bg-accent-dark text-white"
                       >
                         <Lock className="w-4 h-4 mr-2" />
                         Unlock (1 Credit)

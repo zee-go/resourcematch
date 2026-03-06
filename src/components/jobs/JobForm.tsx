@@ -338,7 +338,7 @@ export function JobForm({
           type="button"
           onClick={() => handleSubmit("OPEN")}
           disabled={isLoading}
-          className="flex-1 bg-[#04443C] hover:bg-[#022C27] text-white"
+          className="flex-1 bg-primary hover:bg-primary-dark text-white"
         >
           {isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin" />

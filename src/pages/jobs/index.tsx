@@ -173,7 +173,7 @@ export default function JobBoard({ jobs, page, totalPages, total }: JobBoardProp
         <DashboardHeader />
 
         {/* Hero Section */}
-        <div className="bg-gradient-to-br from-[#04443C] to-[#022C27] text-white">
+        <div className="bg-gradient-to-br from-primary to-primary-dark text-white">
           <div className="container mx-auto px-4 max-w-7xl py-12">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div>
@@ -200,7 +200,7 @@ export default function JobBoard({ jobs, page, totalPages, total }: JobBoardProp
                 <Link href="/jobs/post">
                   <Button
                     size="lg"
-                    className="bg-white text-[#04443C] hover:bg-green-50 font-semibold"
+                    className="bg-white text-primary hover:bg-light font-semibold"
                   >
                     <Briefcase className="w-4 h-4 mr-2" />
                     Post a Job — It&apos;s Free
@@ -210,7 +210,7 @@ export default function JobBoard({ jobs, page, totalPages, total }: JobBoardProp
                 <Link href="/signup">
                   <Button
                     size="lg"
-                    className="bg-white text-[#04443C] hover:bg-green-50 font-semibold"
+                    className="bg-white text-primary hover:bg-light font-semibold"
                   >
                     Sign up to apply
                   </Button>

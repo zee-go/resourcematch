@@ -122,7 +122,7 @@ export default function CandidateProfilePage() {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#04443C]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -347,10 +347,10 @@ export default function CandidateProfilePage() {
             )}
 
             {success && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
+              <div className="bg-light border border-green-200 rounded-lg p-3 mt-4">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#04443C]" />
-                  <p className="text-sm text-[#04443C]">Profile updated successfully!</p>
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                  <p className="text-sm text-primary">Profile updated successfully!</p>
                 </div>
               </div>
             )}
@@ -359,7 +359,7 @@ export default function CandidateProfilePage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#04443C] hover:bg-[#022C27] text-white"
+                className="bg-primary hover:bg-primary-dark text-white"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />

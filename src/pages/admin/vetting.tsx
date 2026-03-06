@@ -259,13 +259,13 @@ export default function VettingAdmin() {
     if (score >= 90) return "text-green-700 bg-green-100";
     if (score >= 80) return "text-green-600 bg-green-50";
     if (score >= 70) return "text-yellow-700 bg-yellow-100";
-    if (score >= 60) return "text-orange-700 bg-orange-100";
+    if (score >= 60) return "text-accent bg-accent/10";
     return "text-red-700 bg-red-100";
   };
 
   const getDifficultyColor = (difficulty: string) => {
     if (difficulty === "expert") return "bg-red-100 text-red-700";
-    if (difficulty === "advanced") return "bg-orange-100 text-orange-700";
+    if (difficulty === "advanced") return "bg-accent/10 text-accent";
     return "bg-blue-100 text-blue-700";
   };
 
@@ -281,7 +281,7 @@ export default function VettingAdmin() {
         <div className="bg-white border-b border-slate-200">
           <div className="max-w-5xl mx-auto px-4 py-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -302,7 +302,7 @@ export default function VettingAdmin() {
             <Button
               variant={activeTab === "resume" ? "default" : "outline"}
               onClick={() => setActiveTab("resume")}
-              className={activeTab === "resume" ? "bg-[#04443C] hover:bg-[#022C27]" : ""}
+              className={activeTab === "resume" ? "bg-primary hover:bg-primary-dark" : ""}
             >
               <FileSearch className="w-4 h-4 mr-2" />
               Resume Analysis
@@ -310,7 +310,7 @@ export default function VettingAdmin() {
             <Button
               variant={activeTab === "scenarios" ? "default" : "outline"}
               onClick={() => setActiveTab("scenarios")}
-              className={activeTab === "scenarios" ? "bg-[#04443C] hover:bg-[#022C27]" : ""}
+              className={activeTab === "scenarios" ? "bg-primary hover:bg-primary-dark" : ""}
             >
               <ClipboardCheck className="w-4 h-4 mr-2" />
               Scenario Assessment
@@ -318,7 +318,7 @@ export default function VettingAdmin() {
             <Button
               variant={activeTab === "video" ? "default" : "outline"}
               onClick={() => setActiveTab("video")}
-              className={activeTab === "video" ? "bg-[#04443C] hover:bg-[#022C27]" : ""}
+              className={activeTab === "video" ? "bg-primary hover:bg-primary-dark" : ""}
             >
               <Video className="w-4 h-4 mr-2" />
               Video Interview
@@ -326,7 +326,7 @@ export default function VettingAdmin() {
             <Button
               variant={activeTab === "references" ? "default" : "outline"}
               onClick={() => setActiveTab("references")}
-              className={activeTab === "references" ? "bg-[#04443C] hover:bg-[#022C27]" : ""}
+              className={activeTab === "references" ? "bg-primary hover:bg-primary-dark" : ""}
             >
               <UserCheck className="w-4 h-4 mr-2" />
               Reference Check
@@ -377,7 +377,7 @@ export default function VettingAdmin() {
                   <Button
                     onClick={handleAnalyzeResume}
                     disabled={isAnalyzing || !resumeText.trim() || !targetVertical}
-                    className="bg-[#04443C] hover:bg-[#022C27] text-white"
+                    className="bg-primary hover:bg-primary-dark text-white"
                   >
                     {isAnalyzing ? (
                       <>
@@ -506,7 +506,7 @@ export default function VettingAdmin() {
                     <ul className="space-y-2">
                       {analysisResult.relevantExperience.map((exp, i) => (
                         <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
-                          <ArrowRight className="w-3 h-3 mt-1 text-[#04443C] flex-shrink-0" />
+                          <ArrowRight className="w-3 h-3 mt-1 text-primary flex-shrink-0" />
                           {exp}
                         </li>
                       ))}
@@ -565,7 +565,7 @@ export default function VettingAdmin() {
                 <Button
                   onClick={handleGenerateScenarios}
                   disabled={isGenerating || !scenarioVertical || !experienceLevel}
-                  className="bg-[#D38B53] hover:bg-[#B47646] text-white"
+                  className="bg-accent hover:bg-accent/90 text-white"
                 >
                   {isGenerating ? (
                     <>
@@ -613,7 +613,7 @@ export default function VettingAdmin() {
                         className="w-full p-6 text-left flex items-center justify-between hover:bg-slate-50 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-full bg-[#04443C] text-white flex items-center justify-center text-sm font-semibold">
+                          <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">
                             {index + 1}
                           </span>
                           <div>
@@ -652,7 +652,7 @@ export default function VettingAdmin() {
                                 key={i}
                                 className="text-sm text-slate-700 flex items-start gap-2"
                               >
-                                <CheckCircle2 className="w-3 h-3 mt-1 text-[#04443C] flex-shrink-0" />
+                                <CheckCircle2 className="w-3 h-3 mt-1 text-primary flex-shrink-0" />
                                 {criteria}
                               </li>
                             ))}
@@ -764,7 +764,7 @@ export default function VettingAdmin() {
                 <Button
                   onClick={handleEvaluateVideo}
                   disabled={isEvaluatingVideo || !interviewNotes.trim() || !videoVertical || !videoCandidateId}
-                  className="bg-[#04443C] hover:bg-[#022C27] text-white"
+                  className="bg-primary hover:bg-primary-dark text-white"
                 >
                   {isEvaluatingVideo ? (
                     <>
@@ -840,7 +840,7 @@ export default function VettingAdmin() {
                     <ul className="space-y-2">
                       {videoResult.notes.map((note, i) => (
                         <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
-                          <ArrowRight className="w-3 h-3 mt-1 text-[#04443C] flex-shrink-0" />
+                          <ArrowRight className="w-3 h-3 mt-1 text-primary flex-shrink-0" />
                           {note}
                         </li>
                       ))}
@@ -990,7 +990,7 @@ export default function VettingAdmin() {
                 <Button
                   onClick={handleCheckReferences}
                   disabled={isCheckingRefs || !references[0]?.feedback?.trim() || !refVertical || !refCandidateId}
-                  className="bg-[#D38B53] hover:bg-[#B47646] text-white"
+                  className="bg-accent hover:bg-accent/90 text-white"
                 >
                   {isCheckingRefs ? (
                     <>
@@ -1068,7 +1068,7 @@ export default function VettingAdmin() {
                     <ul className="space-y-2">
                       {refResult.highlights.map((highlight, i) => (
                         <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
-                          <ArrowRight className="w-3 h-3 mt-1 text-[#04443C] flex-shrink-0" />
+                          <ArrowRight className="w-3 h-3 mt-1 text-primary flex-shrink-0" />
                           {highlight}
                         </li>
                       ))}

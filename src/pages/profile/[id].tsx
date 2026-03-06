@@ -243,11 +243,11 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                     <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
                       {verticalLabels[candidate.vertical]}
                     </Badge>
-                    <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                    <Badge className="bg-light text-primary hover:bg-light">
                       <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2" />
                       {candidate.availability}
                     </Badge>
-                    <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100">
+                    <Badge className="bg-secondary/10 text-secondary hover:bg-secondary/10">
                       <Globe className="w-3 h-3 mr-1" />
                       Timezone Flexible
                     </Badge>
@@ -257,7 +257,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
 
               {/* Vetting Score */}
               <div className="flex flex-col items-end gap-2">
-                <div className="bg-gradient-to-r from-[#04443C] to-[#399A8B] text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                <div className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
                   <ShieldCheck className="w-5 h-5" />
                   <span className="font-bold text-lg">
                     {candidate.vettingScore}/100
@@ -308,14 +308,14 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
           {/* Core Skills */}
           <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-teal-600" />
+              <Sparkles className="w-5 h-5 text-secondary" />
               Core Skills & Expertise
             </h2>
             <div className="flex flex-wrap gap-2">
               {candidate.skills.map((skill: string, idx: number) => (
                 <Badge
                   key={idx}
-                  className="bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 px-4 py-2 text-sm"
+                  className="bg-light text-primary hover:bg-light border border-secondary/30 px-4 py-2 text-sm"
                 >
                   {skill}
                 </Badge>
@@ -354,8 +354,8 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                   <p className="text-sm text-slate-600 mb-2">{cs.outcome}</p>
                   {cs.metrics && (
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-[#04443C]" />
-                      <span className="text-sm font-medium text-[#04443C]">{cs.metrics}</span>
+                      <TrendingUp className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-primary">{cs.metrics}</span>
                     </div>
                   )}
                 </div>
@@ -451,7 +451,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
 
           {/* Unlock CTA */}
           {!isUnlocked && (
-            <div className="bg-gradient-to-br from-teal-600 to-emerald-600 rounded-2xl p-8 text-white text-center shadow-2xl">
+            <div className="bg-gradient-to-br from-secondary to-primary rounded-2xl p-8 text-white text-center shadow-2xl">
               <div className="max-w-2xl mx-auto">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm mb-4">
                   <Lock className="w-8 h-8" />
@@ -459,7 +459,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                 <h3 className="text-2xl font-bold mb-2">
                   Unlock Full Profile ($25)
                 </h3>
-                <p className="text-teal-50 mb-6">
+                <p className="text-white/80 mb-6">
                   Get instant access to contact information, video introduction,
                   verified references, and professional documents.
                 </p>
@@ -467,22 +467,22 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                 <Button
                   size="lg"
                   onClick={handleUnlock}
-                  className="bg-white text-teal-700 hover:bg-teal-50 font-semibold px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                  className="bg-white text-primary hover:bg-light font-semibold px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all hover:scale-105"
                 >
                   <Lock className="w-5 h-5 mr-2" />
                   Unlock Profile ($25)
                 </Button>
 
                 <div className="mt-6 space-y-2">
-                  <p className="text-sm text-teal-50">
+                  <p className="text-sm text-white/80">
                     <CheckCircle className="w-4 h-4 inline mr-1" />
                     Credits from $16.67 each with packs. Never expire.
                   </p>
-                  <p className="text-sm text-teal-50">
+                  <p className="text-sm text-white/80">
                     <CheckCircle className="w-4 h-4 inline mr-1" />
                     30-day contact guarantee
                   </p>
-                  <p className="text-sm text-teal-50">
+                  <p className="text-sm text-white/80">
                     <CheckCircle className="w-4 h-4 inline mr-1" />
                     Instant access to all locked sections
                   </p>
@@ -592,7 +592,7 @@ function LockedCard({
     <div
       className={`bg-white rounded-xl border-2 p-6 relative overflow-hidden shadow-sm ${
         highlight
-          ? "border-teal-300 bg-teal-50/30"
+          ? "border-secondary/40 bg-light/30"
           : "border-slate-200 opacity-75"
       }`}
     >
@@ -604,7 +604,7 @@ function LockedCard({
       <div
         className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${
           highlight
-            ? "bg-gradient-to-br from-teal-500 to-emerald-600 text-white"
+            ? "bg-gradient-to-br from-secondary to-primary text-white"
             : "bg-slate-100 text-slate-400"
         }`}
       >
@@ -613,7 +613,7 @@ function LockedCard({
 
       <h3
         className={`font-semibold mb-2 ${
-          highlight ? "text-teal-900" : "text-slate-900"
+          highlight ? "text-primary" : "text-slate-900"
         }`}
       >
         {title}
@@ -624,7 +624,7 @@ function LockedCard({
         <div className="mt-3">
           <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-teal-500 to-emerald-600 rounded-full transition-all"
+              className="h-full bg-gradient-to-r from-secondary to-primary rounded-full transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>

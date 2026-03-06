@@ -80,7 +80,7 @@ export default function CandidateApplicationsPage() {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#04443C]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -105,7 +105,7 @@ export default function CandidateApplicationsPage() {
 
           {loading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-[#04443C]" />
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : applications.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
@@ -117,7 +117,7 @@ export default function CandidateApplicationsPage() {
                 Browse open positions and apply to get started.
               </p>
               <Link href="/jobs">
-                <Button className="bg-[#04443C] hover:bg-[#022C27] text-white">
+                <Button className="bg-primary hover:bg-primary-dark text-white">
                   <Briefcase className="w-4 h-4 mr-2" />
                   Browse Jobs
                 </Button>

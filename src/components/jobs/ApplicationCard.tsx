@@ -53,7 +53,7 @@ export function ApplicationCard({
                 {candidate.fullName}
               </span>
               {application.isVetted ? (
-                <Badge className="bg-green-100 text-[#04443C] text-xs gap-1">
+                <Badge className="bg-light text-primary text-xs gap-1">
                   <ShieldCheck className="w-3 h-3" />
                   AI-Vetted ({candidate.vettingScore})
                 </Badge>
@@ -132,7 +132,7 @@ export function ApplicationCard({
               <Button
                 size="sm"
                 variant="outline"
-                className="text-xs h-7 border-[#04443C] text-[#04443C]"
+                className="text-xs h-7 border-primary text-primary"
                 onClick={() => onUnlock(candidate.id)}
               >
                 <Unlock className="w-3 h-3 mr-1" />

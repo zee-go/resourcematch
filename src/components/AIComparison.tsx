@@ -9,28 +9,28 @@ const vettingLayers = [
     title: "Resume & Career Analysis",
     description: "AI parses resumes and LinkedIn profiles to score career trajectory, detect red flags, and verify experience depth. Only candidates with 5+ years relevant experience proceed.",
     icon: FileSearch,
-    color: "from-[#04443C] to-[#399A8B]",
+    color: "from-primary to-secondary",
   },
   {
     number: 2,
     title: "Scenario Assessments",
     description: "AI-generated role-specific scenarios for each vertical. Operations candidates handle logistics crises. Finance teams navigate compliance scenarios. Real judgment, not multiple choice.",
     icon: ClipboardCheck,
-    color: "from-[#D38B53] to-[#B47646]",
+    color: "from-accent to-accent-dark",
   },
   {
     number: 3,
     title: "Video Interview Analysis",
     description: "Speech-to-text transcription analyzed by AI for communication clarity, problem-solving approach, and cultural fit. Video clips are included in candidate profiles.",
     icon: Video,
-    color: "from-[#04443C] to-[#399A8B]",
+    color: "from-primary to-secondary",
   },
   {
     number: 4,
     title: "Reference Verification",
     description: "AI-generated reference questions tailored to each candidate's claimed experience. Automated outreach with structured feedback collection and cross-verification.",
     icon: UserCheck,
-    color: "from-[#D38B53] to-[#B47646]",
+    color: "from-accent to-accent-dark",
   },
 ];
 
@@ -106,7 +106,7 @@ export function AIComparison() {
           <Link href="/dashboard">
             <Button
               size="lg"
-              className="bg-[#04443C] hover:bg-[#022C27] text-white px-8 h-14 text-lg group"
+              className="bg-primary hover:bg-primary-dark text-white px-8 h-14 text-lg group"
             >
               Browse Vetted Talent
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />

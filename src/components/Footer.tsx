@@ -3,7 +3,7 @@ import { LogoIcon } from "@/components/LogoIcon";
 
 export function Footer() {
   return (
-    <footer className="bg-[#04443C] text-white">
+    <footer className="bg-primary text-white">
       <div className="container mx-auto px-4 max-w-7xl py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}

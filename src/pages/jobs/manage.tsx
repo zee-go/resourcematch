@@ -389,7 +389,7 @@ export default function ManageJobs({ jobs: initialJobs, isVerified }: ManageJobs
               <Link href="/jobs/post">
                 <Button
                   size="sm"
-                  className="bg-[#04443C] hover:bg-[#022C27] text-white shrink-0"
+                  className="bg-primary hover:bg-primary-dark text-white shrink-0"
                 >
                   <ShieldCheck className="w-4 h-4 mr-1" />
                   Verify Now
@@ -409,7 +409,7 @@ export default function ManageJobs({ jobs: initialJobs, isVerified }: ManageJobs
               </p>
             </div>
             <Link href="/jobs/post">
-              <Button className="bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white">
+              <Button className="bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Post a Job
               </Button>
@@ -421,7 +421,7 @@ export default function ManageJobs({ jobs: initialJobs, isVerified }: ManageJobs
             <div className="bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-slate-600">Active Jobs</span>
-                <Briefcase className="w-5 h-5 text-[#04443C]" />
+                <Briefcase className="w-5 h-5 text-primary" />
               </div>
               <p className="text-3xl font-bold text-slate-900">
                 {activeJobs}
@@ -451,7 +451,7 @@ export default function ManageJobs({ jobs: initialJobs, isVerified }: ManageJobs
                 <span className="text-sm text-slate-600">
                   Pending Review
                 </span>
-                <Clock className="w-5 h-5 text-[#D38B53]" />
+                <Clock className="w-5 h-5 text-accent" />
               </div>
               <p className="text-3xl font-bold text-slate-900">
                 {pendingReview}
@@ -476,7 +476,7 @@ export default function ManageJobs({ jobs: initialJobs, isVerified }: ManageJobs
                 AI-vetted senior professionals.
               </p>
               <Link href="/jobs/post">
-                <Button className="bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white">
+                <Button className="bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Post Your First Job
                 </Button>

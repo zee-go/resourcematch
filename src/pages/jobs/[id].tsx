@@ -284,7 +284,7 @@ export default function JobDetail({ job }: JobDetailProps) {
                 <div className="flex flex-wrap gap-2 mb-4">
                   <Badge
                     variant="secondary"
-                    className="bg-green-50 text-[#04443C]"
+                    className="bg-light text-primary"
                   >
                     {verticalLabels[job.vertical] || job.vertical}
                   </Badge>
@@ -344,7 +344,7 @@ export default function JobDetail({ job }: JobDetailProps) {
                     {job.skills.map((skill) => (
                       <Badge
                         key={skill}
-                        className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1.5 text-sm"
+                        className="bg-light text-primary border border-secondary/30 px-3 py-1.5 text-sm"
                       >
                         {skill}
                       </Badge>
@@ -361,12 +361,12 @@ export default function JobDetail({ job }: JobDetailProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {salary && (
                     <div className="flex items-start gap-3 p-4 bg-green-50 rounded-lg">
-                      <DollarSign className="w-5 h-5 text-[#04443C] mt-0.5" />
+                      <DollarSign className="w-5 h-5 text-primary mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-slate-700">
                           Salary Range
                         </p>
-                        <p className="text-[#04443C] font-semibold">
+                        <p className="text-primary font-semibold">
                           {salary}
                         </p>
                       </div>
@@ -440,7 +440,7 @@ export default function JobDetail({ job }: JobDetailProps) {
                       <Button
                         size="lg"
                         onClick={() => setShowApplyForm(true)}
-                        className="bg-[#04443C] hover:bg-[#022C27] text-white font-semibold"
+                        className="bg-primary hover:bg-primary-dark text-white font-semibold"
                       >
                         <Send className="w-4 h-4 mr-2" />
                         Apply Now
@@ -476,7 +476,7 @@ export default function JobDetail({ job }: JobDetailProps) {
                           <Button
                             onClick={handleApply}
                             disabled={submitting}
-                            className="bg-[#04443C] hover:bg-[#022C27] text-white font-semibold"
+                            className="bg-primary hover:bg-primary-dark text-white font-semibold"
                           >
                             {submitting ? (
                               <>
@@ -514,7 +514,7 @@ export default function JobDetail({ job }: JobDetailProps) {
                       applications from their{" "}
                       <Link
                         href="/dashboard"
-                        className="text-[#04443C] underline font-medium"
+                        className="text-primary underline font-medium"
                       >
                         dashboard
                       </Link>
@@ -527,7 +527,7 @@ export default function JobDetail({ job }: JobDetailProps) {
                       Sign up as a professional to apply for this position.
                     </p>
                     <Link href="/signup">
-                      <Button className="bg-[#04443C] hover:bg-[#022C27] text-white font-semibold">
+                      <Button className="bg-primary hover:bg-primary-dark text-white font-semibold">
                         Sign up to apply
                       </Button>
                     </Link>
@@ -579,7 +579,7 @@ export default function JobDetail({ job }: JobDetailProps) {
               </div>
 
               {/* Hiring CTA Card */}
-              <div className="bg-gradient-to-br from-[#04443C] to-[#022C27] rounded-xl p-6 text-white">
+              <div className="bg-gradient-to-br from-primary to-primary-dark rounded-xl p-6 text-white">
                 <h3 className="font-semibold text-lg mb-2">
                   Hiring? Post your job for free
                 </h3>
@@ -590,7 +590,7 @@ export default function JobDetail({ job }: JobDetailProps) {
                 <Link href="/jobs/post">
                   <Button
                     size="sm"
-                    className="bg-white text-[#04443C] hover:bg-green-50 font-semibold w-full"
+                    className="bg-white text-primary hover:bg-light font-semibold w-full"
                   >
                     <Briefcase className="w-4 h-4 mr-2" />
                     Post a Job

@@ -114,8 +114,8 @@ export default function ApplyPage() {
         <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 pt-20">
           <div className="w-full max-w-md text-center">
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-              <div className="w-16 h-16 bg-[#04443C]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-8 h-8 text-[#04443C]" />
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-8 h-8 text-primary" />
               </div>
               <h1 className="text-2xl font-bold text-slate-900 mb-3">
                 Application Received
@@ -123,15 +123,15 @@ export default function ApplyPage() {
               <p className="text-slate-600 mb-6">
                 Thank you for applying to join ResourceMatch. Our team will review your application and reach out within 3-5 business days.
               </p>
-              <div className="bg-[#04443C]/5 border border-[#04443C]/20 rounded-lg p-4 mb-6">
-                <p className="text-sm text-[#04443C]">
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6">
+                <p className="text-sm text-primary">
                   If approved, you&apos;ll be invited to complete our 4-layer AI vetting process to verify your skills and build your profile.
                 </p>
               </div>
               <Link href="/">
                 <Button
                   variant="outline"
-                  className="border-[#04443C] text-[#04443C] hover:bg-[#04443C]/5"
+                  className="border-primary text-primary hover:bg-primary/5"
                 >
                   Back to Home
                 </Button>
@@ -157,7 +157,7 @@ export default function ApplyPage() {
           <div className="text-center mb-8">
             <Badge
               variant="outline"
-              className="px-3 py-1 text-xs font-semibold border-[#04443C]/30 bg-[#04443C]/5 text-[#04443C] mb-4"
+              className="px-3 py-1 text-xs font-semibold border-primary/30 bg-primary/5 text-primary mb-4"
             >
               <ShieldCheck className="w-3 h-3 mr-1.5" />
               AI-Vetted Talent Network
@@ -173,8 +173,8 @@ export default function ApplyPage() {
           {/* What we look for */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             <div className="bg-white rounded-lg border border-slate-200 p-4 flex gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#04443C]/10 flex items-center justify-center flex-shrink-0">
-                <Briefcase className="w-5 h-5 text-[#04443C]" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Briefcase className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 text-sm">5+ Years Experience</h3>
@@ -182,8 +182,8 @@ export default function ApplyPage() {
               </div>
             </div>
             <div className="bg-white rounded-lg border border-slate-200 p-4 flex gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#D38B53]/10 flex items-center justify-center flex-shrink-0">
-                <Star className="w-5 h-5 text-[#D38B53]" />
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                <Star className="w-5 h-5 text-accent" />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 text-sm">4-Layer AI Vetting</h3>
@@ -382,10 +382,10 @@ export default function ApplyPage() {
               </div>
 
               {/* Info */}
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <div className="bg-light border border-green-200 rounded-lg p-3">
                 <div className="flex gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#04443C] mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-[#04443C]">
+                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-primary">
                     After review, approved applicants are invited to complete our 4-layer AI vetting process — resume analysis, scenario assessment, video interview, and reference verification.
                   </p>
                 </div>
@@ -400,7 +400,7 @@ export default function ApplyPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white py-6 text-lg"
+                className="w-full bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white py-6 text-lg"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -419,7 +419,7 @@ export default function ApplyPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-[#04443C] font-semibold hover:underline"
+              className="text-primary font-semibold hover:underline"
             >
               Log in
             </Link>

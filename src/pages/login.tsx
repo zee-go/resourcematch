@@ -111,7 +111,7 @@ export default function LoginPage() {
               <div className="flex justify-end">
                 <Link
                   href="/reset-password"
-                  className="text-sm text-[#04443C] hover:underline"
+                  className="text-sm text-primary hover:underline"
                 >
                   Forgot password?
                 </Link>
@@ -126,7 +126,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white"
+                className="w-full bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -144,7 +144,7 @@ export default function LoginPage() {
                 Don't have an account?{" "}
                 <Link
                   href="/signup"
-                  className="text-[#04443C] font-semibold hover:underline"
+                  className="text-primary font-semibold hover:underline"
                 >
                   Sign up
                 </Link>

@@ -28,7 +28,7 @@ export function DashboardHeader() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <LogoIcon className="w-8 h-8 group-hover:scale-105 transition-transform" color="accent" />
-            <span className="text-xl font-heading font-bold text-[#04443C]">
+            <span className="text-xl font-heading font-bold text-primary">
               ResourceMatch
             </span>
           </Link>
@@ -40,7 +40,7 @@ export function DashboardHeader() {
               <Link href="/dashboard">
                 <Button
                   variant="ghost"
-                  className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                  className="text-slate-700 hover:text-primary hover:bg-light"
                 >
                   <Users className="w-4 h-4 mr-2" />
                   Browse Talent
@@ -54,7 +54,7 @@ export function DashboardHeader() {
                 <Link href="/unlocks">
                   <Button
                     variant="ghost"
-                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                    className="text-slate-700 hover:text-primary hover:bg-light"
                   >
                     <Unlock className="w-4 h-4 mr-2" />
                     My Unlocks
@@ -63,7 +63,7 @@ export function DashboardHeader() {
                 <Link href="/jobs/manage">
                   <Button
                     variant="ghost"
-                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                    className="text-slate-700 hover:text-primary hover:bg-light"
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     My Jobs
@@ -72,7 +72,7 @@ export function DashboardHeader() {
                 <Link href="/hire">
                   <Button
                     variant="ghost"
-                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                    className="text-slate-700 hover:text-primary hover:bg-light"
                   >
                     <CreditCard className="w-4 h-4 mr-2" />
                     Buy Credits
@@ -87,7 +87,7 @@ export function DashboardHeader() {
                 <Link href="/jobs">
                   <Button
                     variant="ghost"
-                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                    className="text-slate-700 hover:text-primary hover:bg-light"
                   >
                     <Briefcase className="w-4 h-4 mr-2" />
                     Browse Jobs
@@ -96,7 +96,7 @@ export function DashboardHeader() {
                 <Link href="/candidate/applications">
                   <Button
                     variant="ghost"
-                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                    className="text-slate-700 hover:text-primary hover:bg-light"
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     My Applications
@@ -105,7 +105,7 @@ export function DashboardHeader() {
                 <Link href="/candidate/profile">
                   <Button
                     variant="ghost"
-                    className="text-slate-700 hover:text-[#04443C] hover:bg-green-50"
+                    className="text-slate-700 hover:text-primary hover:bg-light"
                   >
                     <UserCircle className="w-4 h-4 mr-2" />
                     My Profile
@@ -126,7 +126,7 @@ export function DashboardHeader() {
                   <>
                     <Badge
                       variant="secondary"
-                      className="bg-green-100 text-[#04443C] hidden sm:flex"
+                      className="bg-light text-primary hidden sm:flex"
                     >
                       <CreditCard className="w-3 h-3 mr-1" />
                       {company.credits} credits
@@ -174,7 +174,7 @@ export function DashboardHeader() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-[#04443C] text-[#04443C] hover:bg-green-50"
+                    className="border-primary text-primary hover:bg-light"
                   >
                     <LogIn className="w-4 h-4 mr-1" />
                     Log In
@@ -183,7 +183,7 @@ export function DashboardHeader() {
                 <Link href="/signup">
                   <Button
                     size="sm"
-                    className="bg-[#04443C] hover:bg-[#022C27] text-white"
+                    className="bg-primary hover:bg-primary-dark text-white"
                   >
                     Sign Up
                   </Button>

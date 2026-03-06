@@ -251,7 +251,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                 contact information and vetting results.
               </p>
               <Link href="/dashboard">
-                <Button className="bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white">
+                <Button className="bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white">
                   Browse Talent
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -264,7 +264,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                 <div className="bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-slate-600">Total Unlocked</span>
-                    <Users className="w-5 h-5 text-[#04443C]" />
+                    <Users className="w-5 h-5 text-primary" />
                   </div>
                   <p className="text-3xl font-bold text-slate-900">{stats.totalUnlocked}</p>
                   <p className="text-xs text-slate-500 mt-1">Active profiles</p>
@@ -284,7 +284,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                 <div className="bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-slate-600">Response Rate</span>
-                    <Percent className="w-5 h-5 text-[#D38B53]" />
+                    <Percent className="w-5 h-5 text-accent" />
                   </div>
                   <p className="text-3xl font-bold text-slate-900">{stats.responseRate}%</p>
                   <p className="text-xs text-slate-500 mt-1">Last 30 days</p>
@@ -343,7 +343,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                       <TableRow key={candidate.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#04443C] to-[#022C27] flex items-center justify-center text-white font-semibold text-sm">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white font-semibold text-sm">
                               {candidate.avatar}
                             </div>
                             <div>
@@ -369,7 +369,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                         </TableCell>
 
                         <TableCell>
-                          <Badge className="bg-green-100 text-[#04443C] hover:bg-green-100">
+                          <Badge className="bg-light text-primary hover:bg-light">
                             <ShieldCheck className="w-3 h-3 mr-1" />
                             {candidate.vettingScore}/100
                           </Badge>
@@ -418,7 +418,7 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                               onClick={() => toggleContacted(candidate.id)}
                               className={
                                 !contactedStatus[candidate.id]
-                                  ? "bg-[#04443C] hover:bg-[#022C27]"
+                                  ? "bg-primary hover:bg-primary-dark"
                                   : ""
                               }
                             >

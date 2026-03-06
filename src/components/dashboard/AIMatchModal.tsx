@@ -66,7 +66,7 @@ export function AIMatchModal({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#D38B53] to-[#B47646] rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent-dark rounded-lg flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             AI-Powered Talent Matching
@@ -203,7 +203,7 @@ export function AIMatchModal({
                 !jobDescription.trim() ||
                 !budgetRange
               }
-              className="flex-1 bg-gradient-to-r from-[#D38B53] to-[#B47646] hover:from-[#B47646] hover:to-[#D38B53] text-white"
+              className="flex-1 bg-gradient-to-r from-accent to-accent-dark hover:from-accent-dark hover:to-accent text-white"
             >
               {isMatching ? (
                 <>

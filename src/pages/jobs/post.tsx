@@ -101,7 +101,7 @@ export default function PostJob() {
         <div className="min-h-screen bg-slate-50">
           <DashboardHeader />
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[#04443C] mx-auto" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
           </div>
         </div>
       </>
@@ -125,7 +125,7 @@ export default function PostJob() {
           {!isVerified ? (
             /* Verification Gate */
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#04443C] to-[#022C27] flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-6">
                 <ShieldCheck className="w-10 h-10 text-white" />
               </div>
 
@@ -163,7 +163,7 @@ export default function PostJob() {
               ) : isVerifying ? (
                 /* Verifying state */
                 <div className="flex flex-col items-center gap-3">
-                  <Loader2 className="w-8 h-8 animate-spin text-[#04443C]" />
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
                   <p className="text-slate-600">
                     Verifying your company...
                   </p>
@@ -172,7 +172,7 @@ export default function PostJob() {
                 /* Verify button */
                 <Button
                   onClick={handleVerify}
-                  className="bg-gradient-to-r from-[#04443C] to-[#022C27] hover:from-[#022C27] hover:to-[#04443C] text-white px-8 py-3 text-base"
+                  className="bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white px-8 py-3 text-base"
                 >
                   <ShieldCheck className="w-5 h-5 mr-2" />
                   Verify My Company

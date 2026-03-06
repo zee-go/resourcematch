@@ -46,7 +46,7 @@ export function LandingHeader() {
             <LogoIcon className="w-8 h-8 group-hover:scale-105 transition-transform" color="accent" />
             <span
               className={`text-xl font-heading font-bold transition-colors ${
-                scrolled ? "text-[#04443C]" : "text-[#04443C]"
+                scrolled ? "text-primary" : "text-primary"
               }`}
             >
               ResourceMatch
@@ -60,7 +60,7 @@ export function LandingHeader() {
                 key={link.label}
                 href={link.href}
                 onClick={link.onClick}
-                className="text-sm font-medium text-slate-700 hover:text-[#04443C] transition-colors"
+                className="text-sm font-medium text-slate-700 hover:text-primary transition-colors"
               >
                 {link.label}
               </Link>
@@ -73,7 +73,7 @@ export function LandingHeader() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-[#04443C] text-[#04443C] hover:bg-green-50"
+                className="border-primary text-primary hover:bg-light"
               >
                 <LogIn className="w-4 h-4 mr-1" />
                 Log In
@@ -82,7 +82,7 @@ export function LandingHeader() {
             <Link href="/signup">
               <Button
                 size="sm"
-                className="bg-[#04443C] hover:bg-[#022C27] text-white"
+                className="bg-primary hover:bg-primary-dark text-white"
               >
                 Sign Up
               </Button>
@@ -92,7 +92,7 @@ export function LandingHeader() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 text-slate-700 hover:text-[#04443C]"
+            className="md:hidden p-2 text-slate-700 hover:text-primary"
           >
             {mobileOpen ? (
               <X className="w-6 h-6" />
@@ -116,7 +116,7 @@ export function LandingHeader() {
                     setMobileOpen(false);
                   }
                 }}
-                className="block px-4 py-2 text-sm font-medium text-slate-700 hover:text-[#04443C] hover:bg-green-50 rounded-lg"
+                className="block px-4 py-2 text-sm font-medium text-slate-700 hover:text-primary hover:bg-light rounded-lg"
               >
                 {link.label}
               </Link>
@@ -126,7 +126,7 @@ export function LandingHeader() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full border-[#04443C] text-[#04443C]"
+                  className="w-full border-primary text-primary"
                 >
                   Log In
                 </Button>
@@ -134,7 +134,7 @@ export function LandingHeader() {
               <Link href="/signup" className="flex-1">
                 <Button
                   size="sm"
-                  className="w-full bg-[#04443C] hover:bg-[#022C27] text-white"
+                  className="w-full bg-primary hover:bg-primary-dark text-white"
                 >
                   Sign Up
                 </Button>
