@@ -31,6 +31,8 @@ Key differentiators:
 - **Animations**: Framer Motion, custom fade-in/slide-up/scale-in
 - **Icons**: Lucide React
 - **AI**: Claude API (Anthropic) for vetting pipeline
+- **Blog**: MDX files in `content/blog/`, rendered via next-mdx-remote + gray-matter + reading-time
+- **SEO Agent**: Kelly — Python agent in `scripts/seo/`, runs weekly via launchd, generates blog content via Claude API
 - **Payments**: Stripe Checkout (redirect, zero PCI scope)
 - **Forms**: React Hook Form + Zod validation
 - **Deployment**: GCP Cloud Run (Docker, Cloud Build CI/CD)
@@ -44,6 +46,9 @@ prisma/
 
 src/
   pages/
+    blog/
+      index.tsx              # Blog listing with category filters (SSG + ISR)
+      [slug].tsx             # Blog article with MDX rendering (SSG + ISR)
     index.tsx                # Landing (Hero + WhyChoose + AIComparison + HowItWorks)
     hire.tsx                 # Pricing — credit packs + subscriptions (wired to Stripe)
     dashboard.tsx            # Search + AI matching + candidate grid (from DB)
@@ -129,6 +134,12 @@ src/
       SearchFilters.tsx      # Search + vertical/experience/skill filters
       CandidateResults.tsx   # Candidate grid with unlock integration
       StatsCards.tsx         # Platform stats
+    blog/
+      BlogCard.tsx           # Blog listing card (hero image, category, title, date)
+      BlogHero.tsx           # Article header (category, title, metadata, hero image)
+      CTABanner.tsx          # Mid-article CTA — registered as MDX component
+      BlogImage.tsx          # MDX image component with next/image + credit
+      RelatedPosts.tsx       # Related articles grid (3 cards)
     jobs/
       JobCard.tsx            # Job listing card component
       JobForm.tsx            # Job creation/edit form
@@ -150,6 +161,8 @@ src/
     prisma.ts                # Prisma client singleton
     auth.ts                  # NextAuth config (CredentialsProvider, PrismaAdapter)
     stripe-client.ts         # Client-side loadStripe singleton
+    blog.ts                  # Blog utilities (getAllPosts, getPostBySlug, getRelatedPosts)
+    blog-seo.ts              # Article JSON-LD + Breadcrumb structured data
     candidates.ts            # Mock candidate data (fallback)
     vetting-types.ts         # TypeScript interfaces for AI vetting pipeline
     utils.ts                 # cn() classname merger
@@ -161,7 +174,34 @@ src/
   env.ts                     # @t3-oss/env-nextjs validated env vars
 
   styles/
-    globals.css              # Tailwind + CSS variables + fonts
+    globals.css              # Tailwind + CSS variables + fonts + .prose-blog styles
+
+content/
+  blog/                      # MDX blog posts (committed to git, deployed with app)
+    *.mdx                    # Frontmatter (title, slug, category, keywords) + Markdown content
+
+scripts/
+  seo/                       # Kelly SEO agent (Python)
+    main.py                  # Weekly orchestrator: plan → generate → approve → publish
+    topic_researcher.py      # Claude-based keyword/topic research (5 content pillars)
+    content_planner.py       # Weekly content calendar (2 blog posts, Tue + Thu)
+    content_generator.py     # Claude writes full SEO-optimized posts (ResourceMatch voice)
+    page_writer.py           # Writes MDX files to content/blog/
+    publisher.py             # git commit + push → Cloud Build deploy
+    image_client.py          # Unsplash API for hero/mid images
+    search_console.py        # Google Search Console weekly traffic data
+    traffic_tracker.py       # Traffic history persistence
+    state.py                 # Published content + keyword coverage tracking
+    formatter.py             # Telegram message formatting
+    telegram.py              # SEO bot wrapper (reuses existing bot)
+    config.py                # Secret loader (scripts/data/secrets.json → GCP fallback)
+    telegram_client.py       # TelegramClient class
+    health.py                # Failure notification via Telegram
+    logging_setup.py         # Logging config → scripts/logs/seo.log
+  requirements.txt           # Python deps (anthropic, requests, google-api-python-client)
+  schedules/                 # launchd plist (Monday 11:00 AM)
+  data/                      # (gitignored) secrets.json, seo_state.json, seo_calendar.json
+  logs/                      # (gitignored) agent log files
 ```
 
 ### Prisma Models
@@ -201,7 +241,7 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 ## Current State
 
 - Full backend: 33 API routes, 17 Prisma models, NextAuth.js, Stripe payments
-- Frontend: 24 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD), candidate portal, apply intake, privacy, terms
+- Frontend: 26 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD), candidate portal, apply intake, blog (listing + article), privacy, terms
 - Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL
 - Free job posting: companies post jobs, candidates apply, application management pipeline
 - Candidate accounts: separate registration, profile management, application tracking
@@ -217,9 +257,16 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Global ErrorBoundary in _app.tsx, robots.txt, sitemap.xml, Privacy Policy, Terms of Service
 - Footer component on landing page with legal links + platform nav
 - "Browse Jobs" nav link restricted to candidate role only
+- Blog section: `/blog` listing with category filters, `/blog/[slug]` article pages with MDX rendering
+- Blog content pillars: Outsourcing Strategy, Finance & Accounting, Operations Management, Hiring Best Practices, Industry Insights
+- Blog prose styles (`.prose-blog`) use brand design tokens — no hardcoded colors
+- Blog SEO: Article JSON-LD, Breadcrumb JSON-LD, OG article type, published/modified time meta
+- Kelly SEO agent: Python in `scripts/seo/`, runs Monday 11AM via launchd, generates 2 blog posts/week
+- Kelly workflow: traffic report (GSC) → topic research (Claude) → content plan → Telegram approval → generate post (Claude) → source images (Unsplash) → preview → approve → git push → Cloud Build deploy
+- Kelly reuses existing SEO Telegram bot for approval workflow
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
-- Last deployed: 2026-03-07 (commit 4acf275)
+- Last deployed: 2026-03-07 (commit 4300ab7)
 - Domain: `resourcematch.ph` — Cloudflare DNS (zone `f55cc59b877aee0c0f5e92c2bdccaa1a`) → GCP Cloud Run domain mapping
   - A records (x4) → `216.239.x.x` (Google domain mapping IPs, DNS-only)
   - `www` CNAME → `ghs.googlehosted.com` (DNS-only)
