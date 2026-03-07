@@ -443,6 +443,84 @@ export default function CandidateProfilePage() {
             </div>
           </div>
 
+          {/* AI Vetting Status */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              AI Vetting Status
+            </h2>
+
+            {candidate?.vettingProfile ? (
+              <>
+                <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200">
+                  <div>
+                    <p className="text-sm text-slate-600">Composite Vetting Score</p>
+                    <p className="text-3xl font-bold text-primary">
+                      {candidate.vettingProfile.overallScore}/100
+                    </p>
+                  </div>
+                  <Badge
+                    className={
+                      candidate.vettingProfile.status === "COMPLETED"
+                        ? "bg-green-100 text-green-700 hover:bg-green-100"
+                        : candidate.vettingProfile.status === "IN_PROGRESS"
+                        ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
+                        : candidate.vettingProfile.status === "FAILED"
+                        ? "bg-red-100 text-red-700 hover:bg-red-100"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"
+                    }
+                  >
+                    {candidate.vettingProfile.status.replace("_", " ")}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { key: "RESUME_ANALYSIS", label: "Resume Analysis" },
+                    { key: "SCENARIO_ASSESSMENT", label: "Scenario Assessment" },
+                    { key: "VIDEO_INTERVIEW", label: "Video Interview" },
+                    { key: "REFERENCE_CHECK", label: "Reference Check" },
+                  ].map(({ key, label }) => {
+                    const layer = candidate.vettingLayers?.find(
+                      (l) => l.layer === key
+                    );
+                    return (
+                      <div
+                        key={key}
+                        className={`rounded-lg p-3 border ${
+                          layer?.completedAt
+                            ? layer.passed
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                            : "bg-slate-50 border-slate-200"
+                        }`}
+                      >
+                        <p className="text-xs text-slate-500 mb-1">{label}</p>
+                        {layer?.completedAt ? (
+                          <>
+                            <p className="text-lg font-bold text-slate-900">
+                              {layer.score}/100
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {layer.passed ? "Passed" : "Below threshold"}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-sm text-slate-400">Not started</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-slate-500">
+                Your vetting process has not started yet. Our team will initiate
+                the 4-layer AI vetting pipeline once your profile is complete.
+              </p>
+            )}
+          </div>
+
           <form onSubmit={handleSave}>
             <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
               {/* Personal Info */}

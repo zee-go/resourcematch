@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   MapPin,
-  Star,
   Briefcase,
   Clock,
   ShieldCheck,
   Lock,
   Eye,
   Sparkles,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import type { Candidate } from "@/lib/candidates";
@@ -126,10 +126,6 @@ export function CandidateResults({
                         <MapPin className="w-3.5 h-3.5" />
                         <span>{unlocked ? candidate.location : "Philippines"}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-amber-600">
-                        <Star className="w-3.5 h-3.5 fill-current" />
-                        <span className="font-medium">{candidate.rating}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -159,11 +155,17 @@ export function CandidateResults({
                   </div>
                 </div>
 
-                {/* Vertical Badge */}
-                <div className="mb-3">
-                  <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs mb-2">
+                {/* Vertical Badge & Reference Count */}
+                <div className="mb-3 flex flex-wrap gap-2">
+                  <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs">
                     {verticalLabels[candidate.vertical]}
                   </Badge>
+                  {(candidate.referenceCount ?? 0) > 0 && (
+                    <Badge variant="outline" className="text-slate-500 text-xs">
+                      <Users className="w-3 h-3 mr-1" />
+                      {candidate.referenceCount} reference{candidate.referenceCount !== 1 ? "s" : ""}
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Skills */}
@@ -184,11 +186,22 @@ export function CandidateResults({
                   </div>
                 </div>
 
+                {/* Summary Snippet */}
+                {candidate.summary && (
+                  <div className="mb-3">
+                    <p className="text-sm text-slate-600 line-clamp-2">
+                      {candidate.summary}
+                    </p>
+                  </div>
+                )}
+
                 {/* Case Study Preview */}
                 {candidate.caseStudies.length > 0 && (
                   <div className="mb-4 pb-4 border-b border-slate-200">
                     <div className="text-xs font-medium text-slate-600 mb-1.5">
-                      Featured Case Study
+                      {candidate.caseStudies.length > 1
+                        ? `Featured Case Study (${candidate.caseStudies.length} total)`
+                        : "Featured Case Study"}
                     </div>
                     <p className="text-sm text-slate-700 line-clamp-2">
                       {candidate.caseStudies[0].title}

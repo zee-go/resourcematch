@@ -44,6 +44,19 @@ interface CandidateProfile {
   linkedIn: string | null;
   videoUrl: string | null;
   resumeUrl: string | null;
+  vettingLayers?: Array<{
+    layer: string;
+    score: number;
+    passed: boolean;
+    summary: string | null;
+    completedAt: string | null;
+  }>;
+  vettingProfile?: {
+    status: string;
+    overallScore: number;
+    startedAt: string;
+    completedAt: string | null;
+  } | null;
 }
 
 interface AuthUser {

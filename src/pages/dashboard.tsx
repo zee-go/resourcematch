@@ -56,6 +56,9 @@ export const getServerSideProps: GetServerSideProps<DashboardProps> = async () =
         vettingLayers: {
           select: { layer: true, score: true, passed: true },
         },
+        _count: {
+          select: { references: true },
+        },
       },
       orderBy: { vettingScore: "desc" },
     });
@@ -91,6 +94,7 @@ export const getServerSideProps: GetServerSideProps<DashboardProps> = async () =
         verified: c.verified,
         vettingLayers,
         caseStudies: c.caseStudies,
+        referenceCount: c._count.references,
       };
     });
 

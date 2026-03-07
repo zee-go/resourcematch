@@ -20,6 +20,27 @@ export default async function handler(
   }
 
   if (req.method === "GET") {
+    const vettingLayers = await prisma.vettingLayerResult.findMany({
+      where: { candidateId: candidate.id },
+      select: {
+        layer: true,
+        score: true,
+        passed: true,
+        summary: true,
+        completedAt: true,
+      },
+    });
+
+    const vettingProfile = await prisma.vettingProfile.findUnique({
+      where: { candidateId: candidate.id },
+      select: {
+        status: true,
+        overallScore: true,
+        startedAt: true,
+        completedAt: true,
+      },
+    });
+
     return res.status(200).json({
       candidate: {
         id: candidate.id,
@@ -43,6 +64,8 @@ export default async function handler(
         linkedIn: candidate.linkedIn,
         videoUrl: candidate.videoUrl,
         resumeUrl: candidate.resumeUrl,
+        vettingLayers,
+        vettingProfile,
       },
     });
   }

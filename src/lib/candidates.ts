@@ -41,6 +41,7 @@ export interface Candidate {
     videoInterview: VettingLayer;
     referenceCheck: VettingLayer;
   };
+  referenceCount?: number;
   verified: boolean;
   verifiedDate?: string;
   // Locked fields (revealed on unlock)

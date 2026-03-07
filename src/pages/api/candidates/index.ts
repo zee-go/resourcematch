@@ -86,6 +86,9 @@ export default async function handler(
         vettingLayers: {
           select: { layer: true, score: true, passed: true },
         },
+        _count: {
+          select: { references: true },
+        },
       },
       orderBy: { vettingScore: "desc" },
     });

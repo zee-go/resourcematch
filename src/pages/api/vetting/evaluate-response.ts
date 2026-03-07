@@ -6,6 +6,8 @@ import type {
 } from "@/lib/vetting-types";
 import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAuth";
 import { withRateLimit } from "@/server/middleware/withRateLimit";
+import { prisma } from "@/lib/prisma";
+import { recalculateVettingScore } from "@/server/utils/recalculate-vetting";
 
 const VERTICALS: Record<string, string> = {
   ecommerce: "Operations Management",
@@ -130,6 +132,73 @@ async function handler(
       layer: "scenario_evaluation",
       completedAt: new Date().toISOString(),
     };
+
+    // Persist score to SCENARIO_ASSESSMENT layer
+    if (body.candidateId) {
+      const existingLayer = await prisma.vettingLayerResult.findUnique({
+        where: {
+          candidateId_layer: {
+            candidateId: body.candidateId,
+            layer: "SCENARIO_ASSESSMENT",
+          },
+        },
+      });
+
+      const existingJson =
+        (existingLayer?.resultJson as Record<string, unknown>) || {};
+      const existingResponses =
+        (existingJson.responses as Array<{
+          questionId: string;
+          score: number;
+        }>) || [];
+
+      // Upsert this response score (replace if same questionId)
+      const updatedResponses = existingResponses.filter(
+        (r) => r.questionId !== result.questionId
+      );
+      updatedResponses.push({
+        questionId: result.questionId,
+        score: result.score,
+      });
+
+      const avgScore = Math.round(
+        updatedResponses.reduce((sum, r) => sum + r.score, 0) /
+          updatedResponses.length
+      );
+
+      await prisma.vettingLayerResult.upsert({
+        where: {
+          candidateId_layer: {
+            candidateId: body.candidateId,
+            layer: "SCENARIO_ASSESSMENT",
+          },
+        },
+        create: {
+          candidateId: body.candidateId,
+          layer: "SCENARIO_ASSESSMENT",
+          score: avgScore,
+          passed: avgScore >= 70,
+          summary: `Scored ${updatedResponses.length} scenario responses`,
+          details: updatedResponses.map(
+            (r) => `${r.questionId}: ${r.score}/100`
+          ),
+          resultJson: { ...existingJson, responses: updatedResponses },
+          completedAt: new Date(),
+        },
+        update: {
+          score: avgScore,
+          passed: avgScore >= 70,
+          summary: `Scored ${updatedResponses.length} scenario responses`,
+          details: updatedResponses.map(
+            (r) => `${r.questionId}: ${r.score}/100`
+          ),
+          resultJson: { ...existingJson, responses: updatedResponses },
+          completedAt: new Date(),
+        },
+      });
+
+      await recalculateVettingScore(body.candidateId);
+    }
 
     return res.status(200).json({ success: true, data: result });
   } catch (error) {

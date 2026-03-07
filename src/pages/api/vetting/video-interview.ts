@@ -7,6 +7,7 @@ import type {
 import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAuth";
 import { withRateLimit } from "@/server/middleware/withRateLimit";
 import { prisma } from "@/lib/prisma";
+import { recalculateVettingScore } from "@/server/utils/recalculate-vetting";
 
 const VERTICALS: Record<string, string> = {
   ecommerce: "Operations Management",
@@ -148,6 +149,8 @@ async function handler(
         completedAt: new Date(),
       },
     });
+
+    await recalculateVettingScore(body.candidateId);
 
     return res.status(200).json({ success: true, data: result });
   } catch (error) {
