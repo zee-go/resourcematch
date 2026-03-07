@@ -11,7 +11,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
 
 interface VettingLayer {
   layer: string;
@@ -97,6 +97,9 @@ export function CandidatesTab() {
             <SelectItem value="OPERATIONS_MANAGEMENT">Operations Management</SelectItem>
           </SelectContent>
         </Select>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.open("/api/admin/export?type=candidates", "_blank")}>
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
       </div>
 
       <div className="bg-white rounded-xl border">

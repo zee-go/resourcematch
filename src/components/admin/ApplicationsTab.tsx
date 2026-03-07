@@ -10,7 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, CheckCircle2, XCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Download } from "lucide-react";
 
 interface Application {
   id: string;
@@ -89,6 +89,9 @@ export function ApplicationsTab() {
             <SelectItem value="REJECTED">Rejected</SelectItem>
           </SelectContent>
         </Select>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.open("/api/admin/export?type=applications", "_blank")}>
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
       </div>
 
       <div className="bg-white rounded-xl border">

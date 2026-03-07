@@ -8,7 +8,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, DollarSign, CreditCard, Coins } from "lucide-react";
+import { ChevronLeft, ChevronRight, DollarSign, CreditCard, Coins, Download } from "lucide-react";
 
 interface Purchase {
   id: string;
@@ -87,6 +87,9 @@ export function RevenueTab() {
             <SelectItem value="SUBSCRIPTION">Subscriptions</SelectItem>
           </SelectContent>
         </Select>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.open("/api/admin/export?type=revenue", "_blank")}>
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
       </div>
 
       <div className="bg-white rounded-xl border">

@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 import { SEO } from "@/components/SEO";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,11 +14,21 @@ import {
   LayoutDashboard, Building2, UserCheck, FileText, DollarSign, Briefcase,
 } from "lucide-react";
 
+const VALID_TABS = ["overview", "companies", "candidates", "applications", "revenue", "jobs"] as const;
+
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   return requireAdmin(ctx);
 };
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const rawTab = typeof router.query.tab === "string" ? router.query.tab : "overview";
+  const activeTab = VALID_TABS.includes(rawTab as typeof VALID_TABS[number]) ? rawTab : "overview";
+
+  const handleTabChange = (value: string) => {
+    router.push({ pathname: "/admin", query: value === "overview" ? {} : { tab: value } }, undefined, { shallow: true });
+  };
+
   return (
     <>
       <SEO title="Admin Dashboard — ResourceMatch" />
@@ -27,7 +38,7 @@ export default function AdminDashboard() {
           <p className="text-slate-500 text-sm mt-1">Manage your platform</p>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="bg-white border">
             <TabsTrigger value="overview" className="gap-1.5">
               <LayoutDashboard className="w-4 h-4" />

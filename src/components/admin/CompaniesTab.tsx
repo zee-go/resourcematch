@@ -11,7 +11,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
-import { Search, ChevronLeft, ChevronRight, ShieldCheck, ShieldX, KeyRound } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ShieldCheck, ShieldX, KeyRound, Download } from "lucide-react";
 
 interface Company {
   id: string;
@@ -142,6 +142,9 @@ export function CompaniesTab() {
             <SelectItem value="UNVERIFIED">Unverified</SelectItem>
           </SelectContent>
         </Select>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.open("/api/admin/export?type=companies", "_blank")}>
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
       </div>
 
       <div className="bg-white rounded-xl border">

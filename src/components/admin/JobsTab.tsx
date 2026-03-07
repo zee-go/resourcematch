@@ -8,7 +8,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
 
 interface Job {
   id: string;
@@ -107,6 +107,9 @@ export function JobsTab() {
             <SelectItem value="OPERATIONS_MANAGEMENT">Operations Management</SelectItem>
           </SelectContent>
         </Select>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.open("/api/admin/export?type=jobs", "_blank")}>
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
       </div>
 
       <div className="bg-white rounded-xl border">
