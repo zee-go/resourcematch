@@ -35,6 +35,7 @@ Key differentiators:
 - **SEO Agent**: Kelly — Python agent in `scripts/seo/`, runs weekly via launchd, generates blog content via Claude API
 - **Payments**: Stripe Checkout (redirect, zero PCI scope)
 - **Forms**: React Hook Form + Zod validation
+- **Storage**: Google Cloud Storage (`resourcematch-avatars` bucket for avatar uploads)
 - **Deployment**: GCP Cloud Run (Docker, Cloud Build CI/CD)
 
 ## Code Structure
@@ -81,6 +82,7 @@ src/
       user/me.ts             # Company profile CRUD
       candidate/
         me.ts                # Candidate profile CRUD
+        avatar.ts            # Profile picture upload (multipart → GCS)
         applications.ts      # Candidate's applications list
       candidates/
         index.ts             # Search/filter candidates (public)
@@ -93,7 +95,7 @@ src/
           [applicationId].ts # Manage single application
         sync.ts              # Daily external job sync (Bearer token, Cloud Scheduler)
       applications/
-        index.ts             # Create application (candidate applies to job)
+        index.ts             # Create application + auto-convert qualified applicants
       unlocks/
         index.ts             # List + create unlocks (atomic credit transactions)
         [id].ts              # Mark contacted
@@ -162,6 +164,8 @@ src/
     utils/
       api-error.ts           # ApiError class + handler
       recalculate-vetting.ts # Auto-recalculate vettingScore from layer results
+      convert-application.ts # Application → Candidate conversion + pre-screening
+      storage.ts             # GCS avatar upload/delete utility
 
   lib/
     prisma.ts                # Prisma client singleton
@@ -172,7 +176,7 @@ src/
     analytics.ts             # GA4 event tracking helpers (wraps gtag, SSR-safe)
     job-fetchers.ts          # External job API fetchers (Remotive + RemoteOK)
     job-types.ts             # Job type definitions (JobSummary, ExternalJobSummary, UnifiedJobSummary)
-    candidates.ts            # Mock candidate data (fallback)
+    candidates.ts            # Candidate type definitions + verticalLabels map
     vetting-types.ts         # TypeScript interfaces for AI vetting pipeline
     utils.ts                 # cn() classname merger
 
@@ -255,10 +259,14 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Free job posting: companies post jobs, candidates apply, application management pipeline
 - External job aggregation: Remotive + RemoteOK APIs synced daily at 6 AM Manila (Cloud Scheduler), filtered to accounting/finance + operations management only, keyword-based vertical classifier, `ExternalJob` model separate from native `Job`, unified listing on `/jobs`, external detail page at `/jobs/ext/[id]` with "Apply on Source" + ResourceMatch signup CTA
 - Candidate accounts: separate registration, profile management (with profile health indicator), application tracking
-- Candidate profile: 8-section completeness tracker (Personal Info, Contact Details, Professional Details, Skills & Tools, Video Intro, Resume, Case Studies, References), inline CRUD for case studies (max 5) and references (max 5), contact fields (phone, LinkedIn, video URL, resume URL), AI Vetting Status section showing composite score + 4-layer results
+- Candidate profile: 8-section completeness tracker (Personal Info, Contact Details, Professional Details, Skills & Tools, Video Intro, Resume, Case Studies, References), inline CRUD for case studies (max 5) and references (max 5), contact fields (phone, LinkedIn, video URL, resume URL), AI Vetting Status section showing composite score + 4-layer results, profile picture upload via GCS (camera overlay UI, 5MB max, JPEG/PNG/WebP), read-only email display
 - Browse cards: summary snippet, reference count badge, case study count, vetting score — no star rating (removed, was always 0)
 - AI company verification: automated legitimacy checks via Claude API
-- UnlockModal with inline credit plan selection + post-purchase redirect back to profile
+- UnlockModal with inline credit plan selection + post-purchase redirect back to profile, functional resume download button (or "Not Available" when no URL)
+- Unlocked profile view: salary expectations display, English proficiency score with level label, LinkedIn link, resume download
+- Unlocks page: LinkedIn, resume, salary columns + enriched CSV export
+- Locked profile view: vetting layers show Pending/Passed/Below Threshold conditionally (not always "Passed"), English card shows generic message (no fake score), salary locked card placeholder
+- Locked fields security: `englishScore`, `discProfile`, `salaryPeriod` stripped from public API responses alongside email/phone/linkedIn/video/resume/salary
 - Stripe Checkout wired for credit packs + subscriptions (returnTo flow)
 - Brand logo: LogoIcon component renders actual ResourceMatch lettermark SVG (Raw Sienna accent in headers)
 - Favicon: SVG primary + PNG fallback, branded OG image (web devices mockup)
@@ -283,7 +291,10 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD (manual `gcloud builds submit` — no auto-trigger configured)
 - Cloud Scheduler jobs: `matching-digest` (Mon 10AM), `job-sync` (daily 6AM Manila)
 - Vetting score auto-recalculation: `src/server/utils/recalculate-vetting.ts` called by all 4 vetting endpoints after upsert, updates Candidate.vettingScore + VettingProfile + verified status + englishScore
-- Last deployed: 2026-03-07 (commit 7887316)
+- Application → Candidate auto-conversion: `src/server/utils/convert-application.ts` pre-screens applications (experience ≥ 5, skills ≥ 2, bio ≥ 50 chars, vertical keyword match ≥ 2), auto-converts qualified applicants to User + Candidate in a transaction, unqualified stay PENDING for manual review
+- Admin application management: Approve triggers auto-conversion with feedback UI (success/error messages in dialog), `src/components/admin/ApplicationsTab.tsx`
+- Avatar upload: `POST /api/candidate/avatar` (formidable multipart parsing → GCS `resourcematch-avatars` bucket), `src/server/utils/storage.ts` handles upload/delete, candidates see camera overlay on profile page
+- Last deployed: 2026-03-08 (commit ae76dd2)
 - Domain: `resourcematch.ph` — Cloudflare DNS (zone `f55cc59b877aee0c0f5e92c2bdccaa1a`) → GCP Cloud Run domain mapping
   - A records (x4) → `216.239.x.x` (Google domain mapping IPs, DNS-only)
   - `www` CNAME → `ghs.googlehosted.com` (DNS-only)
