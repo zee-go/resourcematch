@@ -34,27 +34,10 @@ import type {
   VideoInterviewResult,
   ReferenceCheckResult,
 } from "@/lib/vetting-types";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/server/utils/admin-ssr";
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const session = await getServerSession(req, res, authOptions);
-  if (!session?.user?.id) {
-    return { redirect: { destination: "/login?redirect=/admin/vetting", permanent: false } };
-  }
-
-  const company = await prisma.company.findUnique({
-    where: { userId: session.user.id },
-    select: { email: true },
-  });
-
-  const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim());
-  if (!company || !adminEmails.includes(company.email)) {
-    return { notFound: true };
-  }
-
-  return { props: {} };
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  return requireAdmin(ctx);
 };
 
 type ActiveTab = "resume" | "scenarios" | "video" | "references";
