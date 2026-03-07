@@ -40,3 +40,8 @@ firebase-service-account.json
 
 # logs
 logs/
+
+# Kelly SEO agent runtime
+scripts/venv/
+scripts/data/
+scripts/logs/

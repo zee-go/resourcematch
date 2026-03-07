@@ -42,6 +42,11 @@ export function Footer() {
                   Apply as Talent
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="text-white/60 hover:text-white transition-colors">
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
 

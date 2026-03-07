@@ -8,6 +8,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "ui-avatars.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
   async headers() {
@@ -44,9 +48,12 @@ const nextConfig = {
       },
     ];
   },
-  // CORS: Not configured — Next.js API routes use same-origin policy by default.
-  // API is only accessible from resourcematch.ph. If cross-origin access is
-  // needed (mobile app, subdomain API), add explicit CORS headers here.
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = { ...config.resolve.fallback, fs: false, path: false };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

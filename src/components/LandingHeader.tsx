@@ -29,6 +29,7 @@ export function LandingHeader() {
       },
     },
     { label: "Apply", href: "/apply" },
+    { label: "Blog", href: "/blog" },
   ];
 
   return (
