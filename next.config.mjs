@@ -35,8 +35,8 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               // unsafe-inline needed for Next.js __NEXT_DATA__ inline scripts
-              // unsafe-eval removed — only needed in dev for webpack HMR
-              "script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com",
+              // unsafe-eval needed for next-mdx-remote MDX hydration (uses Reflect.construct(Function))
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
