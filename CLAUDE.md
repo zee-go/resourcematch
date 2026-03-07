@@ -219,8 +219,12 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - "Browse Jobs" nav link restricted to candidate role only
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
-- Last deployed: 2026-03-06 (commit 5284b44)
-- Domain: resourcematch.ph
+- Last deployed: 2026-03-07 (commit 4acf275)
+- Domain: `resourcematch.ph` — Cloudflare DNS (zone `f55cc59b877aee0c0f5e92c2bdccaa1a`) → GCP Cloud Run domain mapping
+  - A records (x4) → `216.239.x.x` (Google domain mapping IPs, DNS-only)
+  - `www` CNAME → `ghs.googlehosted.com` (DNS-only)
+  - MX records → Google Workspace (unchanged)
+  - SSL: Google-managed certificate via Cloud Run domain mapping
 - GitHub: zee-go/resourcematch
 
 ## Guardrails
