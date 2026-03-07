@@ -2,6 +2,7 @@ import type { NextApiResponse } from "next";
 import { withAdmin, type AuthenticatedRequest } from "@/server/middleware/withAuth";
 import { withRateLimit } from "@/server/middleware/withRateLimit";
 import { prisma } from "@/lib/prisma";
+import { convertApplicationToCandidate } from "@/server/utils/convert-application";
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   const { id } = req.query;
@@ -10,7 +11,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   if (req.method === "PATCH") {
-    const { status } = req.body;
+    const { status, title, availability, location } = req.body;
     if (!["PENDING", "REVIEWING", "APPROVED", "REJECTED"].includes(status)) {
       return res.status(400).json({ error: "Invalid status" });
     }
@@ -19,6 +20,30 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       where: { id },
       data: { status },
     });
+
+    // Auto-convert to Candidate when admin approves
+    if (status === "APPROVED") {
+      try {
+        const result = await convertApplicationToCandidate(id, {
+          title,
+          availability,
+          location,
+        });
+        return res.status(200).json({
+          ...JSON.parse(JSON.stringify(application)),
+          converted: true,
+          candidateId: result.candidateId,
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Conversion failed";
+        return res.status(200).json({
+          ...JSON.parse(JSON.stringify(application)),
+          converted: false,
+          conversionError: message,
+        });
+      }
+    }
+
     return res.status(200).json(JSON.parse(JSON.stringify(application)));
   }
 

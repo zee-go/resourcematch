@@ -68,6 +68,7 @@ export default async function handler(
         // Public fields only — no email, phone, salary, etc.
         id: true,
         name: true,
+        fullName: true,
         title: true,
         avatar: true,
         vertical: true,

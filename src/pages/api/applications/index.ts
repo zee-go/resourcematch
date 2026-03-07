@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { withMethods } from "@/server/middleware/withMethods";
 import { withRateLimit } from "@/server/middleware/withRateLimit";
 import { withBodyValidation } from "@/server/middleware/withValidation";
+import {
+  preScreenApplication,
+  convertApplicationToCandidate,
+} from "@/server/utils/convert-application";
 
 const applicationSchema = z.object({
   fullName: z.string().min(2).max(100),
@@ -33,6 +37,16 @@ async function handler(
     });
   }
 
+  // Check if a User with this email already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+  if (existingUser) {
+    return res.status(409).json({
+      error: "An account with this email already exists.",
+    });
+  }
+
   const application = await prisma.application.create({
     data: {
       fullName: data.fullName,
@@ -47,7 +61,40 @@ async function handler(
     },
   });
 
-  return res.status(201).json({ success: true, id: application.id });
+  // Pre-screen and auto-convert if qualified
+  const screening = preScreenApplication({
+    experience: data.experience,
+    skills: data.skills,
+    vertical: data.vertical,
+    bio: data.bio,
+  });
+
+  if (screening.qualified) {
+    try {
+      const result = await convertApplicationToCandidate(application.id);
+      return res.status(201).json({
+        success: true,
+        id: application.id,
+        converted: true,
+        candidateId: result.candidateId,
+      });
+    } catch {
+      // Conversion failed — leave as pending for manual review
+      return res.status(201).json({
+        success: true,
+        id: application.id,
+        converted: false,
+        screeningResult: "qualified",
+      });
+    }
+  }
+
+  return res.status(201).json({
+    success: true,
+    id: application.id,
+    converted: false,
+    screeningReason: screening.reason,
+  });
 }
 
 export default withRateLimit(

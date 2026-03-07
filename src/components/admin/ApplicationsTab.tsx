@@ -44,6 +44,7 @@ export function ApplicationsTab() {
   const [selected, setSelected] = useState<Application | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [conversionResult, setConversionResult] = useState<{ converted: boolean; error?: string } | null>(null);
 
   const fetchApplications = useCallback(() => {
     setLoading(true);
@@ -64,13 +65,27 @@ export function ApplicationsTab() {
 
   const updateStatus = async (id: string, status: string) => {
     setActionLoading(true);
-    await fetch(`/api/admin/applications/${id}`, {
+    setConversionResult(null);
+    const res = await fetch(`/api/admin/applications/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+    const data = await res.json();
     setActionLoading(false);
-    setDialogOpen(false);
+
+    if (status === "APPROVED") {
+      if (data.converted) {
+        setConversionResult({ converted: true });
+        setTimeout(() => { setDialogOpen(false); setConversionResult(null); }, 2000);
+      } else if (data.conversionError) {
+        setConversionResult({ converted: false, error: data.conversionError });
+      } else {
+        setDialogOpen(false);
+      }
+    } else {
+      setDialogOpen(false);
+    }
     fetchApplications();
   };
 
@@ -244,6 +259,19 @@ export function ApplicationsTab() {
                   )}
                 </div>
               </div>
+
+              {conversionResult?.converted && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-700 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                  Candidate account created successfully.
+                </div>
+              )}
+              {conversionResult?.converted === false && conversionResult.error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 flex items-center gap-2">
+                  <XCircle className="w-4 h-4 flex-shrink-0" />
+                  Conversion failed: {conversionResult.error}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>

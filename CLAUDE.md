@@ -161,6 +161,7 @@ src/
       withRateLimit.ts       # In-memory IP+route rate limiter
     utils/
       api-error.ts           # ApiError class + handler
+      recalculate-vetting.ts # Auto-recalculate vettingScore from layer results
 
   lib/
     prisma.ts                # Prisma client singleton
@@ -235,7 +236,7 @@ Future layers: promoted profiles, background checks, EOR/payroll
 3. **Video Interview** — Communication, professionalism, English proficiency evaluation
 4. **Reference Verification** — Manager/colleague reference checks with structured ratings
 
-Each layer produces a 0-100 score. Composite vetting score determines candidate ranking.
+Each layer produces a 0-100 score. Composite vetting score = average of all completed layer scores, auto-recalculated via `recalculateVettingScore()` utility whenever a layer result is saved. When all 4 layers complete with scores >= 70, candidate is auto-verified. Video interview layer also flows `englishProficiency` → `Candidate.englishScore` (basic=40, intermediate=60, advanced=80, native=95).
 
 ## Industry Verticals (Active)
 
@@ -253,7 +254,9 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL (demo jobs cleared)
 - Free job posting: companies post jobs, candidates apply, application management pipeline
 - External job aggregation: Remotive + RemoteOK APIs synced daily at 6 AM Manila (Cloud Scheduler), filtered to accounting/finance + operations management only, keyword-based vertical classifier, `ExternalJob` model separate from native `Job`, unified listing on `/jobs`, external detail page at `/jobs/ext/[id]` with "Apply on Source" + ResourceMatch signup CTA
-- Candidate accounts: separate registration, profile management, application tracking
+- Candidate accounts: separate registration, profile management (with profile health indicator), application tracking
+- Candidate profile: 8-section completeness tracker (Personal Info, Contact Details, Professional Details, Skills & Tools, Video Intro, Resume, Case Studies, References), inline CRUD for case studies (max 5) and references (max 5), contact fields (phone, LinkedIn, video URL, resume URL), AI Vetting Status section showing composite score + 4-layer results
+- Browse cards: summary snippet, reference count badge, case study count, vetting score — no star rating (removed, was always 0)
 - AI company verification: automated legitimacy checks via Claude API
 - UnlockModal with inline credit plan selection + post-purchase redirect back to profile
 - Stripe Checkout wired for credit packs + subscriptions (returnTo flow)
@@ -279,7 +282,8 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD (manual `gcloud builds submit` — no auto-trigger configured)
 - Cloud Scheduler jobs: `matching-digest` (Mon 10AM), `job-sync` (daily 6AM Manila)
-- Last deployed: 2026-03-07 (commit 0c62f3f)
+- Vetting score auto-recalculation: `src/server/utils/recalculate-vetting.ts` called by all 4 vetting endpoints after upsert, updates Candidate.vettingScore + VettingProfile + verified status + englishScore
+- Last deployed: 2026-03-07 (commit 7887316)
 - Domain: `resourcematch.ph` — Cloudflare DNS (zone `f55cc59b877aee0c0f5e92c2bdccaa1a`) → GCP Cloud Run domain mapping
   - A records (x4) → `216.239.x.x` (Google domain mapping IPs, DNS-only)
   - `www` CNAME → `ghs.googlehosted.com` (DNS-only)

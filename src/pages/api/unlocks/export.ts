@@ -17,6 +17,10 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
             title: true,
             email: true,
             phone: true,
+            linkedIn: true,
+            resumeUrl: true,
+            salaryMin: true,
+            salaryMax: true,
             vertical: true,
             location: true,
           },
@@ -25,14 +29,18 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       orderBy: { unlockedAt: "desc" },
     });
 
-    const header = "Name,Title,Email,Phone,Vertical,Location,Contacted,Unlocked At\n";
+    const header = "Name,Title,Email,Phone,LinkedIn,Resume URL,Salary Min (USD/mo),Salary Max (USD/mo),Vertical,Location,Contacted,Unlocked At\n";
     const rows = unlocks.map((u) => {
       const c = u.candidate;
       return [
         `"${c.fullName}"`,
         `"${c.title}"`,
-        c.email || "",
-        c.phone || "",
+        `"${c.email || ""}"`,
+        `"${c.phone || ""}"`,
+        c.linkedIn || "",
+        c.resumeUrl || "",
+        c.salaryMin ? String(c.salaryMin) : "",
+        c.salaryMax ? String(c.salaryMax) : "",
         c.vertical,
         `"${c.location}"`,
         u.contacted ? "Yes" : "No",

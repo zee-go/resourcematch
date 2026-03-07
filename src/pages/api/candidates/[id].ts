@@ -59,7 +59,7 @@ export default async function handler(
     }
 
     // Strip locked fields if not unlocked
-    const { email, phone, linkedIn, videoUrl, resumeUrl, salaryMin, salaryMax, salaryPeriod, ...publicFields } = candidate;
+    const { email, phone, linkedIn, videoUrl, resumeUrl, salaryMin, salaryMax, salaryPeriod, englishScore, discProfile, ...publicFields } = candidate;
 
     if (hasUnlocked) {
       return res.status(200).json({

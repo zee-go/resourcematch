@@ -16,6 +16,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "remotive.com",
       },
+      {
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+      },
     ],
   },
   async headers() {

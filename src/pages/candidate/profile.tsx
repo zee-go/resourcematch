@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/router";
 import { SEO } from "@/components/SEO";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -29,6 +29,7 @@ import {
   Phone,
   Video,
   FileText,
+  Camera,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 
@@ -120,6 +121,8 @@ export default function CandidateProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const health = useMemo(
     () =>
@@ -189,6 +192,36 @@ export default function CandidateProfilePage() {
       setTools([...tools, trimmed]);
     }
     setToolInput("");
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be under 5MB");
+      return;
+    }
+    setAvatarUploading(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const res = await fetch("/api/candidate/avatar", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Failed to upload avatar");
+        return;
+      }
+      await refreshCandidate();
+    } catch {
+      setError("Failed to upload avatar");
+    } finally {
+      setAvatarUploading(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -528,6 +561,47 @@ export default function CandidateProfilePage() {
                 Personal Information
               </h2>
 
+              <div className="flex items-center gap-4">
+                <div className="relative group">
+                  <img
+                    src={candidate?.avatar || ""}
+                    alt="Profile"
+                    className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={avatarUploading}
+                    className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  >
+                    {avatarUploading ? (
+                      <Loader2 className="w-5 h-5 text-white animate-spin" />
+                    ) : (
+                      <Camera className="w-5 h-5 text-white" />
+                    )}
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                  />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-700">Profile Photo</p>
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={avatarUploading}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {avatarUploading ? "Uploading..." : "Change photo"}
+                  </button>
+                  <p className="text-xs text-slate-400 mt-0.5">JPEG, PNG, or WebP. Max 5MB.</p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
@@ -557,6 +631,20 @@ export default function CandidateProfilePage() {
                 <Phone className="w-5 h-5 text-slate-400" />
                 Contact Details
               </h2>
+
+              <div className="space-y-2 mb-4">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={candidate?.email || user?.email || ""}
+                  disabled
+                  className="bg-slate-50 cursor-not-allowed"
+                />
+                <p className="text-xs text-slate-400">
+                  This is the email companies will see. Contact support to update it.
+                </p>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">

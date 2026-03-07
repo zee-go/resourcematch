@@ -35,6 +35,8 @@ import {
   Unlock,
   ArrowRight,
   ShieldCheck,
+  Linkedin,
+  DollarSign,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -46,6 +48,10 @@ interface UnlockedCandidate {
   avatar: string;
   email: string;
   phone: string;
+  linkedIn: string;
+  resumeUrl: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
   unlockedAt: string;
   contacted: boolean;
   vettingScore: number;
@@ -94,6 +100,10 @@ export const getServerSideProps: GetServerSideProps<UnlocksProps> = async (conte
             vettingScore: true,
             email: true,
             phone: true,
+            linkedIn: true,
+            resumeUrl: true,
+            salaryMin: true,
+            salaryMax: true,
           },
         },
       },
@@ -112,6 +122,10 @@ export const getServerSideProps: GetServerSideProps<UnlocksProps> = async (conte
         .slice(0, 2),
       email: u.candidate.email || "",
       phone: u.candidate.phone || "",
+      linkedIn: u.candidate.linkedIn || "",
+      resumeUrl: u.candidate.resumeUrl || "",
+      salaryMin: u.candidate.salaryMin,
+      salaryMax: u.candidate.salaryMax,
       unlockedAt: u.unlockedAt.toISOString(),
       contacted: u.contacted,
       vettingScore: u.candidate.vettingScore,
@@ -171,12 +185,16 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
     } catch {
       // Fallback to client-side export
       const csvContent = [
-        ["Name", "Title", "Email", "Phone", "Unlocked Date", "Contacted", "Vetting Score"],
+        ["Name", "Title", "Email", "Phone", "LinkedIn", "Resume URL", "Salary Min", "Salary Max", "Unlocked Date", "Contacted", "Vetting Score"],
         ...filteredCandidates.map((c) => [
-          c.name,
-          c.title,
+          `"${c.name}"`,
+          `"${c.title}"`,
           c.email,
           c.phone,
+          c.linkedIn,
+          c.resumeUrl,
+          c.salaryMin ? String(c.salaryMin) : "",
+          c.salaryMax ? String(c.salaryMax) : "",
           c.unlockedAt,
           contactedStatus[c.id] ? "Yes" : "No",
           String(c.vettingScore),
@@ -365,6 +383,26 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                               <Phone className="w-4 h-4 text-slate-400" />
                               <span className="text-slate-700">{candidate.phone}</span>
                             </div>
+                            {candidate.linkedIn && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <Linkedin className="w-4 h-4 text-slate-400" />
+                                <a href={candidate.linkedIn} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate max-w-[200px]">
+                                  LinkedIn
+                                </a>
+                              </div>
+                            )}
+                            {(candidate.salaryMin || candidate.salaryMax) && (
+                              <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <DollarSign className="w-3 h-3" />
+                                <span>
+                                  {candidate.salaryMin && candidate.salaryMax
+                                    ? `$${candidate.salaryMin.toLocaleString()} — $${candidate.salaryMax.toLocaleString()}/mo`
+                                    : candidate.salaryMin
+                                      ? `From $${candidate.salaryMin.toLocaleString()}/mo`
+                                      : `Up to $${candidate.salaryMax!.toLocaleString()}/mo`}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </TableCell>
 
@@ -408,10 +446,19 @@ export default function MyUnlocks({ initialUnlocks }: UnlocksProps) {
                                 View
                               </Button>
                             </Link>
-                            <Button variant="outline" size="sm">
-                              <FileText className="w-4 h-4 mr-1" />
-                              Resume
-                            </Button>
+                            {candidate.resumeUrl ? (
+                              <a href={candidate.resumeUrl} target="_blank" rel="noopener noreferrer">
+                                <Button variant="outline" size="sm">
+                                  <FileText className="w-4 h-4 mr-1" />
+                                  Resume
+                                </Button>
+                              </a>
+                            ) : (
+                              <Button variant="outline" size="sm" disabled className="opacity-50">
+                                <FileText className="w-4 h-4 mr-1" />
+                                Resume
+                              </Button>
+                            )}
                             <Button
                               variant={contactedStatus[candidate.id] ? "secondary" : "default"}
                               size="sm"

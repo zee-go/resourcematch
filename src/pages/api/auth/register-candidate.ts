@@ -58,7 +58,7 @@ async function handler(
 
       const candidate = await tx.candidate.create({
         data: {
-          userId: user.id,
+          user: { connect: { id: user.id } },
           name: displayName,
           fullName: fullName.trim(),
           title: title.trim(),

@@ -29,6 +29,8 @@ interface CandidateProfile {
   fullName: string;
   name: string;
   title: string;
+  email: string | null;
+  avatar: string;
   vertical: string;
   experience: number;
   availability: string;

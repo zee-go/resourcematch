@@ -16,6 +16,7 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().startsWith("re_").optional(),
     MATCHING_DIGEST_SECRET: z.string().min(16).optional(),
     JOB_SYNC_SECRET: z.string().min(16).optional(),
+    GCS_BUCKET_NAME: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_"),
@@ -34,6 +35,7 @@ export const env = createEnv({
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     MATCHING_DIGEST_SECRET: process.env.MATCHING_DIGEST_SECRET,
     JOB_SYNC_SECRET: process.env.JOB_SYNC_SECRET,
+    GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   },

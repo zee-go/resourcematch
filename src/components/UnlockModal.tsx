@@ -61,7 +61,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
   const [step, setStep] = useState<"confirm" | "buy_credits" | "success" | "error">("confirm");
   const [isProcessing, setIsProcessing] = useState(false);
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
-  const [contactInfo, setContactInfo] = useState<{ email: string; phone: string; fullName: string } | null>(null);
+  const [contactInfo, setContactInfo] = useState<{ email: string; phone: string; fullName: string; resumeUrl?: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [errorAction, setErrorAction] = useState("");
 
@@ -127,6 +127,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
         email: unlock.candidate.email || "",
         phone: unlock.candidate.phone || "",
         fullName: unlock.candidate.fullName || candidate.name,
+        resumeUrl: unlock.candidate.resumeUrl || undefined,
       };
       setContactInfo(info);
       setStep("success");
@@ -464,13 +465,26 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                   </div>
                   <span className="font-semibold text-slate-900">{contactInfo.phone}</span>
                 </div>
-                <Button
-                  variant="outline"
-                  className="w-full mt-2 border-green-300 hover:bg-green-50"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Full Resume
-                </Button>
+                {contactInfo.resumeUrl ? (
+                  <a href={contactInfo.resumeUrl} target="_blank" rel="noopener noreferrer">
+                    <Button
+                      variant="outline"
+                      className="w-full mt-2 border-green-300 hover:bg-green-50"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Full Resume
+                    </Button>
+                  </a>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full mt-2 border-slate-200 opacity-50 cursor-not-allowed"
+                    disabled
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Resume Not Available
+                  </Button>
+                )}
               </div>
 
               <div className="flex gap-3 mt-6">

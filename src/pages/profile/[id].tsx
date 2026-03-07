@@ -20,14 +20,16 @@ import {
   Mail,
   Phone,
   CheckCircle,
+  XCircle,
+  Clock,
   Award,
   Shield,
   FileText,
   Users,
   Sparkles,
   ShieldCheck,
-  Building2,
   TrendingUp,
+  DollarSign,
 } from "lucide-react";
 import { LogoIcon } from "@/components/LogoIcon";
 
@@ -88,7 +90,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
           select: { layer: true, score: true, passed: true },
         },
       },
-    });
+    }) as any;
 
     if (!dbCandidate) {
       return { notFound: true };
@@ -118,7 +120,6 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
       skills: dbCandidate.skills,
       tools: dbCandidate.tools,
       location: dbCandidate.location,
-      rating: dbCandidate.rating,
       summary: dbCandidate.summary,
       vettingScore: dbCandidate.vettingScore,
       verified: dbCandidate.verified,
@@ -136,6 +137,8 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
             videoUrl: dbCandidate.videoUrl ?? undefined,
             resumeUrl: dbCandidate.resumeUrl ?? undefined,
             englishScore: dbCandidate.englishScore ?? undefined,
+            salaryMin: dbCandidate.salaryMin ?? undefined,
+            salaryMax: dbCandidate.salaryMax ?? undefined,
             references: (dbCandidate as any).references?.map((ref: any) => ({
               name: ref.name,
               company: ref.company,
@@ -300,10 +303,30 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                 { label: "Video Interview", score: candidate.vettingLayers.videoInterview.score, passed: candidate.vettingLayers.videoInterview.passed },
                 { label: "Reference Check", score: candidate.vettingLayers.referenceCheck.score, passed: candidate.vettingLayers.referenceCheck.passed },
               ].map((layer, idx) => (
-                <div key={idx} className="bg-green-50 rounded-xl p-4 text-center">
+                <div key={idx} className={`rounded-xl p-4 text-center ${
+                  layer.score === 0
+                    ? "bg-slate-50"
+                    : layer.passed
+                      ? "bg-green-50"
+                      : "bg-red-50"
+                }`}>
                   <div className="flex items-center justify-center gap-1 mb-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-xs font-medium text-green-700">Passed</span>
+                    {layer.score === 0 ? (
+                      <>
+                        <Clock className="w-4 h-4 text-slate-400" />
+                        <span className="text-xs font-medium text-slate-500">Pending</span>
+                      </>
+                    ) : layer.passed ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-xs font-medium text-green-700">Passed</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-4 h-4 text-red-500" />
+                        <span className="text-xs font-medium text-red-600">Below Threshold</span>
+                      </>
+                    )}
                   </div>
                   <div className="text-2xl font-bold text-slate-900 mb-1">{layer.score}</div>
                   <div className="text-xs text-slate-600">{layer.label}</div>
@@ -408,7 +431,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
               <LockedCard
                 icon={<Award className="w-5 h-5" />}
                 title="English Proficiency"
-                description={`Score: ${candidate.englishScore || 90}/100 - Advanced Level`}
+                description="English proficiency assessed via AI interview"
               />
               <LockedCard
                 icon={<Mail className="w-5 h-5" />}
@@ -417,42 +440,15 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                 highlight
               />
               <LockedCard
+                icon={<DollarSign className="w-5 h-5" />}
+                title="Salary Expectations"
+                description="Expected compensation range and availability"
+              />
+              <LockedCard
                 icon={<Users className="w-5 h-5" />}
                 title="Verified References"
-                description={`${candidate.references?.length || 2} verified professional references`}
-                showProgress
-                progress={100}
+                description="Verified professional references from past managers"
               />
-            </div>
-          )}
-
-          {/* Manager References - Locked */}
-          {!isUnlocked && candidate.references && candidate.references.length > 0 && (
-            <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-8 shadow-sm relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm z-10">
-                <Lock className="w-3.5 h-3.5" />
-                <span>Locked</span>
-              </div>
-
-              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <Award className="w-5 h-5 text-slate-400" />
-                Verified References
-              </h2>
-
-              <div className="space-y-4 opacity-50 blur-sm pointer-events-none">
-                {candidate.references.map((ref, idx) => (
-                  <div key={idx} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <p className="text-slate-600 italic mb-3">&ldquo;{ref.quote}&rdquo;</p>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-slate-300" />
-                      <div>
-                        <p className="font-semibold text-sm text-slate-900">{ref.name}</p>
-                        <p className="text-xs text-slate-500">{ref.role}, {ref.company}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
@@ -550,6 +546,40 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                       </Button>
                     )}
                   </div>
+                </div>
+
+                {/* English Proficiency & Salary */}
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {candidate.englishScore && (
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Globe className="w-4 h-4" />
+                        <span className="text-sm font-medium">English Proficiency</span>
+                      </div>
+                      <p className="text-lg font-bold">
+                        {candidate.englishScore}/100 — {
+                          candidate.englishScore >= 95 ? "Native" :
+                          candidate.englishScore >= 80 ? "Advanced" :
+                          candidate.englishScore >= 60 ? "Intermediate" : "Basic"
+                        }
+                      </p>
+                    </div>
+                  )}
+                  {(candidate.salaryMin || candidate.salaryMax) && (
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <DollarSign className="w-4 h-4" />
+                        <span className="text-sm font-medium">Salary Expectation</span>
+                      </div>
+                      <p className="text-lg font-bold">
+                        {candidate.salaryMin && candidate.salaryMax
+                          ? `$${candidate.salaryMin.toLocaleString()} — $${candidate.salaryMax.toLocaleString()}/mo`
+                          : candidate.salaryMin
+                            ? `From $${candidate.salaryMin.toLocaleString()}/mo`
+                            : `Up to $${candidate.salaryMax!.toLocaleString()}/mo`}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Show references when unlocked */}
