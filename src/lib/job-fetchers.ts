@@ -97,20 +97,19 @@ function isLocationRelevant(location: string): boolean {
 export const remotiveFetcher: JobFetcher = {
   name: "remotive",
   async fetch(): Promise<RawExternalJob[]> {
-    const allJobs: RawExternalJob[] = [];
-
-    for (let i = 0; i < REMOTIVE_CATEGORIES.length; i++) {
-      const category = REMOTIVE_CATEGORIES[i];
-      try {
+    // Fetch all categories concurrently (each is a separate API call)
+    const results = await Promise.allSettled(
+      REMOTIVE_CATEGORIES.map(async (category) => {
         const url = `https://remotive.com/api/remote-jobs?category=${category}&limit=50`;
         const response = await fetch(url);
 
         if (!response.ok) {
           console.error(`Remotive fetch failed for ${category}: ${response.status}`);
-          continue;
+          return [];
         }
 
         const data: RemotiveResponse = await response.json();
+        const jobs: RawExternalJob[] = [];
 
         for (const job of data.jobs) {
           const location = job.candidate_required_location || "";
@@ -121,7 +120,7 @@ export const remotiveFetcher: JobFetcher = {
             : new Date();
           const expiresAt = new Date(publishedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-          allJobs.push({
+          jobs.push({
             sourceId: String(job.id),
             sourceName: "remotive",
             sourceUrl: job.url,
@@ -142,13 +141,15 @@ export const remotiveFetcher: JobFetcher = {
             expiresAt,
           });
         }
-      } catch (error) {
-        console.error(`Remotive fetch error for ${category}:`, error);
-      }
 
-      // Respect Remotive rate limit: 2 req/min
-      if (i < REMOTIVE_CATEGORIES.length - 1) {
-        await new Promise((r) => setTimeout(r, 31000));
+        return jobs;
+      })
+    );
+
+    const allJobs: RawExternalJob[] = [];
+    for (const result of results) {
+      if (result.status === "fulfilled") {
+        allJobs.push(...result.value);
       }
     }
 
