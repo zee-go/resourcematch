@@ -4,12 +4,17 @@ import { useRouter } from "next/router";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowRight } from "lucide-react";
+import { trackPurchaseComplete } from "@/lib/analytics";
 
 export default function PaymentSuccess() {
   const router = useRouter();
   const sessionId = router.query.session_id;
   const returnTo = typeof router.query.returnTo === "string" ? router.query.returnTo : null;
   const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    if (sessionId) trackPurchaseComplete("credit_pack");
+  }, [sessionId]);
 
   useEffect(() => {
     if (!returnTo || !router.isReady) return;

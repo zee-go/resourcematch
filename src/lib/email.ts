@@ -112,3 +112,52 @@ export function notifyApplicationStatusChange(
     `),
   });
 }
+
+export interface MatchCandidate {
+  id: number;
+  name: string;
+  title: string;
+  vertical: string;
+  experience: number;
+  vettingScore: number;
+  skills: string[];
+}
+
+export function sendMatchDigest(
+  companyEmail: string,
+  companyName: string,
+  matches: MatchCandidate[]
+): void {
+  const candidateCards = matches
+    .map(
+      (c) => `
+    <div style="background: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid #e2e8f0;">
+      <h4 style="color: #1e293b; margin: 0 0 4px 0; font-family: 'Montserrat', Arial, sans-serif;">${c.name}</h4>
+      <p style="color: #475569; margin: 0 0 8px 0; font-size: 14px;">${c.title} &middot; ${c.experience} years</p>
+      <p style="color: #04443C; margin: 0; font-size: 13px; font-weight: 600;">Vetting Score: ${c.vettingScore}/100</p>
+    </div>
+  `
+    )
+    .join("");
+
+  sendNotificationEmail({
+    to: companyEmail,
+    subject: `${matches.length} new talent match${matches.length !== 1 ? "es" : ""} for ${companyName}`,
+    html: brandedHtml(`
+      <h3 style="color: #1e293b; margin: 0 0 8px 0;">Weekly Talent Digest</h3>
+      <p style="color: #475569; margin: 0 0 16px 0;">
+        We found <strong>${matches.length} new professional${matches.length !== 1 ? "s" : ""}</strong>
+        matching your preferences.
+      </p>
+      ${candidateCards}
+      <a href="https://resourcematch.ph/dashboard"
+         style="display: inline-block; padding: 12px 24px; background: #04443C; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 8px;">
+        View All Matches
+      </a>
+      <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">
+        You're receiving this because you enabled weekly talent alerts.
+        <a href="https://resourcematch.ph/dashboard" style="color: #399A8B;">Update preferences</a>
+      </p>
+    `),
+  });
+}

@@ -7,8 +7,10 @@ import { AIMatchModal, MatchFormData } from "@/components/dashboard/AIMatchModal
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { SearchFilters } from "@/components/dashboard/SearchFilters";
 import { CandidateResults } from "@/components/dashboard/CandidateResults";
+import { MatchingPreferences } from "@/components/dashboard/MatchingPreferences";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Gift, X } from "lucide-react";
+import { trackSearch, trackFilter, trackAIMatchOpen, trackAIMatchComplete } from "@/lib/analytics";
 import type { Candidate } from "@/lib/candidates";
 
 const AVAILABILITY_LABELS: Record<string, string> = {
@@ -100,7 +102,7 @@ export const getServerSideProps: GetServerSideProps<DashboardProps> = async () =
 };
 
 export default function Dashboard({ candidates: allCandidates }: DashboardProps) {
-  const { company } = useAuth();
+  const { company, refreshCompany } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("all");
   const [availability, setAvailability] = useState("all");
@@ -117,6 +119,21 @@ export default function Dashboard({ candidates: allCandidates }: DashboardProps)
       setShowWelcome(true);
     }
   }, []);
+
+  // Debounced search tracking
+  useEffect(() => {
+    if (!searchQuery) return;
+    const timer = setTimeout(() => trackSearch(searchQuery), 1000);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Filter tracking
+  useEffect(() => {
+    if (vertical !== "all") trackFilter("vertical", vertical);
+  }, [vertical]);
+  useEffect(() => {
+    if (experienceLevel !== "all") trackFilter("experience", experienceLevel);
+  }, [experienceLevel]);
 
   // AI Matching Algorithm
   const calculateMatchScore = (
@@ -168,6 +185,7 @@ export default function Dashboard({ candidates: allCandidates }: DashboardProps)
   };
 
   const handleAIMatch = (data: MatchFormData) => {
+    trackAIMatchOpen();
     setIsMatching(true);
 
     setTimeout(() => {
@@ -184,6 +202,7 @@ export default function Dashboard({ candidates: allCandidates }: DashboardProps)
 
       setMatchScores(scores);
       setAiMatchedIds(topMatchIds);
+      trackAIMatchComplete(topMatchIds.length);
       setIsMatching(false);
       setShowAIModal(false);
 
@@ -273,6 +292,20 @@ export default function Dashboard({ candidates: allCandidates }: DashboardProps)
                 Browse our AI-vetted talent below and unlock a profile to see full contact details — no credit card needed.
               </p>
             </div>
+          )}
+
+          {company && (
+            <MatchingPreferences
+              company={company}
+              onSave={async (prefs) => {
+                await fetch("/api/user/me", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(prefs),
+                });
+                await refreshCompany();
+              }}
+            />
           )}
 
           <div className="mt-8 space-y-6">

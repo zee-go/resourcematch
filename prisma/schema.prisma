@@ -102,6 +102,11 @@ model Company {
   monthlyUnlocksUsed    Int                        @default(0) @map("monthly_unlocks_used")
   monthlyUnlocksLimit   Int?                       @map("monthly_unlocks_limit")
   billingCycleStart     DateTime?                  @map("billing_cycle_start")
+  matchingEnabled       Boolean                    @default(false) @map("matching_enabled")
+  matchingVertical      Vertical?                  @map("matching_vertical")
+  matchingExperience    String?                    @map("matching_experience")
+  matchingSkills        String[]                   @default([]) @map("matching_skills")
+  lastMatchEmailSent    DateTime?                  @map("last_match_email_sent")
   createdAt             DateTime                   @default(now()) @map("created_at")
   updatedAt             DateTime                   @updatedAt @map("updated_at")
 

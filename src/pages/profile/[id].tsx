@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import type { GetServerSideProps } from "next";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Candidate } from "@/lib/candidates";
 import { verticalLabels } from "@/lib/candidates";
+import { trackProfileView } from "@/lib/analytics";
 import {
   ArrowLeft,
   MapPin,
@@ -160,6 +161,10 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
   const router = useRouter();
   const [isUnlocked, setIsUnlocked] = useState(unlocked);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
+
+  useEffect(() => {
+    trackProfileView(candidate.id, candidate.vertical);
+  }, [candidate.id, candidate.vertical]);
 
   const handleUnlock = () => {
     setShowUnlockModal(true);

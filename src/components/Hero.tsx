@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Briefcase, ShieldCheck, Star } from "lucide-react";
 import Link from "next/link";
+import { trackCTAClick } from "@/lib/analytics";
 
 export function Hero() {
   return (
@@ -44,6 +45,7 @@ export function Hero() {
             <Link href="/dashboard">
               <Button
                 size="lg"
+                onClick={() => trackCTAClick("browse_talent", "hero")}
                 className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105"
               >
                 Browse Vetted Talent
@@ -54,6 +56,7 @@ export function Hero() {
               <Button
                 size="lg"
                 variant="outline"
+                onClick={() => trackCTAClick("apply_expert", "hero")}
                 className="text-lg px-8 py-6 border-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105"
               >
                 Apply as an Expert

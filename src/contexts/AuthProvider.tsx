@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
+import { setUserProperties } from "@/lib/analytics";
 
 interface CompanyProfile {
   id: string;
@@ -17,6 +18,10 @@ interface CompanyProfile {
   subscriptionStatus: string | null;
   monthlyUnlocksUsed: number;
   monthlyUnlocksLimit: number | null;
+  matchingEnabled: boolean;
+  matchingVertical: string | null;
+  matchingExperience: string | null;
+  matchingSkills: string[];
 }
 
 interface CandidateProfile {
@@ -100,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
       const role = session.user.role;
+      setUserProperties({ user_type: role === "CANDIDATE" ? "candidate" : "company" });
       if (role === "CANDIDATE") {
         fetchCandidate();
       } else {
@@ -110,6 +116,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setCandidate(null);
     }
   }, [status, session, fetchCompany, fetchCandidate]);
+
+  useEffect(() => {
+    if (company) {
+      setUserProperties({ subscription_tier: company.subscriptionTier || "free" });
+    }
+  }, [company]);
 
   const user: AuthUser | null =
     session?.user

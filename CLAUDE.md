@@ -110,6 +110,8 @@ src/
         video-interview.ts   # Layer 3: Video interview evaluation
         reference-check.ts   # Layer 4: Reference verification
         evaluate-response.ts # Layer 2 supplement: scenario answer scoring
+      matching/
+        digest.ts            # Weekly talent digest (Cloud Scheduler, Bearer token auth)
       companies/
         verify.ts            # Admin: manually verify a company
         verify-ai.ts         # AI-powered company verification
@@ -134,6 +136,7 @@ src/
       SearchFilters.tsx      # Search + vertical/experience/skill filters
       CandidateResults.tsx   # Candidate grid with unlock integration
       StatsCards.tsx         # Platform stats
+      MatchingPreferences.tsx # Weekly talent alerts toggle + filter preferences
     blog/
       BlogCard.tsx           # Blog listing card (hero image, category, title, date)
       BlogHero.tsx           # Article header (category, title, metadata, hero image)
@@ -163,6 +166,7 @@ src/
     stripe-client.ts         # Client-side loadStripe singleton
     blog.ts                  # Blog utilities (getAllPosts, getPostBySlug, getRelatedPosts)
     blog-seo.ts              # Article JSON-LD + Breadcrumb structured data
+    analytics.ts             # GA4 event tracking helpers (wraps gtag, SSR-safe)
     candidates.ts            # Mock candidate data (fallback)
     vetting-types.ts         # TypeScript interfaces for AI vetting pipeline
     utils.ts                 # cn() classname merger
@@ -210,7 +214,7 @@ User, Account, Session, VerificationToken, Company, Candidate, CaseStudy, Refere
 
 ## Pricing Model
 
-- **Free**: Browse all profiles (contact info locked)
+- **Free**: Browse all profiles (contact info locked) + 2 free unlocks on signup
 - **Credit Packs**: 1/$25 · 5/$100 (best value) · 15/$250 (never expire)
 - **Starter**: $149/mo — 10 unlocks, AI matching, priority support
 - **Growth**: $299/mo — 25 unlocks, advanced filters, dedicated matching
@@ -240,7 +244,7 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 
 ## Current State
 
-- Full backend: 33 API routes, 17 Prisma models, NextAuth.js, Stripe payments
+- Full backend: 34 API routes, 17 Prisma models, NextAuth.js, Stripe payments
 - Frontend: 26 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD), candidate portal, apply intake, blog (listing + article), privacy, terms
 - Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL
 - Free job posting: companies post jobs, candidates apply, application management pipeline
@@ -264,6 +268,9 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Kelly SEO agent: Python in `scripts/seo/`, runs Monday 11AM via launchd, generates 2 blog posts/week
 - Kelly workflow: traffic report (GSC) → topic research (Claude) → content plan → Telegram approval → generate post (Claude) → source images (Unsplash) → preview → approve → git push → Cloud Build deploy
 - Kelly reuses existing SEO Telegram bot for approval workflow
+- Free trial: 2 free unlocks on company signup (credits: 2), `freeUnlocksUsed` tracks usage, free trial messaging in UnlockModal + Hero + dashboard welcome banner
+- GA4 conversion tracking: `src/lib/analytics.ts` wraps `gtag()` with typed helpers, events tracked across signup funnel, unlock funnel, profile views, search/filters, AI match, purchases, CTA clicks, user properties (user_type, subscription_tier)
+- Automated matching emails: Company model has `matchingEnabled/matchingVertical/matchingExperience/matchingSkills/lastMatchEmailSent` fields, `MatchingPreferences` component on dashboard, `/api/matching/digest` endpoint secured by Bearer token for Cloud Scheduler, `sendMatchDigest()` in email.ts
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
 - Last deployed: 2026-03-07 (commit 4300ab7)

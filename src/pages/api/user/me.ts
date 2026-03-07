@@ -35,6 +35,10 @@ export default async function handler(
           subscriptionStatus: true,
           monthlyUnlocksUsed: true,
           monthlyUnlocksLimit: true,
+          matchingEnabled: true,
+          matchingVertical: true,
+          matchingExperience: true,
+          matchingSkills: true,
           createdAt: true,
         },
       });
@@ -48,7 +52,8 @@ export default async function handler(
 
   // PATCH — update company profile
   if (req.method === "PATCH") {
-    const { companyName, companyWebsite, companySize, industry, monthlyBudgetMin } = req.body;
+    const { companyName, companyWebsite, companySize, industry, monthlyBudgetMin,
+      matchingEnabled, matchingVertical, matchingExperience, matchingSkills } = req.body;
 
     try {
       const company = await prisma.company.update({
@@ -59,6 +64,10 @@ export default async function handler(
           ...(companySize !== undefined && { companySize }),
           ...(industry !== undefined && { industry }),
           ...(monthlyBudgetMin !== undefined && { monthlyBudgetMin: parseInt(monthlyBudgetMin) }),
+          ...(matchingEnabled !== undefined && { matchingEnabled: Boolean(matchingEnabled) }),
+          ...(matchingVertical !== undefined && { matchingVertical: matchingVertical || null }),
+          ...(matchingExperience !== undefined && { matchingExperience: matchingExperience || null }),
+          ...(matchingSkills !== undefined && { matchingSkills }),
         },
         select: {
           id: true,
@@ -76,6 +85,10 @@ export default async function handler(
           subscriptionStatus: true,
           monthlyUnlocksUsed: true,
           monthlyUnlocksLimit: true,
+          matchingEnabled: true,
+          matchingVertical: true,
+          matchingExperience: true,
+          matchingSkills: true,
           createdAt: true,
         },
       });
