@@ -11,7 +11,15 @@ import { Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 import type { UnifiedJobSummary } from "@/lib/job-types";
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#?\w+;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 interface JobBoardProps {

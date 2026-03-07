@@ -33,13 +33,14 @@ export interface JobFetcher {
 
 // ─── Shared Filters ──────────────────────────────────────────
 
-/** Only keep jobs relevant to our two verticals */
+/** Only keep jobs relevant to our two verticals (title-only matching) */
 const ACCOUNTING_KEYWORDS = [
   "accountant", "accounting", "bookkeeper", "bookkeeping",
   "finance", "financial", "cpa", "controller", "auditor", "audit",
   "tax", "payroll", "accounts payable", "accounts receivable",
   "quickbooks", "xero", "cfo", "treasury", "fiscal",
-  "budget", "billing", "invoic", "ledger", "reconcili",
+  "budget analyst", "billing specialist", "billing manager",
+  "invoic", "ledger", "reconcili",
 ];
 
 const OPS_KEYWORDS = [
@@ -48,16 +49,38 @@ const OPS_KEYWORDS = [
   "operations specialist", "project manager", "program manager",
   "supply chain", "logistics", "fulfillment", "fulfilment",
   "inventory", "procurement", "warehouse",
-  "ecommerce", "e-commerce", "shopify", "amazon",
   "business operations", "ops manager", "chief operating",
   "process improvement", "vendor management",
+  "amazon brand", "amazon fba", "amazon seller",
+  "amazon operations", "amazon manager",
+  "shopify manager", "shopify operations", "shopify specialist",
+  "ecommerce manager", "ecommerce operations",
+  "e-commerce manager", "e-commerce operations",
 ];
 
-function classifyVertical(title: string, tags: string[]): Vertical | null {
-  const text = [title, ...tags].join(" ").toLowerCase();
-  if (ACCOUNTING_KEYWORDS.some((k) => text.includes(k))) return "accounting";
-  if (OPS_KEYWORDS.some((k) => text.includes(k))) return "ecommerce";
+/** Classify by title only — avoids false positives from broad API tags */
+function classifyVertical(title: string, _tags: string[]): Vertical | null {
+  const titleLower = title.toLowerCase();
+  if (ACCOUNTING_KEYWORDS.some((k) => titleLower.includes(k))) return "accounting";
+  if (OPS_KEYWORDS.some((k) => titleLower.includes(k))) return "ecommerce";
   return null;
+}
+
+// ─── Text Sanitization ──────────────────────────────────────
+
+/** Fix common UTF-8 mojibake from Windows-1252 misinterpretation */
+function sanitizeText(text: string): string {
+  return text
+    .replace(/\u00e2\u20ac\u2122/g, "\u2019")  // ' right single quote
+    .replace(/\u00e2\u20ac\u02dc/g, "\u2018")  // ' left single quote
+    .replace(/\u00e2\u20ac\u0153/g, "\u201c")  // \u201c left double quote
+    .replace(/\u00e2\u20ac\u009d/g, "\u201d")  // \u201d right double quote
+    .replace(/\u00e2\u20ac\u201d/g, "\u2014")  // \u2014 em dash
+    .replace(/\u00e2\u20ac\u201c/g, "\u2013")  // \u2013 en dash
+    .replace(/\u00e2\u20ac\u00a6/g, "\u2026")  // \u2026 ellipsis
+    .replace(/\u00e2\u20ac\u00a2/g, "\u2022")  // \u2022 bullet
+    .replace(/\u00c2\u00a0/g, " ")             // non-breaking space
+    .replace(/\u00c2\u00b7/g, "\u00b7");       // middle dot
 }
 
 function isLocationRelevant(location: string): boolean {
@@ -145,7 +168,7 @@ export const remotiveFetcher: JobFetcher = {
             title: job.title,
             companyName: job.company_name,
             companyLogo: job.company_logo || null,
-            description: job.description,
+            description: sanitizeText(job.description),
             vertical,
             jobType: job.job_type || null,
             availability: mapJobType(job.job_type),
@@ -243,7 +266,7 @@ export const remoteOKFetcher: JobFetcher = {
           title: job.position,
           companyName: job.company,
           companyLogo: job.company_logo || null,
-          description: job.description || "",
+          description: sanitizeText(job.description || ""),
           vertical,
           jobType: null,
           availability: "FULL_TIME",

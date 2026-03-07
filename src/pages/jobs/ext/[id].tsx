@@ -30,7 +30,7 @@ const availabilityLabels: Record<string, string> = {
 
 const sourceLabels: Record<string, string> = {
   remotive: "Remotive",
-  adzuna: "Adzuna",
+  remoteok: "RemoteOK",
 };
 
 function formatDate(dateStr: string): string {

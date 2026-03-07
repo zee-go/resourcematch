@@ -38,7 +38,13 @@ export default async function handler(
   }
 
   try {
-    const stats = { fetched: 0, upserted: 0, expired: 0 };
+    const stats = { fetched: 0, upserted: 0, expired: 0, cleaned: 0 };
+
+    // ?clean=true deletes all external jobs before re-syncing (one-time use)
+    if (req.query.clean === "true") {
+      const deleted = await prisma.externalJob.deleteMany({});
+      stats.cleaned = deleted.count;
+    }
 
     for (const fetcher of fetchers) {
       const jobs = await fetcher.fetch();
