@@ -87,3 +87,16 @@ export function trackPurchaseComplete(type: "credit_pack" | "subscription", valu
 export function trackCTAClick(ctaName: string, location: string): void {
   trackEvent("cta_click", { cta_name: ctaName, cta_location: location });
 }
+
+// --- External Jobs ---
+export function trackExternalJobView(source: string, jobId: string): void {
+  trackEvent("view_external_job", { source, job_id: jobId });
+}
+
+export function trackExternalJobClick(source: string, jobId: string): void {
+  trackEvent("click_external_apply", { source, job_id: jobId });
+}
+
+export function trackExternalJobSignupCTA(source: string): void {
+  trackEvent("external_job_signup_cta", { source });
+}

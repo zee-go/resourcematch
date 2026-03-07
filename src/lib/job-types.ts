@@ -78,3 +78,30 @@ export interface PaginatedResponse<T> {
   page: number;
   totalPages: number;
 }
+
+// ─── External / Unified Job Types ──────────────────────────
+
+export interface ExternalJobSummary {
+  id: string;
+  title: string;
+  description: string;
+  vertical: "ecommerce" | "accounting" | null;
+  availability: string | null;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salary: string | null;
+  skills: string[];
+  location: string | null;
+  publishedAt: string | null;
+  companyName: string;
+  companyLogo: string | null;
+  sourceName: string;
+  sourceUrl: string;
+  isExternal: true;
+}
+
+export interface NativeJobSummary extends JobSummary {
+  isExternal: false;
+}
+
+export type UnifiedJobSummary = NativeJobSummary | ExternalJobSummary;

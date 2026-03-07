@@ -8,10 +8,14 @@ import { JobSearchFilters } from "@/components/jobs/JobSearchFilters";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
-import type { JobSummary } from "@/lib/job-types";
+import type { UnifiedJobSummary } from "@/lib/job-types";
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+}
 
 interface JobBoardProps {
-  jobs: JobSummary[];
+  jobs: UnifiedJobSummary[];
   page: number;
   totalPages: number;
   total: number;
@@ -33,36 +37,57 @@ export const getServerSideProps: GetServerSideProps<JobBoardProps> = async (
 
     const now = new Date();
 
-    // Build the where clause
-    const where: any = {
+    // ─── Native jobs query ─────────────────────────────────
+    const nativeWhere: any = {
       status: "OPEN",
       OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
     };
 
     if (verticalFilter && verticalFilter !== "all") {
-      where.vertical = verticalFilter;
+      nativeWhere.vertical = verticalFilter;
     }
-
     if (availabilityFilter && availabilityFilter !== "all") {
-      where.availability = availabilityFilter;
+      nativeWhere.availability = availabilityFilter;
     }
-
     if (searchFilter && searchFilter.trim() !== "") {
       const term = searchFilter.trim();
-      where.AND = [
-        {
-          OR: [
-            { title: { contains: term, mode: "insensitive" } },
-            { description: { contains: term, mode: "insensitive" } },
-            { skills: { hasSome: [term] } },
-          ],
-        },
-      ];
+      nativeWhere.AND = [{
+        OR: [
+          { title: { contains: term, mode: "insensitive" } },
+          { description: { contains: term, mode: "insensitive" } },
+          { skills: { hasSome: [term] } },
+        ],
+      }];
     }
 
-    const [jobs, total] = await Promise.all([
+    // ─── External jobs query ───────────────────────────────
+    const externalWhere: any = {
+      status: "ACTIVE",
+      expiresAt: { gt: now },
+    };
+
+    if (verticalFilter && verticalFilter !== "all") {
+      externalWhere.vertical = verticalFilter;
+    }
+    if (availabilityFilter && availabilityFilter !== "all") {
+      externalWhere.availability = availabilityFilter;
+    }
+    if (searchFilter && searchFilter.trim() !== "") {
+      const term = searchFilter.trim();
+      externalWhere.AND = [{
+        OR: [
+          { title: { contains: term, mode: "insensitive" } },
+          { description: { contains: term, mode: "insensitive" } },
+          { companyName: { contains: term, mode: "insensitive" } },
+          { skills: { hasSome: [term] } },
+        ],
+      }];
+    }
+
+    // Run native jobs + counts first (external skip depends on native count)
+    const [nativeJobs, nativeCount, externalCount] = await Promise.all([
       prisma.job.findMany({
-        where,
+        where: nativeWhere,
         orderBy: { publishedAt: "desc" },
         skip,
         take: limit,
@@ -76,17 +101,46 @@ export const getServerSideProps: GetServerSideProps<JobBoardProps> = async (
               companySize: true,
             },
           },
-          _count: {
-            select: { applications: true },
-          },
+          _count: { select: { applications: true } },
         },
       }),
-      prisma.job.count({ where }),
+      prisma.job.count({ where: nativeWhere }),
+      prisma.externalJob.count({ where: externalWhere }),
     ]);
 
+    // Only fetch external jobs if needed (native didn't fill the page)
+    const remainingSlots = limit - nativeJobs.length;
+    const externalJobs = remainingSlots > 0
+      ? await prisma.externalJob.findMany({
+          where: externalWhere,
+          orderBy: { publishedAt: "desc" },
+          take: remainingSlots,
+          skip: Math.max(0, skip - nativeCount),
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            vertical: true,
+            availability: true,
+            salaryMin: true,
+            salaryMax: true,
+            salary: true,
+            skills: true,
+            location: true,
+            publishedAt: true,
+            companyName: true,
+            companyLogo: true,
+            sourceName: true,
+            sourceUrl: true,
+          },
+        })
+      : [];
+
+    const total = nativeCount + externalCount;
     const totalPages = Math.max(1, Math.ceil(total / limit));
 
-    const serialized: JobSummary[] = jobs.map((job) => ({
+    // Serialize native jobs
+    const serializedNative: UnifiedJobSummary[] = nativeJobs.map((job) => ({
       id: job.id,
       title: job.title,
       description: job.description,
@@ -109,30 +163,42 @@ export const getServerSideProps: GetServerSideProps<JobBoardProps> = async (
         industry: job.company.industry,
         companySize: job.company.companySize,
       },
-      _count: {
-        applications: job._count.applications,
-      },
+      _count: { applications: job._count.applications },
+      isExternal: false as const,
     }));
+
+    // Serialize external jobs (strip HTML from description for card preview)
+    const serializedExternal: UnifiedJobSummary[] = externalJobs.map((job) => ({
+      id: job.id,
+      title: job.title,
+      description: stripHtml(job.description).slice(0, 300),
+      vertical: job.vertical as "ecommerce" | "accounting" | null,
+      availability: job.availability,
+      salaryMin: job.salaryMin,
+      salaryMax: job.salaryMax,
+      salary: job.salary,
+      skills: job.skills,
+      location: job.location,
+      publishedAt: job.publishedAt?.toISOString() ?? null,
+      companyName: job.companyName,
+      companyLogo: job.companyLogo,
+      sourceName: job.sourceName,
+      sourceUrl: job.sourceUrl,
+      isExternal: true as const,
+    }));
+
+    // Native jobs first, then external
+    const allJobs = [...serializedNative, ...serializedExternal];
 
     return {
       props: JSON.parse(
-        JSON.stringify({
-          jobs: serialized,
-          page,
-          totalPages,
-          total,
-        })
+        JSON.stringify({ jobs: allJobs, page, totalPages, total })
       ),
     };
   } catch (error) {
     console.error("Failed to fetch jobs:", error);
     return {
-      props: {
-        jobs: [],
-        page: 1,
-        totalPages: 1,
-        total: 0,
-      },
+      props: { jobs: [], page: 1, totalPages: 1, total: 0 },
     };
   }
 };
