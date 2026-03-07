@@ -32,11 +32,11 @@ const nextConfig = {
               "default-src 'self'",
               // unsafe-inline needed for Next.js __NEXT_DATA__ inline scripts
               // unsafe-eval removed — only needed in dev for webpack HMR
-              "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+              "script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
-              "connect-src 'self' https://api.stripe.com",
+              "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com",
               "frame-src https://js.stripe.com https://hooks.stripe.com",
             ].join("; "),
           },

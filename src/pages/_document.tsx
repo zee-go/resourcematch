@@ -7,6 +7,21 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <SEOElements />
+        {/* Google Analytics 4 */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-HGLM7YZKS6"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-HGLM7YZKS6');
+            `,
+          }}
+        />
       </Head>
       <body
         className={cn(
