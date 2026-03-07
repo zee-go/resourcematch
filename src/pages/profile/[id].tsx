@@ -7,7 +7,7 @@ import { UnlockModal } from "@/components/UnlockModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Candidate } from "@/lib/candidates";
-import { verticalLabels } from "@/lib/candidates";
+import { verticalLabels, availabilityLabels, LAYER_KEY_MAP } from "@/lib/candidates";
 import { trackProfileView } from "@/lib/analytics";
 import {
   ArrowLeft,
@@ -32,19 +32,6 @@ import {
   DollarSign,
 } from "lucide-react";
 import { LogoIcon } from "@/components/LogoIcon";
-
-const AVAILABILITY_LABELS: Record<string, string> = {
-  FULL_TIME: "Full-time",
-  PART_TIME: "Part-time",
-  CONTRACT: "Contract",
-};
-
-const LAYER_KEY_MAP: Record<string, keyof Candidate["vettingLayers"]> = {
-  RESUME_ANALYSIS: "resumeAnalysis",
-  SCENARIO_ASSESSMENT: "scenarioAssessment",
-  VIDEO_INTERVIEW: "videoInterview",
-  REFERENCE_CHECK: "referenceCheck",
-};
 
 interface ProfileProps {
   candidate: Candidate;
@@ -116,7 +103,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
       avatar: dbCandidate.avatar,
       vertical: dbCandidate.vertical as Candidate["vertical"],
       experience: dbCandidate.experience,
-      availability: (AVAILABILITY_LABELS[dbCandidate.availability] || dbCandidate.availability) as Candidate["availability"],
+      availability: (availabilityLabels[dbCandidate.availability] || dbCandidate.availability) as Candidate["availability"],
       skills: dbCandidate.skills,
       tools: dbCandidate.tools,
       location: dbCandidate.location,

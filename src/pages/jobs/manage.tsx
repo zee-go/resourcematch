@@ -10,6 +10,7 @@ import { ApplicationCard } from "@/components/jobs/ApplicationCard";
 import { UnlockModal } from "@/components/UnlockModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { verticalLabels } from "@/lib/candidates";
 import type { JobApplicationData } from "@/lib/job-types";
 import {
   Briefcase,
@@ -59,11 +60,6 @@ const statusConfig: Record<
     label: "Closed",
     className: "bg-red-100 text-red-700",
   },
-};
-
-const verticalLabels: Record<string, string> = {
-  ecommerce: "Operations Management",
-  accounting: "Finance & Accounting",
 };
 
 export const getServerSideProps: GetServerSideProps<ManageJobsProps> = async (

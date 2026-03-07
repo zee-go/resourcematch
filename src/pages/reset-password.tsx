@@ -101,7 +101,7 @@ export default function ResetPasswordPage() {
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
               <LogoIcon className="w-10 h-10" color="accent" />
-              <span className="text-xl font-semibold text-evening-sea">
+              <span className="text-xl font-semibold text-primary">
                 ResourceMatch
               </span>
             </Link>
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
             {success ? (
               <div className="text-center">
                 <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-evening-sea mb-2">
+                <h1 className="text-2xl font-bold text-primary mb-2">
                   Password Reset
                 </h1>
                 <p className="text-slate-600 mb-6">
@@ -119,14 +119,14 @@ export default function ResetPasswordPage() {
                 </p>
                 <Button
                   onClick={() => router.push("/login")}
-                  className="w-full bg-evening-sea hover:bg-evening-sea/90"
+                  className="w-full bg-primary hover:bg-primary-dark"
                 >
                   Sign In
                 </Button>
               </div>
             ) : hasResetParams ? (
               <form onSubmit={handleResetPassword}>
-                <h1 className="text-2xl font-bold text-evening-sea mb-2">
+                <h1 className="text-2xl font-bold text-primary mb-2">
                   Set New Password
                 </h1>
                 <p className="text-slate-600 mb-6">
@@ -176,7 +176,7 @@ export default function ResetPasswordPage() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-evening-sea hover:bg-evening-sea/90"
+                    className="w-full bg-primary hover:bg-primary-dark"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -189,7 +189,7 @@ export default function ResetPasswordPage() {
             ) : requestSent ? (
               <div className="text-center">
                 <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-evening-sea mb-2">
+                <h1 className="text-2xl font-bold text-primary mb-2">
                   Check Your Email
                 </h1>
                 <p className="text-slate-600 mb-6">
@@ -198,14 +198,14 @@ export default function ResetPasswordPage() {
                 </p>
                 <Link
                   href="/login"
-                  className="text-sm text-raw-sienna hover:underline"
+                  className="text-sm text-accent hover:underline"
                 >
                   Back to sign in
                 </Link>
               </div>
             ) : (
               <form onSubmit={handleRequestReset}>
-                <h1 className="text-2xl font-bold text-evening-sea mb-2">
+                <h1 className="text-2xl font-bold text-primary mb-2">
                   Forgot Password
                 </h1>
                 <p className="text-slate-600 mb-6">
@@ -234,7 +234,7 @@ export default function ResetPasswordPage() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-evening-sea hover:bg-evening-sea/90"
+                    className="w-full bg-primary hover:bg-primary-dark"
                     disabled={requestLoading}
                   >
                     {requestLoading ? (
@@ -248,7 +248,7 @@ export default function ResetPasswordPage() {
                   Remember your password?{" "}
                   <Link
                     href="/login"
-                    className="text-raw-sienna hover:underline font-medium"
+                    className="text-accent hover:underline font-medium"
                   >
                     Sign in
                   </Link>

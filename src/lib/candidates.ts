@@ -61,3 +61,21 @@ export const verticalLabels: Record<Vertical, string> = {
   accounting: "Finance & Accounting",
 };
 
+export const availabilityLabels: Record<string, string> = {
+  FULL_TIME: "Full-time",
+  PART_TIME: "Part-time",
+  CONTRACT: "Contract",
+};
+
+export const sourceLabels: Record<string, string> = {
+  remotive: "Remotive",
+  remoteok: "RemoteOK",
+};
+
+export const LAYER_KEY_MAP: Record<string, keyof Candidate["vettingLayers"]> = {
+  RESUME_ANALYSIS: "resumeAnalysis",
+  SCENARIO_ASSESSMENT: "scenarioAssessment",
+  VIDEO_INTERVIEW: "videoInterview",
+  REFERENCE_CHECK: "referenceCheck",
+};
+

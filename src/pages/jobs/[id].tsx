@@ -24,17 +24,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-
-const verticalLabels: Record<string, string> = {
-  ecommerce: "Operations Management",
-  accounting: "Finance & Accounting",
-};
-
-const availabilityLabels: Record<string, string> = {
-  FULL_TIME: "Full-time",
-  PART_TIME: "Part-time",
-  CONTRACT: "Contract",
-};
+import { verticalLabels, availabilityLabels } from "@/lib/candidates";
 
 const employmentTypeMap: Record<string, string> = {
   FULL_TIME: "FULL_TIME",
@@ -524,11 +514,11 @@ export default function JobDetail({ job }: JobDetailProps) {
                 ) : (
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 text-center">
                     <p className="text-slate-600 mb-4">
-                      Sign up as a professional to apply for this position.
+                      Join as a professional to apply for this position.
                     </p>
-                    <Link href="/signup">
+                    <Link href="/apply">
                       <Button className="bg-primary hover:bg-primary-dark text-white font-semibold">
-                        Sign up to apply
+                        Join as a Professional
                       </Button>
                     </Link>
                   </div>

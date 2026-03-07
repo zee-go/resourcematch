@@ -25,6 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { LogoIcon } from "@/components/LogoIcon";
+import { verticalLabels } from "@/lib/candidates";
 
 interface PreviewCandidate {
   id: number;
@@ -39,11 +40,6 @@ interface PreviewCandidate {
   caseStudyTitle?: string;
   caseStudyMetrics?: string;
 }
-
-const VERTICAL_LABELS: Record<string, string> = {
-  ecommerce: "Operations Management",
-  accounting: "Finance & Accounting",
-};
 
 interface HirePageProps {
   previewCandidates: PreviewCandidate[];
@@ -406,7 +402,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
 
                       <div className="mb-3">
                         <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs">
-                          {VERTICAL_LABELS[candidate.vertical] || candidate.vertical}
+                          {verticalLabels[candidate.vertical] || candidate.vertical}
                         </Badge>
                       </div>
 

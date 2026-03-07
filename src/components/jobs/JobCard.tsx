@@ -10,6 +10,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import type { UnifiedJobSummary, NativeJobSummary, ExternalJobSummary } from "@/lib/job-types";
+import { verticalLabels, availabilityLabels, sourceLabels } from "@/lib/candidates";
 
 interface JobCardProps {
   job: UnifiedJobSummary;
@@ -31,22 +32,6 @@ function formatSalary(min: number | null, max: number | null): string | null {
   if (min) return `From $${min.toLocaleString()}/mo`;
   return `Up to $${max!.toLocaleString()}/mo`;
 }
-
-const verticalLabels: Record<string, string> = {
-  ecommerce: "Operations Management",
-  accounting: "Finance & Accounting",
-};
-
-const availabilityLabels: Record<string, string> = {
-  FULL_TIME: "Full-time",
-  PART_TIME: "Part-time",
-  CONTRACT: "Contract",
-};
-
-const sourceLabels: Record<string, string> = {
-  remotive: "Remotive",
-  remoteok: "RemoteOK",
-};
 
 /** Extract display-friendly values from either job type */
 function getJobDisplay(job: UnifiedJobSummary) {

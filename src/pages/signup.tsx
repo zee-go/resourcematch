@@ -165,7 +165,7 @@ export default function SignupPage() {
 
     trackSignupStep("complete", "company");
     trackSignupComplete("company");
-    router.push("/dashboard?welcome=1");
+    router.push("/dashboard");
   };
 
   const handleCandidateSignup = async (e: React.FormEvent) => {

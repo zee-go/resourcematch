@@ -55,17 +55,22 @@ export default function CandidateApplicationsPage() {
     }
   }, [authLoading, user, router]);
 
+  const [error, setError] = useState<string | null>(null);
+
   const fetchApplications = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/candidate/applications?page=${page}&limit=20`);
       if (res.ok) {
         const data = await res.json();
         setApplications(data.data);
         setTotalPages(data.totalPages);
+      } else {
+        setError("Failed to load applications. Please try again.");
       }
     } catch {
-      // silently fail
+      setError("Failed to load applications. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -106,6 +111,13 @@ export default function CandidateApplicationsPage() {
           {loading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+              <p className="text-red-700 mb-4">{error}</p>
+              <Button variant="outline" onClick={() => fetchApplications()}>
+                Try Again
+              </Button>
             </div>
           ) : applications.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">

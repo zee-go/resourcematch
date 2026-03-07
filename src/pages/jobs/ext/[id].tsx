@@ -16,22 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { trackExternalJobView, trackExternalJobClick, trackExternalJobSignupCTA } from "@/lib/analytics";
-
-const verticalLabels: Record<string, string> = {
-  ecommerce: "Operations Management",
-  accounting: "Finance & Accounting",
-};
-
-const availabilityLabels: Record<string, string> = {
-  FULL_TIME: "Full-time",
-  PART_TIME: "Part-time",
-  CONTRACT: "Contract",
-};
-
-const sourceLabels: Record<string, string> = {
-  remotive: "Remotive",
-  remoteok: "RemoteOK",
-};
+import { verticalLabels, availabilityLabels, sourceLabels } from "@/lib/candidates";
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {

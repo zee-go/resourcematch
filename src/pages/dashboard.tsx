@@ -12,19 +12,7 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { Gift, X } from "lucide-react";
 import { trackSearch, trackFilter, trackAIMatchOpen, trackAIMatchComplete } from "@/lib/analytics";
 import type { Candidate } from "@/lib/candidates";
-
-const AVAILABILITY_LABELS: Record<string, string> = {
-  FULL_TIME: "Full-time",
-  PART_TIME: "Part-time",
-  CONTRACT: "Contract",
-};
-
-const LAYER_KEY_MAP: Record<string, keyof Candidate["vettingLayers"]> = {
-  RESUME_ANALYSIS: "resumeAnalysis",
-  SCENARIO_ASSESSMENT: "scenarioAssessment",
-  VIDEO_INTERVIEW: "videoInterview",
-  REFERENCE_CHECK: "referenceCheck",
-};
+import { availabilityLabels, LAYER_KEY_MAP } from "@/lib/candidates";
 
 interface DashboardProps {
   candidates: Candidate[];
@@ -83,7 +71,7 @@ export const getServerSideProps: GetServerSideProps<DashboardProps> = async () =
         avatar: c.avatar,
         vertical: c.vertical as Candidate["vertical"],
         experience: c.experience,
-        availability: (AVAILABILITY_LABELS[c.availability] || c.availability) as Candidate["availability"],
+        availability: (availabilityLabels[c.availability] || c.availability) as Candidate["availability"],
         skills: c.skills,
         tools: c.tools,
         location: c.location,
