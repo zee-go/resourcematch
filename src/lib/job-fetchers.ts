@@ -68,17 +68,17 @@ function classifyVertical(title: string, _tags: string[]): Vertical | null {
 
 // ─── Text Sanitization ──────────────────────────────────────
 
-/** Fix common UTF-8 mojibake from Windows-1252 misinterpretation */
+/** Fix UTF-8 mojibake: raw UTF-8 bytes decoded as Latin-1 code points */
 function sanitizeText(text: string): string {
   return text
-    .replace(/\u00e2\u20ac\u2122/g, "\u2019")  // ' right single quote
-    .replace(/\u00e2\u20ac\u02dc/g, "\u2018")  // ' left single quote
-    .replace(/\u00e2\u20ac\u0153/g, "\u201c")  // \u201c left double quote
-    .replace(/\u00e2\u20ac\u009d/g, "\u201d")  // \u201d right double quote
-    .replace(/\u00e2\u20ac\u201d/g, "\u2014")  // \u2014 em dash
-    .replace(/\u00e2\u20ac\u201c/g, "\u2013")  // \u2013 en dash
-    .replace(/\u00e2\u20ac\u00a6/g, "\u2026")  // \u2026 ellipsis
-    .replace(/\u00e2\u20ac\u00a2/g, "\u2022")  // \u2022 bullet
+    .replace(/\u00e2\u0080\u0099/g, "\u2019")  // ' right single quote
+    .replace(/\u00e2\u0080\u0098/g, "\u2018")  // ' left single quote
+    .replace(/\u00e2\u0080\u009c/g, "\u201c")  // \u201c left double quote
+    .replace(/\u00e2\u0080\u009d/g, "\u201d")  // \u201d right double quote
+    .replace(/\u00e2\u0080\u0094/g, "\u2014")  // \u2014 em dash
+    .replace(/\u00e2\u0080\u0093/g, "\u2013")  // \u2013 en dash
+    .replace(/\u00e2\u0080\u00a6/g, "\u2026")  // \u2026 ellipsis
+    .replace(/\u00e2\u0080\u00a2/g, "\u2022")  // \u2022 bullet
     .replace(/\u00c2\u00a0/g, " ")             // non-breaking space
     .replace(/\u00c2\u00b7/g, "\u00b7");       // middle dot
 }
