@@ -53,7 +53,7 @@ const OPS_KEYWORDS = [
   "process improvement", "vendor management",
   "amazon brand", "amazon fba", "amazon seller",
   "amazon operations", "amazon manager",
-  "shopify manager", "shopify operations", "shopify specialist",
+  "shopify manager", "shopify operations", "shopify specialist", "shopify store",
   "ecommerce manager", "ecommerce operations",
   "e-commerce manager", "e-commerce operations",
 ];
