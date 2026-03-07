@@ -39,6 +39,10 @@ export default async function handler(
         salaryMin: candidate.salaryMin,
         salaryMax: candidate.salaryMax,
         email: candidate.email,
+        phone: candidate.phone,
+        linkedIn: candidate.linkedIn,
+        videoUrl: candidate.videoUrl,
+        resumeUrl: candidate.resumeUrl,
       },
     });
   }
@@ -56,6 +60,10 @@ export default async function handler(
       summary,
       salaryMin,
       salaryMax,
+      phone,
+      linkedIn,
+      videoUrl,
+      resumeUrl,
     } = req.body;
 
     const updateData: Record<string, unknown> = {};
@@ -80,6 +88,31 @@ export default async function handler(
       updateData.salaryMin = salaryMin ? parseInt(salaryMin) : null;
     if (salaryMax !== undefined)
       updateData.salaryMax = salaryMax ? parseInt(salaryMax) : null;
+    if (phone !== undefined) updateData.phone = phone || null;
+    if (linkedIn !== undefined) {
+      if (linkedIn) {
+        try { new URL(linkedIn); } catch { return res.status(400).json({ error: "Invalid LinkedIn URL" }); }
+        updateData.linkedIn = linkedIn;
+      } else {
+        updateData.linkedIn = null;
+      }
+    }
+    if (videoUrl !== undefined) {
+      if (videoUrl) {
+        try { new URL(videoUrl); } catch { return res.status(400).json({ error: "Invalid video URL" }); }
+        updateData.videoUrl = videoUrl;
+      } else {
+        updateData.videoUrl = null;
+      }
+    }
+    if (resumeUrl !== undefined) {
+      if (resumeUrl) {
+        try { new URL(resumeUrl); } catch { return res.status(400).json({ error: "Invalid resume URL" }); }
+        updateData.resumeUrl = resumeUrl;
+      } else {
+        updateData.resumeUrl = null;
+      }
+    }
 
     const updated = await prisma.candidate.update({
       where: { id: candidate.id },
@@ -105,6 +138,10 @@ export default async function handler(
         salaryMin: updated.salaryMin,
         salaryMax: updated.salaryMax,
         email: updated.email,
+        phone: updated.phone,
+        linkedIn: updated.linkedIn,
+        videoUrl: updated.videoUrl,
+        resumeUrl: updated.resumeUrl,
       },
     });
   }

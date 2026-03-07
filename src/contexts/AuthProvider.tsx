@@ -40,6 +40,10 @@ interface CandidateProfile {
   verified: boolean;
   salaryMin: number | null;
   salaryMax: number | null;
+  phone: string | null;
+  linkedIn: string | null;
+  videoUrl: string | null;
+  resumeUrl: string | null;
 }
 
 interface AuthUser {

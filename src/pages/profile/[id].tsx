@@ -134,12 +134,14 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
             phone: dbCandidate.phone ?? undefined,
             linkedIn: dbCandidate.linkedIn ?? undefined,
             videoUrl: dbCandidate.videoUrl ?? undefined,
+            resumeUrl: dbCandidate.resumeUrl ?? undefined,
             englishScore: dbCandidate.englishScore ?? undefined,
             references: (dbCandidate as any).references?.map((ref: any) => ({
               name: ref.name,
               company: ref.company,
               role: ref.role,
               quote: ref.quote,
+              verified: ref.verified,
             })),
           }
         : {}),
@@ -525,14 +527,28 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                       <Phone className="w-4 h-4" />
                       {candidate.phone}
                     </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full mt-3 bg-white/20 hover:bg-white/30 border-white/30"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Full Resume
-                    </Button>
+                    {candidate.resumeUrl ? (
+                      <a href={candidate.resumeUrl} target="_blank" rel="noopener noreferrer">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-3 bg-white/20 hover:bg-white/30 border-white/30"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          View Resume
+                        </Button>
+                      </a>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-3 bg-white/20 hover:bg-white/30 border-white/30 opacity-50 cursor-not-allowed"
+                        disabled
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Resume Not Available
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -547,9 +563,14 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
                       {candidate.references.map((ref, idx) => (
                         <div key={idx} className="bg-white/10 rounded-xl p-4">
                           <p className="italic mb-2">&ldquo;{ref.quote}&rdquo;</p>
-                          <p className="text-sm text-green-100">
-                            {ref.name} — {ref.role}, {ref.company}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-green-100">
+                              {ref.name} — {ref.role}, {ref.company}
+                            </p>
+                            {ref.verified && (
+                              <ShieldCheck className="w-4 h-4 text-green-300 flex-shrink-0" />
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

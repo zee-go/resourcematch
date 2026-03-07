@@ -16,6 +16,7 @@ export interface Reference {
   company: string;
   role: string;
   quote: string;
+  verified?: boolean;
 }
 
 export interface Candidate {
@@ -48,6 +49,7 @@ export interface Candidate {
   phone?: string;
   linkedIn?: string;
   videoUrl?: string;
+  resumeUrl?: string;
   references?: Reference[];
   englishScore?: number;
   discProfile?: string;
