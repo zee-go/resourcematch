@@ -45,7 +45,7 @@ const availabilityLabels: Record<string, string> = {
 
 const sourceLabels: Record<string, string> = {
   remotive: "Remotive",
-  adzuna: "Adzuna",
+  remoteok: "RemoteOK",
 };
 
 /** Extract display-friendly values from either job type */

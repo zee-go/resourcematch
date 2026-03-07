@@ -14,10 +14,10 @@
  */
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
-import { remotiveFetcher } from "@/lib/job-fetchers";
+import { remotiveFetcher, remoteOKFetcher } from "@/lib/job-fetchers";
 import type { JobFetcher } from "@/lib/job-fetchers";
 
-const fetchers: JobFetcher[] = [remotiveFetcher];
+const fetchers: JobFetcher[] = [remotiveFetcher, remoteOKFetcher];
 
 export default async function handler(
   req: NextApiRequest,

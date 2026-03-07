@@ -1,6 +1,6 @@
 /**
  * External job fetchers for aggregating remote jobs from free APIs.
- * Currently supports Remotive. Add new fetchers by implementing JobFetcher interface.
+ * Supports Remotive and RemoteOK. Add new fetchers by implementing JobFetcher interface.
  */
 
 import type { Vertical, Availability } from "@prisma/client";
@@ -31,15 +31,46 @@ export interface JobFetcher {
   fetch(): Promise<RawExternalJob[]>;
 }
 
-// ─── Category → Vertical Mapping ────────────────────────────
+// ─── Shared Filters ──────────────────────────────────────────
 
-const REMOTIVE_CATEGORY_MAP: Record<string, Vertical> = {
-  "finance-legal": "accounting",
-  "business": "ecommerce",
-  "marketing": "ecommerce",
-  "project-management": "ecommerce",
-  "customer-support": "ecommerce",
-};
+/** Only keep jobs relevant to our two verticals */
+const ACCOUNTING_KEYWORDS = [
+  "accountant", "accounting", "bookkeeper", "bookkeeping",
+  "finance", "financial", "cpa", "controller", "auditor", "audit",
+  "tax", "payroll", "accounts payable", "accounts receivable",
+  "quickbooks", "xero", "cfo", "treasury", "fiscal",
+  "budget", "billing", "invoic", "ledger", "reconcili",
+];
+
+const OPS_KEYWORDS = [
+  "operations manager", "operations director", "operations lead",
+  "operations coordinator", "operations analyst", "operations associate",
+  "operations specialist", "project manager", "program manager",
+  "supply chain", "logistics", "fulfillment", "fulfilment",
+  "inventory", "procurement", "warehouse",
+  "ecommerce", "e-commerce", "shopify", "amazon",
+  "business operations", "ops manager", "chief operating",
+  "process improvement", "vendor management",
+];
+
+function classifyVertical(title: string, tags: string[]): Vertical | null {
+  const text = [title, ...tags].join(" ").toLowerCase();
+  if (ACCOUNTING_KEYWORDS.some((k) => text.includes(k))) return "accounting";
+  if (OPS_KEYWORDS.some((k) => text.includes(k))) return "ecommerce";
+  return null;
+}
+
+function isLocationRelevant(location: string): boolean {
+  if (!location) return true;
+  const lower = location.toLowerCase();
+  return (
+    lower.includes("philippines") ||
+    lower.includes("worldwide") ||
+    lower.includes("anywhere") ||
+    lower.includes("asia") ||
+    lower === ""
+  );
+}
 
 // ─── Job Type → Availability Mapping ─────────────────────────
 
@@ -77,27 +108,11 @@ interface RemotiveResponse {
 const REMOTIVE_CATEGORIES = [
   "business",
   "finance-legal",
-  "marketing",
-  "customer-support",
-  "project-management",
 ];
-
-function isLocationRelevant(location: string): boolean {
-  if (!location) return true;
-  const lower = location.toLowerCase();
-  return (
-    lower.includes("philippines") ||
-    lower.includes("worldwide") ||
-    lower.includes("anywhere") ||
-    lower.includes("asia") ||
-    lower === ""
-  );
-}
 
 export const remotiveFetcher: JobFetcher = {
   name: "remotive",
   async fetch(): Promise<RawExternalJob[]> {
-    // Fetch all categories concurrently (each is a separate API call)
     const results = await Promise.allSettled(
       REMOTIVE_CATEGORIES.map(async (category) => {
         const url = `https://remotive.com/api/remote-jobs?category=${category}&limit=50`;
@@ -115,6 +130,9 @@ export const remotiveFetcher: JobFetcher = {
           const location = job.candidate_required_location || "";
           if (!isLocationRelevant(location)) continue;
 
+          const vertical = classifyVertical(job.title, job.tags);
+          if (!vertical) continue;
+
           const publishedAt = job.publication_date
             ? new Date(job.publication_date)
             : new Date();
@@ -128,7 +146,7 @@ export const remotiveFetcher: JobFetcher = {
             companyName: job.company_name,
             companyLogo: job.company_logo || null,
             description: job.description,
-            vertical: REMOTIVE_CATEGORY_MAP[job.category] || null,
+            vertical,
             jobType: job.job_type || null,
             availability: mapJobType(job.job_type),
             location: location || "Remote",
@@ -154,5 +172,96 @@ export const remotiveFetcher: JobFetcher = {
     }
 
     return allJobs;
+  },
+};
+
+// ─── RemoteOK API ────────────────────────────────────────────
+
+interface RemoteOKJob {
+  id: string;
+  slug: string;
+  url: string;
+  apply_url: string;
+  position: string;
+  company: string;
+  company_logo: string;
+  date: string;
+  epoch: number;
+  description: string;
+  location: string;
+  salary_min: number;
+  salary_max: number;
+  tags: string[];
+}
+
+export const remoteOKFetcher: JobFetcher = {
+  name: "remoteok",
+  async fetch(): Promise<RawExternalJob[]> {
+    try {
+      const response = await fetch("https://remoteok.com/api", {
+        headers: { "User-Agent": "ResourceMatch/1.0" },
+      });
+
+      if (!response.ok) {
+        console.error(`RemoteOK fetch failed: ${response.status}`);
+        return [];
+      }
+
+      const data: RemoteOKJob[] = await response.json();
+
+      // First element is API legal notice, skip it
+      const jobs = Array.isArray(data) ? data.slice(1) : [];
+      const result: RawExternalJob[] = [];
+
+      for (const job of jobs) {
+        if (!job.position || !job.company) continue;
+
+        const location = job.location || "";
+        if (!isLocationRelevant(location)) continue;
+
+        const vertical = classifyVertical(job.position, job.tags || []);
+        if (!vertical) continue;
+
+        const publishedAt = job.date ? new Date(job.date) : new Date();
+        const expiresAt = new Date(publishedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+        const salaryMin = job.salary_min && job.salary_min > 0 ? job.salary_min : null;
+        const salaryMax = job.salary_max && job.salary_max > 0 ? job.salary_max : null;
+        let salary: string | null = null;
+        if (salaryMin && salaryMax) {
+          salary = `$${salaryMin.toLocaleString()} - $${salaryMax.toLocaleString()}/yr`;
+        } else if (salaryMin) {
+          salary = `From $${salaryMin.toLocaleString()}/yr`;
+        } else if (salaryMax) {
+          salary = `Up to $${salaryMax.toLocaleString()}/yr`;
+        }
+
+        result.push({
+          sourceId: String(job.id),
+          sourceName: "remoteok",
+          sourceUrl: job.url || `https://remoteok.com/remote-jobs/${job.slug}`,
+          title: job.position,
+          companyName: job.company,
+          companyLogo: job.company_logo || null,
+          description: job.description || "",
+          vertical,
+          jobType: null,
+          availability: "FULL_TIME",
+          location: location || "Remote",
+          salary,
+          salaryMin,
+          salaryMax,
+          skills: job.tags || [],
+          category: null,
+          publishedAt,
+          expiresAt,
+        });
+      }
+
+      return result;
+    } catch (error) {
+      console.error("RemoteOK fetch error:", error);
+      return [];
+    }
   },
 };
