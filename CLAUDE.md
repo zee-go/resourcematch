@@ -41,8 +41,8 @@ Key differentiators:
 
 ```
 prisma/
-  schema.prisma              # Database schema (17 models — see below)
-  seed.ts                    # Seed 10 mock candidates
+  schema.prisma              # Database schema (18 models — see below)
+  seed.ts                    # Seed 10 mock candidates (demo data cleared in prod)
 
 src/
   pages/
@@ -59,11 +59,12 @@ src/
     signup.tsx               # 2-step signup (credentials → company details)
     apply.tsx                # Candidate intake/application page
     jobs/
-      index.tsx              # Browse job listings (public)
+      index.tsx              # Browse job listings — unified native + external (public)
       post.tsx               # Create a free job posting (company)
       manage.tsx             # Manage posted jobs (company)
-      [id].tsx               # View job details
+      [id].tsx               # View native job details
       [id]/edit.tsx          # Edit job posting
+      ext/[id].tsx           # External job detail page (Apply on Source + signup CTA)
     candidate/
       profile.tsx            # Candidate profile management
       applications.tsx       # Candidate's application history
@@ -90,6 +91,7 @@ src/
         [id]/applications/
           index.ts           # Job applications list
           [applicationId].ts # Manage single application
+        sync.ts              # Daily external job sync (Bearer token, Cloud Scheduler)
       applications/
         index.ts             # Create application (candidate applies to job)
       unlocks/
@@ -167,6 +169,8 @@ src/
     blog.ts                  # Blog utilities (getAllPosts, getPostBySlug, getRelatedPosts)
     blog-seo.ts              # Article JSON-LD + Breadcrumb structured data
     analytics.ts             # GA4 event tracking helpers (wraps gtag, SSR-safe)
+    job-fetchers.ts          # External job API fetchers (Remotive + RemoteOK)
+    job-types.ts             # Job type definitions (JobSummary, ExternalJobSummary, UnifiedJobSummary)
     candidates.ts            # Mock candidate data (fallback)
     vetting-types.ts         # TypeScript interfaces for AI vetting pipeline
     utils.ts                 # cn() classname merger
@@ -210,7 +214,7 @@ scripts/
 
 ### Prisma Models
 
-User, Account, Session, VerificationToken, Company, Candidate, CaseStudy, Reference, VettingProfile, VettingLayerResult, Unlock, CreditPurchase, SavedCandidate, CompanyRating, Application, Job, JobApplication
+User, Account, Session, VerificationToken, Company, Candidate, CaseStudy, Reference, VettingProfile, VettingLayerResult, Unlock, CreditPurchase, SavedCandidate, CompanyRating, Application, Job, JobApplication, ExternalJob
 
 ## Pricing Model
 
@@ -244,10 +248,11 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 
 ## Current State
 
-- Full backend: 34 API routes, 17 Prisma models, NextAuth.js, Stripe payments
-- Frontend: 26 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD), candidate portal, apply intake, blog (listing + article), privacy, terms
-- Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL
+- Full backend: 35 API routes, 18 Prisma models, NextAuth.js, Stripe payments
+- Frontend: 27 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD + external detail), candidate portal, apply intake, blog (listing + article), privacy, terms
+- Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL (demo jobs cleared)
 - Free job posting: companies post jobs, candidates apply, application management pipeline
+- External job aggregation: Remotive + RemoteOK APIs synced daily at 6 AM Manila (Cloud Scheduler), filtered to accounting/finance + operations management only, keyword-based vertical classifier, `ExternalJob` model separate from native `Job`, unified listing on `/jobs`, external detail page at `/jobs/ext/[id]` with "Apply on Source" + ResourceMatch signup CTA
 - Candidate accounts: separate registration, profile management, application tracking
 - AI company verification: automated legitimacy checks via Claude API
 - UnlockModal with inline credit plan selection + post-purchase redirect back to profile
@@ -272,8 +277,9 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - GA4 conversion tracking: `src/lib/analytics.ts` wraps `gtag()` with typed helpers, events tracked across signup funnel, unlock funnel, profile views, search/filters, AI match, purchases, CTA clicks, user properties (user_type, subscription_tier)
 - Automated matching emails: Company model has `matchingEnabled/matchingVertical/matchingExperience/matchingSkills/lastMatchEmailSent` fields, `MatchingPreferences` component on dashboard, `/api/matching/digest` endpoint secured by Bearer token for Cloud Scheduler, `sendMatchDigest()` in email.ts
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
-- Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD
-- Last deployed: 2026-03-07 (commit 4300ab7)
+- Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD (manual `gcloud builds submit` — no auto-trigger configured)
+- Cloud Scheduler jobs: `matching-digest` (Mon 10AM), `job-sync` (daily 6AM Manila)
+- Last deployed: 2026-03-07 (commit 0c62f3f)
 - Domain: `resourcematch.ph` — Cloudflare DNS (zone `f55cc59b877aee0c0f5e92c2bdccaa1a`) → GCP Cloud Run domain mapping
   - A records (x4) → `216.239.x.x` (Google domain mapping IPs, DNS-only)
   - `www` CNAME → `ghs.googlehosted.com` (DNS-only)
