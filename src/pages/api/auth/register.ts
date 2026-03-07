@@ -70,7 +70,7 @@ async function handler(
           verifiedAt: verified ? new Date() : null,
           verificationStatus: verified ? "VERIFIED" : "UNVERIFIED",
           verifiedVia: verified ? "email_domain" : null,
-          credits: 0,
+          credits: 2,
         },
       });
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { GetServerSideProps } from "next";
 import { SEO } from "@/components/SEO";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -7,6 +7,8 @@ import { AIMatchModal, MatchFormData } from "@/components/dashboard/AIMatchModal
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { SearchFilters } from "@/components/dashboard/SearchFilters";
 import { CandidateResults } from "@/components/dashboard/CandidateResults";
+import { useAuth } from "@/contexts/AuthProvider";
+import { Gift, X } from "lucide-react";
 import type { Candidate } from "@/lib/candidates";
 
 const AVAILABILITY_LABELS: Record<string, string> = {
@@ -98,6 +100,7 @@ export const getServerSideProps: GetServerSideProps<DashboardProps> = async () =
 };
 
 export default function Dashboard({ candidates: allCandidates }: DashboardProps) {
+  const { company } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("all");
   const [availability, setAvailability] = useState("all");
@@ -107,6 +110,13 @@ export default function Dashboard({ candidates: allCandidates }: DashboardProps)
   const [isMatching, setIsMatching] = useState(false);
   const [matchScores, setMatchScores] = useState<Record<number, number>>({});
   const [aiMatchedIds, setAiMatchedIds] = useState<number[]>([]);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !localStorage.getItem("rm_welcome_dismissed")) {
+      setShowWelcome(true);
+    }
+  }, []);
 
   // AI Matching Algorithm
   const calculateMatchScore = (
@@ -245,6 +255,25 @@ export default function Dashboard({ candidates: allCandidates }: DashboardProps)
 
         <main className="container mx-auto px-4 py-8 max-w-7xl">
           <StatsCards />
+
+          {showWelcome && company && (company.freeUnlocksUsed ?? 0) < 2 && company.credits > 0 && (
+            <div className="mt-6 bg-gradient-to-r from-accent/10 to-light rounded-xl border border-accent/30 p-6 relative">
+              <button
+                onClick={() => { setShowWelcome(false); localStorage.setItem("rm_welcome_dismissed", "1"); }}
+                className="absolute top-3 right-3 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="flex items-center gap-3 mb-2">
+                <Gift className="w-6 h-6 text-accent" />
+                <h3 className="text-lg font-semibold text-slate-900">Welcome to ResourceMatch!</h3>
+              </div>
+              <p className="text-slate-600">
+                You have <strong>{company.credits} free unlock{company.credits !== 1 ? "s" : ""}</strong> to get started.
+                Browse our AI-vetted talent below and unlock a profile to see full contact details — no credit card needed.
+              </p>
+            </div>
+          )}
 
           <div className="mt-8 space-y-6">
             <SearchFilters

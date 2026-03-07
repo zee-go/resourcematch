@@ -40,7 +40,7 @@ export function Hero() {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-slide-up-delay-3">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4 animate-slide-up-delay-3">
             <Link href="/dashboard">
               <Button
                 size="lg"
@@ -60,6 +60,10 @@ export function Hero() {
               </Button>
             </Link>
           </div>
+
+          <p className="text-sm text-muted-foreground text-center mb-16 animate-slide-up-delay-3">
+            Start with 2 free unlocks — no credit card required
+          </p>
 
           {/* Key Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-4xl mx-auto animate-scale-in">

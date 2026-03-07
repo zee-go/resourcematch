@@ -13,7 +13,7 @@ export function CTABanner() {
       </p>
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 bg-accent hover:bg-accent-dark text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+        className="inline-flex items-center gap-2 bg-accent hover:bg-accent-dark !text-white font-semibold px-6 py-3 rounded-lg transition-colors no-underline"
       >
         Browse Vetted Professionals
         <ArrowRight className="h-4 w-4" />

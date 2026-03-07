@@ -36,6 +36,8 @@ BRAND_VOICE = """RESOURCEMATCH BRAND VOICE & GUIDELINES:
   time zone strategies, compliance considerations.
 - DO NOT: Use "In today's digital landscape", "In the ever-changing world of", "Let's dive in",
   generic SEO filler, or language that diminishes Filipino professionals. No emoji in body text.
+- DO NOT use em dashes (—). Use commas, periods, colons, or parentheses instead. Em dashes are
+  a strong AI writing tell and make content look machine-generated.
 - CTAs should link to platform pages: /dashboard, /signup, /hire, /apply — never external URLs.
 - Internal linking: Reference other blog posts and platform pages (jobs, pricing) naturally."""
 
@@ -101,14 +103,14 @@ SEO WRITING RULES:
 2. H1: One H1 only (the title). Natural, not keyword-stuffed.
 3. STRUCTURE: Use H2 and H3 headings. Include primary keyword in first H2. Every H2 should be scannable and informative.
 4. INTRO (first 100 words): State the problem clearly. Include primary keyword in the first paragraph. Hook with a specific insight or data point — no generic openings.
-5. BODY (1500-2500 words): Genuinely useful, specific advice. Use examples from real outsourcing scenarios. Include data points, benchmarks, or specific numbers. Write for decision-makers, not beginners.
+5. BODY (800-1200 words): Keep it concise and scannable. Genuinely useful, specific advice. Use examples from real outsourcing scenarios. Include data points, benchmarks, or specific numbers. Write for decision-makers, not beginners. Short paragraphs (2-3 sentences). Cut filler ruthlessly.
 6. E-E-A-T SIGNALS: Write from the perspective of experienced outsourcing practitioners. Reference specific hiring scenarios, salary benchmarks, and real challenges.
 7. KEYWORD USAGE: Primary keyword in title, first paragraph, one H2, meta description, and naturally 3-5 more times. Secondary keywords scattered naturally. Never force a keyword.
 8. INTERNAL LINKS: Link to 2-3 existing blog posts using descriptive anchor text. Always link to at least one platform page (/dashboard or /hire).
 9. CTAs: Mid-article CTA (subtle, contextual) and end-of-article CTA (direct). Both point to browsing professionals or signing up.
 10. FORMATTING: Bullet points for lists, bold for key terms, short paragraphs (3-4 sentences max). Include a key takeaway section.
 11. TONE: Professional but not corporate. Direct, knowledgeable, slightly opinionated. Like a senior outsourcing consultant explaining to a smart operations leader. No fluff.
-12. DO NOT: Use "In today's digital landscape", "In the ever-changing world of", "Let's dive in", or generic SEO filler. No emoji in the body.
+12. DO NOT: Use "In today's digital landscape", "In the ever-changing world of", "Let's dive in", or generic SEO filler. No emoji in the body. NEVER use em dashes (—). Use commas, periods, colons, or parentheses instead.
 13. MID-ARTICLE CTA: Place exactly one <CTABanner /> on its own line between the 2nd and 3rd H2 section. Do not wrap it in markdown.
 
 Return JSON:
@@ -119,7 +121,7 @@ Return JSON:
   "category": "{topic_plan.get('pillar', 'outsourcing_strategy')}",
   "tags": ["3-5 relevant tags"],
   "keywords": ["{topic_plan['primary_keyword']}", "...secondary keywords"],
-  "reading_time": 8,
+  "reading_time": 5,
   "content": "the full article in Markdown (H2s, H3s, bold, links, bullet points)",
   "internal_links": [
     {{"anchor": "anchor text used", "href": "/blog/slug-or-path"}}

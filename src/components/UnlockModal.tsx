@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthProvider";
+import {
+  trackUnlockModalOpen,
+  trackUnlockAttempt,
+  trackUnlockSuccess,
+  trackUnlockFail,
+  trackCheckoutInitiate,
+} from "@/lib/analytics";
 import {
   Unlock,
   CheckCircle2,
@@ -22,6 +29,7 @@ import {
   Loader2,
   ArrowLeft,
   ArrowRight,
+  Gift,
 } from "lucide-react";
 
 interface UnlockModalProps {
@@ -57,6 +65,10 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
   const [errorMessage, setErrorMessage] = useState("");
   const [errorAction, setErrorAction] = useState("");
 
+  useEffect(() => {
+    if (isOpen) trackUnlockModalOpen(candidate.id);
+  }, [isOpen, candidate.id]);
+
   const credits = company?.credits ?? 0;
   const hasSubscription = company?.subscriptionTier && company?.subscriptionStatus === "ACTIVE";
   const subscriptionUnlocksLeft = hasSubscription && company?.monthlyUnlocksLimit
@@ -65,6 +77,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
       ? Infinity
       : 0;
   const canUnlock = credits > 0 || (subscriptionUnlocksLeft ?? 0) > 0;
+  const isFreeTrial = (company?.freeUnlocksUsed ?? 0) < 2 && credits > 0 && !hasSubscription;
 
   const handleUnlock = async () => {
     if (!user) {
@@ -74,6 +87,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
 
     setIsProcessing(true);
     setErrorMessage("");
+    trackUnlockAttempt(candidate.id);
 
     try {
       const res = await fetch("/api/unlocks", {
@@ -86,10 +100,12 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
 
       if (!res.ok) {
         if (res.status === 402) {
+          trackUnlockFail(candidate.id, "no_credits");
           setErrorMessage(data.message || "You need credits to unlock profiles.");
           setErrorAction("buy_credits");
           setStep("error");
         } else if (res.status === 403) {
+          trackUnlockFail(candidate.id, data.action || "forbidden");
           setErrorMessage(data.message || "Unable to unlock this profile.");
           setErrorAction(data.action || "");
           setStep("error");
@@ -105,6 +121,7 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
       }
 
       // Success
+      trackUnlockSuccess(candidate.id, data.deductedFrom || "credits");
       const { unlock } = data;
       const info = {
         email: unlock.candidate.email || "",
@@ -145,6 +162,9 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
       router.push(`/login?redirect=/profile/${candidate.id}`);
       return;
     }
+
+    const pack = creditPacks.find((p) => p.id === packId);
+    if (pack) trackCheckoutInitiate(packId, pack.price);
 
     setLoadingPack(packId);
     try {
@@ -216,29 +236,46 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
 
             {/* Credit Balance */}
             {user ? (
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Coins className="w-5 h-5 text-primary" />
-                    <span className="text-slate-700 font-medium">Your Balance</span>
+              isFreeTrial ? (
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Gift className="w-5 h-5 text-accent" />
+                      <span className="text-slate-700 font-medium">Free Trial</span>
+                    </div>
+                    <span className="text-lg font-bold text-accent">
+                      {credits} free unlock{credits !== 1 ? "s" : ""}
+                    </span>
                   </div>
-                  <span className="text-lg font-bold text-primary">
-                    {credits} credit{credits !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                {hasSubscription && (
                   <p className="text-xs text-slate-600">
-                    {company?.subscriptionTier === "ENTERPRISE"
-                      ? "Unlimited unlocks (Enterprise plan)"
-                      : `${subscriptionUnlocksLeft} subscription unlocks remaining this month`}
+                    Try ResourceMatch risk-free. No credit card required.
                   </p>
-                )}
-                {!canUnlock && (
-                  <p className="text-xs text-red-600 mt-1">
-                    Not enough credits. Purchase a credit pack to continue.
-                  </p>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Coins className="w-5 h-5 text-primary" />
+                      <span className="text-slate-700 font-medium">Your Balance</span>
+                    </div>
+                    <span className="text-lg font-bold text-primary">
+                      {credits} credit{credits !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  {hasSubscription && (
+                    <p className="text-xs text-slate-600">
+                      {company?.subscriptionTier === "ENTERPRISE"
+                        ? "Unlimited unlocks (Enterprise plan)"
+                        : `${subscriptionUnlocksLeft} subscription unlocks remaining this month`}
+                    </p>
+                  )}
+                  {!canUnlock && (
+                    <p className="text-xs text-red-600 mt-1">
+                      Not enough credits. Purchase a credit pack to continue.
+                    </p>
+                  )}
+                </div>
+              )
             ) : (
               <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                 <p className="text-sm text-slate-600 text-center">
@@ -277,8 +314,8 @@ export function UnlockModal({ isOpen, onClose, candidate, onUnlockSuccess }: Unl
                       </>
                     ) : (
                       <>
-                        <Unlock className="w-4 h-4 mr-2" />
-                        Unlock Profile (1 Credit)
+                        {isFreeTrial ? <Gift className="w-4 h-4 mr-2" /> : <Unlock className="w-4 h-4 mr-2" />}
+                        {isFreeTrial ? "Unlock Profile (Free)" : "Unlock Profile (1 Credit)"}
                       </>
                     )}
                   </Button>

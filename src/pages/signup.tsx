@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { LogoIcon } from "@/components/LogoIcon";
+import { trackSignupStep, trackSignupComplete } from "@/lib/analytics";
 
 type Role = "company" | "candidate";
 type Step = "role" | "credentials" | "details";
@@ -73,6 +74,7 @@ export default function SignupPage() {
     setRole(selectedRole);
     setError("");
     setStep("credentials");
+    trackSignupStep("role", selectedRole);
   };
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
@@ -90,6 +92,7 @@ export default function SignupPage() {
     }
 
     setStep("details");
+    trackSignupStep("credentials", role || "");
   };
 
   const addSkill = () => {
@@ -160,7 +163,9 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/dashboard");
+    trackSignupStep("complete", "company");
+    trackSignupComplete("company");
+    router.push("/dashboard?welcome=1");
   };
 
   const handleCandidateSignup = async (e: React.FormEvent) => {
@@ -213,6 +218,8 @@ export default function SignupPage() {
       return;
     }
 
+    trackSignupStep("complete", "candidate");
+    trackSignupComplete("candidate");
     router.push("/jobs");
   };
 

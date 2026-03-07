@@ -136,9 +136,19 @@ export default async function handler(
       // Execute unlock in a transaction
       const result = await prisma.$transaction(async (tx) => {
         if (deductedFrom === "credits") {
+          // Track free unlock usage (before any purchases)
+          const hasPurchases = await tx.creditPurchase.count({
+            where: { companyId: company.id },
+          });
+
           await tx.company.update({
             where: { id: company.id },
-            data: { credits: { decrement: 1 } },
+            data: {
+              credits: { decrement: 1 },
+              ...(hasPurchases === 0 && company.freeUnlocksUsed < 2
+                ? { freeUnlocksUsed: { increment: 1 } }
+                : {}),
+            },
           });
         } else if (deductedFrom === "subscription") {
           await tx.company.update({

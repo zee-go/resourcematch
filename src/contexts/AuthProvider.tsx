@@ -12,6 +12,7 @@ interface CompanyProfile {
   verified: boolean;
   verificationStatus: string;
   credits: number;
+  freeUnlocksUsed: number;
   subscriptionTier: string | null;
   subscriptionStatus: string | null;
   monthlyUnlocksUsed: number;
