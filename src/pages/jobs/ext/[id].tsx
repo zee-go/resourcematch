@@ -129,6 +129,7 @@ export default function ExternalJobDetail({ job }: ExternalJobDetailProps) {
       <SEO
         title={`${job.title} at ${job.companyName} — ResourceMatch`}
         description={`${job.title} at ${job.companyName}. Remote opportunity sourced via ${sourceName}. Browse more jobs on ResourceMatch.`}
+        url={`https://resourcematch.ph/jobs/ext/${job.id}`}
       />
 
       <div className="min-h-screen bg-slate-50">

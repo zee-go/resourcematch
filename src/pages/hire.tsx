@@ -253,6 +253,7 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
       <SEO
         title="Hire AI-Vetted Senior Filipino Talent - ResourceMatch"
         description="Pre-vetted senior Filipino talent with 5-10+ years experience. 4-layer AI vetting pipeline. From $25/unlock."
+        url="https://resourcematch.ph/hire"
       />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-light/30">

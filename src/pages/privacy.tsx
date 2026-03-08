@@ -9,6 +9,7 @@ export default function PrivacyPolicy() {
       <SEO
         title="Privacy Policy - ResourceMatch"
         description="ResourceMatch privacy policy. Learn how we collect, use, and protect your personal information."
+        url="https://resourcematch.ph/privacy"
       />
       <LandingHeader />
 

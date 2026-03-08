@@ -42,7 +42,7 @@ Key differentiators:
 
 ```
 prisma/
-  schema.prisma              # Database schema (18 models — see below)
+  schema.prisma              # Database schema (19 models — see below)
   seed.ts                    # Seed 10 mock candidates (demo data cleared in prod)
 
 src/
@@ -83,6 +83,7 @@ src/
       candidate/
         me.ts                # Candidate profile CRUD
         avatar.ts            # Profile picture upload (multipart → GCS)
+        certifications.ts    # Certification CRUD (max 10)
         applications.ts      # Candidate's applications list
       candidates/
         index.ts             # Search/filter candidates (public)
@@ -176,7 +177,7 @@ src/
     analytics.ts             # GA4 event tracking helpers (wraps gtag, SSR-safe)
     job-fetchers.ts          # External job API fetchers (Remotive + RemoteOK)
     job-types.ts             # Job type definitions (JobSummary, ExternalJobSummary, UnifiedJobSummary)
-    candidates.ts            # Candidate type definitions + verticalLabels map
+    candidates.ts            # Candidate/Certification type definitions + verticalLabels map
     vetting-types.ts         # TypeScript interfaces for AI vetting pipeline
     utils.ts                 # cn() classname merger
 
@@ -219,7 +220,7 @@ scripts/
 
 ### Prisma Models
 
-User, Account, Session, VerificationToken, Company, Candidate, CaseStudy, Reference, VettingProfile, VettingLayerResult, Unlock, CreditPurchase, SavedCandidate, CompanyRating, Application, Job, JobApplication, ExternalJob
+User, Account, Session, VerificationToken, Company, Candidate, CaseStudy, Reference, Certification, VettingProfile, VettingLayerResult, Unlock, CreditPurchase, SavedCandidate, CompanyRating, Application, Job, JobApplication, ExternalJob
 
 ## Pricing Model
 
@@ -253,14 +254,14 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 
 ## Current State
 
-- Full backend: 35 API routes, 18 Prisma models, NextAuth.js, Stripe payments
+- Full backend: 36 API routes, 19 Prisma models, NextAuth.js, Stripe payments
 - Frontend: 27 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD + external detail), candidate portal, apply intake, blog (listing + article), privacy, terms
 - Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL (demo jobs cleared)
 - Free job posting: companies post jobs, candidates apply, application management pipeline
 - External job aggregation: Remotive + RemoteOK APIs synced daily at 6 AM Manila (Cloud Scheduler), filtered to accounting/finance + operations management only, keyword-based vertical classifier, `ExternalJob` model separate from native `Job`, unified listing on `/jobs`, external detail page at `/jobs/ext/[id]` with "Apply on Source" + ResourceMatch signup CTA
 - Candidate accounts: separate registration, profile management (with profile health indicator), application tracking
-- Candidate profile: 8-section completeness tracker (Personal Info, Contact Details, Professional Details, Skills & Tools, Video Intro, Resume, Case Studies, References), inline CRUD for case studies (max 5) and references (max 5), contact fields (phone, LinkedIn, video URL, resume URL), AI Vetting Status section showing composite score + 4-layer results, profile picture upload via GCS (camera overlay UI, 5MB max, JPEG/PNG/WebP), read-only email display
-- Browse cards: summary snippet, reference count badge, case study count, vetting score — no star rating (removed, was always 0)
+- Candidate profile: 9-section completeness tracker (Personal Info, Contact Details, Professional Details, Skills & Tools, Video Intro, Resume, Case Studies, Certifications, References), inline CRUD for case studies (max 5), certifications (max 10), and references (max 5), contact fields (phone, LinkedIn, video URL, resume URL), AI Vetting Status section showing composite score + 4-layer results, profile picture upload via GCS (camera overlay UI, 5MB max, JPEG/PNG/WebP), read-only email display
+- Browse cards: summary snippet, reference count badge, certification count badge, case study count, vetting score — no star rating (removed, was always 0)
 - AI company verification: automated legitimacy checks via Claude API
 - UnlockModal with inline credit plan selection + post-purchase redirect back to profile, functional resume download button (or "Not Available" when no URL)
 - Unlocked profile view: salary expectations display, English proficiency score with level label, LinkedIn link, resume download
@@ -280,7 +281,7 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Blog section: `/blog` listing with category filters, `/blog/[slug]` article pages with MDX rendering
 - Blog content pillars: Outsourcing Strategy, Finance & Accounting, Operations Management, Hiring Best Practices, Industry Insights
 - Blog prose styles (`.prose-blog`) use brand design tokens — no hardcoded colors
-- Blog SEO: Article JSON-LD, Breadcrumb JSON-LD, OG article type, published/modified time meta
+- Blog SEO: Article JSON-LD, Breadcrumb JSON-LD, OG article type, published/modified time meta, canonical links + og:url on all public pages
 - Kelly SEO agent: Python in `scripts/seo/`, runs Monday 11AM via launchd, generates 2 blog posts/week
 - Kelly workflow: traffic report (GSC) → topic research (Claude) → content plan → Telegram approval → generate post (Claude) → source images (Unsplash) → preview → approve → git push → Cloud Build deploy
 - Kelly reuses existing SEO Telegram bot for approval workflow

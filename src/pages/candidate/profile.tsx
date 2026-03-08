@@ -30,6 +30,8 @@ import {
   Video,
   FileText,
   Camera,
+  Award,
+  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 
@@ -38,6 +40,15 @@ interface CaseStudyItem {
   title: string;
   outcome: string;
   metrics: string;
+}
+
+interface CertificationItem {
+  id?: number;
+  title: string;
+  issuingBody: string;
+  issuedDate: string;
+  expiryDate: string;
+  credentialUrl: string;
 }
 
 interface ReferenceItem {
@@ -64,6 +75,7 @@ function calculateProfileHealth(data: {
   videoUrl: string;
   resumeUrl: string;
   caseStudies: CaseStudyItem[];
+  certifications: CertificationItem[];
   references: ReferenceItem[];
 }) {
   const sections = [
@@ -74,6 +86,7 @@ function calculateProfileHealth(data: {
     { name: "Video Intro", complete: !!data.videoUrl },
     { name: "Resume", complete: !!data.resumeUrl },
     { name: "Case Studies", complete: data.caseStudies.filter(cs => cs.id).length > 0 },
+    { name: "Certifications", complete: data.certifications.filter(c => c.id).length > 0 },
     { name: "References", complete: data.references.filter(r => r.id).length > 0 },
   ];
 
@@ -113,6 +126,11 @@ export default function CandidateProfilePage() {
   const [editingCaseStudy, setEditingCaseStudy] = useState<number | null>(null);
   const [csLoading, setCsLoading] = useState(false);
 
+  // Certifications
+  const [certifications, setCertifications] = useState<CertificationItem[]>([]);
+  const [editingCertification, setEditingCertification] = useState<number | null>(null);
+  const [certLoading, setCertLoading] = useState(false);
+
   // References
   const [references, setReferences] = useState<ReferenceItem[]>([]);
   const [editingReference, setEditingReference] = useState<number | null>(null);
@@ -129,9 +147,9 @@ export default function CandidateProfilePage() {
       calculateProfileHealth({
         fullName, location, title, vertical, experience, availability,
         summary, skills, tools, phone, linkedIn, videoUrl, resumeUrl,
-        caseStudies, references,
+        caseStudies, certifications, references,
       }),
-    [fullName, location, title, vertical, experience, availability, summary, skills, tools, phone, linkedIn, videoUrl, resumeUrl, caseStudies, references]
+    [fullName, location, title, vertical, experience, availability, summary, skills, tools, phone, linkedIn, videoUrl, resumeUrl, caseStudies, certifications, references]
   );
 
   useEffect(() => {
@@ -175,6 +193,17 @@ export default function CandidateProfilePage() {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data) setReferences(data.references);
+      });
+
+    fetch("/api/candidate/certifications")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setCertifications(data.certifications.map((c: CertificationItem) => ({
+          ...c,
+          issuedDate: c.issuedDate ? c.issuedDate.split("T")[0] : "",
+          expiryDate: c.expiryDate ? c.expiryDate.split("T")[0] : "",
+          credentialUrl: c.credentialUrl || "",
+        })));
       });
   }, [candidate]);
 
@@ -405,6 +434,85 @@ export default function CandidateProfilePage() {
     }
     setReferences(references.filter((_, i) => i !== idx));
     if (editingReference === idx) setEditingReference(null);
+  };
+
+  // Certification CRUD
+  const addEmptyCertification = () => {
+    setCertifications([...certifications, { title: "", issuingBody: "", issuedDate: "", expiryDate: "", credentialUrl: "" }]);
+    setEditingCertification(certifications.length);
+  };
+
+  const updateCertification = (idx: number, field: keyof CertificationItem, value: string) => {
+    const updated = [...certifications];
+    updated[idx] = { ...updated[idx], [field]: value };
+    setCertifications(updated);
+  };
+
+  const saveCertification = async (idx: number) => {
+    const cert = certifications[idx];
+    if (!cert.title.trim() || !cert.issuingBody.trim()) {
+      setError("Title and issuing body are required for certifications");
+      return;
+    }
+    setCertLoading(true);
+    setError("");
+    try {
+      const method = cert.id ? "PUT" : "POST";
+      const res = await fetch("/api/candidate/certifications", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...cert,
+          issuedDate: cert.issuedDate || null,
+          expiryDate: cert.expiryDate || null,
+          credentialUrl: cert.credentialUrl || null,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Failed to save certification");
+        return;
+      }
+      const data = await res.json();
+      const updated = [...certifications];
+      updated[idx] = {
+        ...data.certification,
+        issuedDate: data.certification.issuedDate ? data.certification.issuedDate.split("T")[0] : "",
+        expiryDate: data.certification.expiryDate ? data.certification.expiryDate.split("T")[0] : "",
+        credentialUrl: data.certification.credentialUrl || "",
+      };
+      setCertifications(updated);
+      setEditingCertification(null);
+    } catch {
+      setError("Failed to save certification");
+    } finally {
+      setCertLoading(false);
+    }
+  };
+
+  const deleteCertification = async (idx: number) => {
+    const cert = certifications[idx];
+    if (cert.id) {
+      setCertLoading(true);
+      try {
+        const res = await fetch("/api/candidate/certifications", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: cert.id }),
+        });
+        if (!res.ok) {
+          setError("Failed to delete certification");
+          return;
+        }
+      } catch {
+        setError("Failed to delete certification");
+        return;
+      } finally {
+        setCertLoading(false);
+      }
+    }
+    setCertifications(certifications.filter((_, i) => i !== idx));
+    if (editingCertification === idx) setEditingCertification(null);
   };
 
   if (authLoading || !user) {
@@ -1020,6 +1128,161 @@ export default function CandidateProfilePage() {
                 className="w-full"
               >
                 <Plus className="w-4 h-4 mr-2" /> Add Case Study
+              </Button>
+            )}
+          </div>
+
+          {/* Certifications (separate from main form) */}
+          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4 mt-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Award className="w-5 h-5 text-slate-400" />
+                Certifications
+              </h2>
+              <span className="text-xs text-slate-400">{certifications.filter(c => c.id).length}/10</span>
+            </div>
+            <p className="text-sm text-slate-500">
+              Add up to 10 professional certifications to strengthen your profile.
+            </p>
+
+            {certifications.map((cert, idx) => (
+              <div
+                key={cert.id || `new-${idx}`}
+                className="bg-slate-50 rounded-lg border border-slate-200 p-4"
+              >
+                {editingCertification === idx ? (
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label>Certification Title</Label>
+                      <Input
+                        value={cert.title}
+                        onChange={(e) => updateCertification(idx, "title", e.target.value)}
+                        placeholder="e.g., AWS Solutions Architect"
+                        disabled={certLoading}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Issuing Body</Label>
+                      <Input
+                        value={cert.issuingBody}
+                        onChange={(e) => updateCertification(idx, "issuingBody", e.target.value)}
+                        placeholder="e.g., Amazon Web Services"
+                        disabled={certLoading}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label>Issued Date</Label>
+                        <Input
+                          type="date"
+                          value={cert.issuedDate}
+                          onChange={(e) => updateCertification(idx, "issuedDate", e.target.value)}
+                          disabled={certLoading}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Expiry Date (optional)</Label>
+                        <Input
+                          type="date"
+                          value={cert.expiryDate}
+                          onChange={(e) => updateCertification(idx, "expiryDate", e.target.value)}
+                          disabled={certLoading}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Credential URL (optional)</Label>
+                      <Input
+                        value={cert.credentialUrl}
+                        onChange={(e) => updateCertification(idx, "credentialUrl", e.target.value)}
+                        placeholder="https://..."
+                        disabled={certLoading}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => saveCertification(idx)}
+                        disabled={certLoading}
+                        className="bg-primary hover:bg-primary-dark text-white"
+                      >
+                        {certLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                        Save
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          if (!cert.id) {
+                            setCertifications(certifications.filter((_, i) => i !== idx));
+                          }
+                          setEditingCertification(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-medium text-slate-900">{cert.title}</h3>
+                      <p className="text-sm text-slate-500">{cert.issuingBody}</p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                        {cert.issuedDate && (
+                          <span>Issued {new Date(cert.issuedDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
+                        )}
+                        {cert.expiryDate && (
+                          <span>Expires {new Date(cert.expiryDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
+                        )}
+                      </div>
+                      {cert.credentialUrl && (
+                        <a
+                          href={cert.credentialUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1"
+                        >
+                          View Credential <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setEditingCertification(idx)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => deleteCertification(idx)}
+                        disabled={certLoading}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {certifications.length < 10 && editingCertification === null && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addEmptyCertification}
+                className="w-full"
+              >
+                <Plus className="w-4 h-4 mr-2" /> Add Certification
               </Button>
             )}
           </div>

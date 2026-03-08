@@ -44,6 +44,7 @@ export default async function handler(
       where: { id: candidateId },
       include: {
         caseStudies: true,
+        certifications: true,
         references: hasUnlocked,
         vettingLayers: {
           select: { layer: true, score: true, passed: true, summary: true },

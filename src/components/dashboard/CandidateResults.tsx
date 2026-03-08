@@ -10,6 +10,7 @@ import {
   Eye,
   Sparkles,
   Users,
+  Award,
 } from "lucide-react";
 import Link from "next/link";
 import type { Candidate } from "@/lib/candidates";
@@ -160,6 +161,12 @@ export function CandidateResults({
                   <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs">
                     {verticalLabels[candidate.vertical]}
                   </Badge>
+                  {(candidate.certificationCount ?? 0) > 0 && (
+                    <Badge variant="outline" className="text-slate-500 text-xs">
+                      <Award className="w-3 h-3 mr-1" />
+                      {candidate.certificationCount} cert{candidate.certificationCount !== 1 ? "s" : ""}
+                    </Badge>
+                  )}
                   {(candidate.referenceCount ?? 0) > 0 && (
                     <Badge variant="outline" className="text-slate-500 text-xs">
                       <Users className="w-3 h-3 mr-1" />
@@ -218,19 +225,16 @@ export function CandidateResults({
                 <div className="flex gap-3">
                   {unlocked ? (
                     <>
-                      <Link href={`/profile/${candidate.id}`} className="flex-1">
-                        <Button className="w-full bg-primary hover:bg-primary-dark text-white">
+                      <Button asChild className="flex-1 bg-primary hover:bg-primary-dark text-white">
+                        <Link href={`/profile/${candidate.id}`}>
                           View Full Profile
-                        </Button>
-                      </Link>
-                      <Link href={`/profile/${candidate.id}`}>
-                        <Button
-                          variant="outline"
-                          className="border-primary text-primary hover:bg-light"
-                        >
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" className="border-primary text-primary hover:bg-light">
+                        <Link href={`/profile/${candidate.id}`}>
                           <Eye className="w-4 h-4" />
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     </>
                   ) : (
                     <>
@@ -241,14 +245,11 @@ export function CandidateResults({
                         <Lock className="w-4 h-4 mr-2" />
                         Unlock (1 Credit)
                       </Button>
-                      <Link href={`/profile/${candidate.id}`}>
-                        <Button
-                          variant="outline"
-                          className="border-slate-300 text-slate-600 hover:bg-slate-50"
-                        >
+                      <Button asChild variant="outline" className="border-slate-300 text-slate-600 hover:bg-slate-50">
+                        <Link href={`/profile/${candidate.id}`}>
                           Preview
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     </>
                   )}
                 </div>

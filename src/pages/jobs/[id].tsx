@@ -224,6 +224,7 @@ export default function JobDetail({ job }: JobDetailProps) {
       <SEO
         title={`${job.title} at ${companyName} — ResourceMatch`}
         description={`${job.title} position at ${companyName}. ${verticalLabels[job.vertical] || job.vertical} role requiring ${job.experienceMin}+ years experience. Apply now on ResourceMatch.`}
+        url={`https://resourcematch.ph/jobs/${job.id}`}
       />
 
       <Head>

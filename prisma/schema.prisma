@@ -187,6 +187,7 @@ model Candidate {
   user            User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
   caseStudies     CaseStudy[]
   references      Reference[]
+  certifications  Certification[]
   vettingLayers   VettingLayerResult[]
   vettingProfile  VettingProfile?
   unlocks         Unlock[]
@@ -232,6 +233,20 @@ model Reference {
   candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
   @@map("references")
+}
+
+model Certification {
+  id            Int       @id @default(autoincrement())
+  candidateId   Int       @map("candidate_id")
+  title         String
+  issuingBody   String    @map("issuing_body")
+  issuedDate    DateTime? @map("issued_date")
+  expiryDate    DateTime? @map("expiry_date")
+  credentialUrl String?   @map("credential_url")
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("certifications")
 }
 
 // ─── Vetting Pipeline ──────────────────────────────────────

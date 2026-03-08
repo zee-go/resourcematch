@@ -9,6 +9,7 @@ export default function TermsOfService() {
       <SEO
         title="Terms of Service - ResourceMatch"
         description="ResourceMatch terms of service. Read the terms governing use of our platform."
+        url="https://resourcematch.ph/terms"
       />
       <LandingHeader />
 

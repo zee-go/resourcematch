@@ -19,6 +19,15 @@ export interface Reference {
   verified?: boolean;
 }
 
+export interface Certification {
+  id?: number;
+  title: string;
+  issuingBody: string;
+  issuedDate?: string;
+  expiryDate?: string;
+  credentialUrl?: string;
+}
+
 export interface Candidate {
   id: number;
   name: string;
@@ -33,6 +42,7 @@ export interface Candidate {
   location: string;
   summary: string;
   caseStudies: CaseStudy[];
+  certifications: Certification[];
   vettingScore: number;
   vettingLayers: {
     resumeAnalysis: VettingLayer;
@@ -41,6 +51,7 @@ export interface Candidate {
     referenceCheck: VettingLayer;
   };
   referenceCount?: number;
+  certificationCount?: number;
   verified: boolean;
   verifiedDate?: string;
   // Locked fields (revealed on unlock)

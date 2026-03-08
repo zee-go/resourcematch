@@ -72,6 +72,7 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
       where: { id: candidateId },
       include: {
         caseStudies: true,
+        certifications: true,
         references: hasUnlocked,
         vettingLayers: {
           select: { layer: true, score: true, passed: true },
@@ -115,6 +116,14 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
         title: cs.title,
         outcome: cs.outcome,
         metrics: cs.metrics ?? undefined,
+      })),
+      certifications: (dbCandidate.certifications || []).map((c) => ({
+        id: c.id,
+        title: c.title,
+        issuingBody: c.issuingBody,
+        issuedDate: c.issuedDate ? c.issuedDate.toISOString() : undefined,
+        expiryDate: c.expiryDate ? c.expiryDate.toISOString() : undefined,
+        credentialUrl: c.credentialUrl ?? undefined,
       })),
       ...(hasUnlocked
         ? {
@@ -174,6 +183,7 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
       <SEO
         title={`${candidate.name} - ${candidate.title} | ResourceMatch`}
         description={`View ${candidate.name}'s profile. AI-vetted ${candidate.title} with ${candidate.experience}+ years experience. Vetting score: ${candidate.vettingScore}/100.`}
+        url={`https://resourcematch.ph/profile/${candidate.id}`}
       />
 
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -379,6 +389,44 @@ export default function CandidateProfile({ candidate, unlocked }: ProfileProps) 
               ))}
             </div>
           </div>
+
+          {/* Certifications */}
+          {candidate.certifications.length > 0 && (
+            <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 mb-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5 text-slate-600" />
+                Certifications
+              </h2>
+              <div className="space-y-3">
+                {candidate.certifications.map((cert, idx) => (
+                  <div key={idx} className="bg-slate-50 rounded-xl p-4 border border-slate-200 flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-slate-900">{cert.title}</h3>
+                      <p className="text-sm text-slate-500">{cert.issuingBody}</p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                        {cert.issuedDate && (
+                          <span>Issued {new Date(cert.issuedDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
+                        )}
+                        {cert.expiryDate && (
+                          <span>Expires {new Date(cert.expiryDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
+                        )}
+                      </div>
+                    </div>
+                    {cert.credentialUrl && (
+                      <a
+                        href={cert.credentialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline flex items-center gap-1 flex-shrink-0"
+                      >
+                        Verify
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Video Introduction - Locked */}
           {!isUnlocked && (

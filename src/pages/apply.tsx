@@ -148,6 +148,7 @@ export default function ApplyPage() {
       <SEO
         title="Apply as an Expert - ResourceMatch"
         description="Join ResourceMatch as a senior Filipino expert in operations management or finance & accounting. 5+ years experience required."
+        url="https://resourcematch.ph/apply"
       />
       <LandingHeader />
 
