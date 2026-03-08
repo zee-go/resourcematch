@@ -25,6 +25,14 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   const pack = CREDIT_PACKS[packId as PackKey];
 
   try {
+    const baseUrl =
+      req.headers.origin ||
+      (req.headers.host ? `${req.headers["x-forwarded-proto"] || "http"}://${req.headers.host}` : process.env.NEXTAUTH_URL);
+
+    if (!baseUrl) {
+      return res.status(500).json({ error: "Could not determine site URL" });
+    }
+
     // Get or create Stripe customer
     let stripeCustomerId = req.company.stripeCustomerId;
 
@@ -68,8 +76,8 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         credits: pack.credits.toString(),
         type: "credit_pack",
       },
-      success_url: `${req.headers.origin}/payments/success?session_id={CHECKOUT_SESSION_ID}${safeReturnTo ? `&returnTo=${encodeURIComponent(safeReturnTo)}` : ""}`,
-      cancel_url: `${req.headers.origin}/payments/cancel`,
+      success_url: `${baseUrl}/payments/success?session_id={CHECKOUT_SESSION_ID}${safeReturnTo ? `&returnTo=${encodeURIComponent(safeReturnTo)}` : ""}`,
+      cancel_url: `${baseUrl}/payments/cancel`,
     });
 
     return res.status(200).json({ url: session.url });

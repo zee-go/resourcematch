@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { LogoIcon } from "@/components/LogoIcon";
 import { verticalLabels } from "@/lib/candidates";
+import { useToast } from "@/hooks/use-toast";
 
 interface PreviewCandidate {
   id: number;
@@ -92,6 +93,7 @@ export const getServerSideProps: GetServerSideProps<HirePageProps> = async () =>
 export default function HirePage({ previewCandidates }: HirePageProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
 
@@ -190,7 +192,11 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error("Checkout error:", data.error);
+        toast({
+          title: "Checkout failed",
+          description: data.error || "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -198,7 +204,11 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error("Checkout failed:", error);
+      toast({
+        title: "Checkout failed",
+        description: "Could not connect to payment server. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoadingPack(null);
     }
@@ -233,7 +243,11 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
             window.location.href = portalData.url;
           }
         } else {
-          console.error("Subscription error:", data.error);
+          toast({
+            title: "Subscription failed",
+            description: data.error || "Something went wrong. Please try again.",
+            variant: "destructive",
+          });
         }
         return;
       }
@@ -242,7 +256,11 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error("Subscription failed:", error);
+      toast({
+        title: "Subscription failed",
+        description: "Could not connect to payment server. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoadingTier(null);
     }
