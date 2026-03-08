@@ -14,9 +14,17 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   try {
+    const baseUrl =
+      req.headers.origin ||
+      (req.headers.host ? `${req.headers["x-forwarded-proto"] || "http"}://${req.headers.host}` : process.env.NEXTAUTH_URL);
+
+    if (!baseUrl) {
+      return res.status(500).json({ error: "Could not determine site URL" });
+    }
+
     const session = await stripe.billingPortal.sessions.create({
       customer: req.company.stripeCustomerId,
-      return_url: `${req.headers.origin}/billing`,
+      return_url: `${baseUrl}/billing`,
     });
 
     return res.status(200).json({ url: session.url });
