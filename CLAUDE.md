@@ -297,7 +297,7 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Apply page resume upload: PDF only (max 5MB, max 2 pages via pdf-lib), uploaded to GCS `resumes/` prefix via `/api/applications/upload-resume`, stored as `Application.resumeUrl`, carried to `Candidate.resumeUrl` on auto-conversion
 - Admin application management: Approve triggers auto-conversion with feedback UI (success/error messages in dialog), `src/components/admin/ApplicationsTab.tsx`
 - Avatar upload: `POST /api/candidate/avatar` (formidable multipart parsing → GCS `resourcematch-avatars` bucket), `src/server/utils/storage.ts` handles upload/delete, candidates see camera overlay on profile page
-- Last deployed: 2026-03-08 (commit 46a80df)
+- Last deployed: 2026-03-08 (commit 392f9f6)
 - Domain: `resourcematch.ph` — Cloudflare DNS (zone `f55cc59b877aee0c0f5e92c2bdccaa1a`) → GCP Cloud Run domain mapping
   - A records (x4) → `216.239.x.x` (Google domain mapping IPs, DNS-only)
   - `www` CNAME → `ghs.googlehosted.com` (DNS-only)
