@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogIn } from "lucide-react";
 import { LogoIcon } from "@/components/LogoIcon";
 
 export function LandingHeader() {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -19,13 +21,17 @@ export function LandingHeader() {
     { label: "Pricing", href: "/hire" },
     {
       label: "How It Works",
-      href: "#how-it-works",
+      href: "/#how-it-works",
       onClick: (e: React.MouseEvent) => {
         e.preventDefault();
-        document
-          .getElementById("how-it-works")
-          ?.scrollIntoView({ behavior: "smooth" });
         setMobileOpen(false);
+        if (router.pathname === "/") {
+          document
+            .getElementById("how-it-works")
+            ?.scrollIntoView({ behavior: "smooth" });
+        } else {
+          router.push("/#how-it-works");
+        }
       },
     },
     { label: "Apply", href: "/apply" },
