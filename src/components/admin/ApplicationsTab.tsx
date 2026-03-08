@@ -21,6 +21,7 @@ interface Application {
   vertical: string;
   experience: number;
   resumeText: string | null;
+  resumeUrl: string | null;
   skills: string[];
   bio: string | null;
   status: string;
@@ -224,9 +225,23 @@ export function ApplicationsTab() {
                 </div>
               )}
 
-              {selected.resumeText && (
+              {selected.resumeUrl && (
                 <div>
                   <span className="text-slate-500">Resume</span>
+                  <a
+                    href={selected.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 text-primary underline text-sm block"
+                  >
+                    View Resume (PDF)
+                  </a>
+                </div>
+              )}
+
+              {!selected.resumeUrl && selected.resumeText && (
+                <div>
+                  <span className="text-slate-500">Resume (Text)</span>
                   <p className="mt-1 text-slate-700 whitespace-pre-wrap max-h-40 overflow-y-auto text-xs bg-slate-50 p-2 rounded">
                     {selected.resumeText}
                   </p>

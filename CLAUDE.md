@@ -58,7 +58,7 @@ src/
     profile/[id].tsx         # Full candidate profile + vetting results
     login.tsx                # NextAuth email/password login
     signup.tsx               # 2-step signup (credentials → company details)
-    apply.tsx                # Candidate intake/application page
+    apply.tsx                # Candidate intake/application page (resume PDF upload)
     jobs/
       index.tsx              # Browse job listings — unified native + external (public)
       post.tsx               # Create a free job posting (company)
@@ -97,6 +97,7 @@ src/
         sync.ts              # Daily external job sync (Bearer token, Cloud Scheduler)
       applications/
         index.ts             # Create application + auto-convert qualified applicants
+        upload-resume.ts     # Public resume PDF upload (formidable → GCS, pdf-lib page validation)
       unlocks/
         index.ts             # List + create unlocks (atomic credit transactions)
         [id].ts              # Mark contacted
@@ -254,7 +255,7 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 
 ## Current State
 
-- Full backend: 36 API routes, 19 Prisma models, NextAuth.js, Stripe payments
+- Full backend: 37 API routes, 19 Prisma models, NextAuth.js, Stripe payments
 - Frontend: 27 pages — landing, dashboard, profile, unlocks, hire, billing, jobs (CRUD + external detail), candidate portal, apply intake, blog (listing + article), privacy, terms
 - Database: 10 seeded candidates with vetting profiles, Cloud SQL PostgreSQL (demo jobs cleared)
 - Free job posting: companies post jobs, candidates apply, application management pipeline
@@ -292,7 +293,8 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD (manual `gcloud builds submit` — no auto-trigger configured)
 - Cloud Scheduler jobs: `matching-digest` (Mon 10AM), `job-sync` (daily 6AM Manila)
 - Vetting score auto-recalculation: `src/server/utils/recalculate-vetting.ts` called by all 4 vetting endpoints after upsert, updates Candidate.vettingScore + VettingProfile + verified status + englishScore
-- Application → Candidate auto-conversion: `src/server/utils/convert-application.ts` pre-screens applications (experience ≥ 5, skills ≥ 2, bio ≥ 50 chars, vertical keyword match ≥ 2), auto-converts qualified applicants to User + Candidate in a transaction, unqualified stay PENDING for manual review
+- Application → Candidate auto-conversion: `src/server/utils/convert-application.ts` pre-screens applications (experience ≥ 5, skills ≥ 2, bio ≥ 50 chars, vertical keyword match ≥ 2), auto-converts qualified applicants to User + Candidate in a transaction (carries resumeUrl), unqualified stay PENDING for manual review
+- Apply page resume upload: PDF only (max 5MB, max 2 pages via pdf-lib), uploaded to GCS `resumes/` prefix via `/api/applications/upload-resume`, stored as `Application.resumeUrl`, carried to `Candidate.resumeUrl` on auto-conversion
 - Admin application management: Approve triggers auto-conversion with feedback UI (success/error messages in dialog), `src/components/admin/ApplicationsTab.tsx`
 - Avatar upload: `POST /api/candidate/avatar` (formidable multipart parsing → GCS `resourcematch-avatars` bucket), `src/server/utils/storage.ts` handles upload/delete, candidates see camera overlay on profile page
 - Last deployed: 2026-03-08 (commit 4605d6e)

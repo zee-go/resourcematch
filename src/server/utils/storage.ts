@@ -31,6 +31,26 @@ export async function uploadAvatar(
   return `https://storage.googleapis.com/${process.env.GCS_BUCKET_NAME}/${fileName}`;
 }
 
+export async function uploadResume(
+  identifier: string,
+  buffer: Buffer
+): Promise<string> {
+  const bucket = getBucket();
+  const fileName = `resumes/${identifier}-${Date.now()}.pdf`;
+  const file = bucket.file(fileName);
+
+  await file.save(buffer, {
+    metadata: {
+      contentType: "application/pdf",
+      cacheControl: "private, max-age=0",
+    },
+  });
+
+  await file.makePublic();
+
+  return `https://storage.googleapis.com/${process.env.GCS_BUCKET_NAME}/${fileName}`;
+}
+
 export async function deleteAvatar(url: string): Promise<void> {
   const bucketName = process.env.GCS_BUCKET_NAME;
   if (!bucketName || !url.includes(bucketName)) return;

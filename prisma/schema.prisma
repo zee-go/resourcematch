@@ -374,6 +374,7 @@ model Application {
   vertical    Vertical
   experience  Int
   resumeText  String?           @map("resume_text")
+  resumeUrl   String?           @map("resume_url")
   skills      String[]
   bio         String?
   status      ApplicationStatus @default(PENDING)

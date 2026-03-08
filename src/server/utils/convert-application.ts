@@ -72,6 +72,7 @@ export async function convertApplicationToCandidate(
         email: application.email,
         phone: application.phone,
         linkedIn: application.linkedInUrl,
+        resumeUrl: application.resumeUrl || null,
       },
     });
 

@@ -16,7 +16,7 @@ const applicationSchema = z.object({
   linkedInUrl: z.string().url().optional().or(z.literal("")),
   vertical: z.enum(["ecommerce", "accounting"]),
   experience: z.number().int().min(5).max(30),
-  resumeText: z.string().min(50).max(10000),
+  resumeUrl: z.string().url(),
   skills: z.array(z.string()).min(1),
   bio: z.string().min(20).max(1000),
 });
@@ -55,7 +55,7 @@ async function handler(
       linkedInUrl: data.linkedInUrl || null,
       vertical: data.vertical,
       experience: data.experience,
-      resumeText: data.resumeText,
+      resumeUrl: data.resumeUrl,
       skills: data.skills,
       bio: data.bio,
     },

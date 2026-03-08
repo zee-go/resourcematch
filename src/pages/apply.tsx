@@ -23,6 +23,8 @@ import {
   X,
   Briefcase,
   Star,
+  Upload,
+  FileText,
 } from "lucide-react";
 
 export default function ApplyPage() {
@@ -32,7 +34,10 @@ export default function ApplyPage() {
   const [linkedInUrl, setLinkedInUrl] = useState("");
   const [vertical, setVertical] = useState("");
   const [experience, setExperience] = useState("");
-  const [resumeText, setResumeText] = useState("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [uploadingResume, setUploadingResume] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
   const [bio, setBio] = useState("");
@@ -53,12 +58,46 @@ export default function ApplyPage() {
     setSkills(skills.filter((s) => s !== skill));
   };
 
+  const handleResumeUpload = async (file: File) => {
+    setResumeFile(file);
+    setUploadError("");
+    setUploadingResume(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+      formData.append("email", email);
+
+      const res = await fetch("/api/applications/upload-resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setUploadError(data.error || "Upload failed");
+        setResumeFile(null);
+        setResumeUrl("");
+        return;
+      }
+
+      setResumeUrl(data.resumeUrl);
+    } catch {
+      setUploadError("Network error during upload");
+      setResumeFile(null);
+      setResumeUrl("");
+    } finally {
+      setUploadingResume(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    if (!fullName.trim() || !email.trim() || !vertical || !experience || !resumeText.trim() || skills.length === 0 || !bio.trim()) {
+    if (!fullName.trim() || !email.trim() || !vertical || !experience || !resumeUrl || skills.length === 0 || !bio.trim()) {
       setError("Please fill in all required fields");
       setIsLoading(false);
       return;
@@ -82,7 +121,7 @@ export default function ApplyPage() {
           linkedInUrl: linkedInUrl.trim() || "",
           vertical,
           experience: expNum,
-          resumeText: resumeText.trim(),
+          resumeUrl,
           skills,
           bio: bio.trim(),
         }),
@@ -345,23 +384,59 @@ export default function ApplyPage() {
                 )}
               </div>
 
-              {/* Resume / Work History */}
+              {/* Resume Upload */}
               <div className="space-y-2">
-                <Label htmlFor="resumeText">
-                  Resume / Work History <span className="text-red-500">*</span>
+                <Label htmlFor="resume">
+                  Resume (PDF) <span className="text-red-500">*</span>
                 </Label>
-                <Textarea
-                  id="resumeText"
-                  placeholder="Describe your professional background, key roles, and achievements. Include company names, job titles, and responsibilities..."
-                  value={resumeText}
-                  onChange={(e) => setResumeText(e.target.value)}
-                  disabled={isLoading}
-                  rows={6}
-                  className="resize-y"
+                <input
+                  id="resume"
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  className="hidden"
+                  disabled={isLoading || uploadingResume}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleResumeUpload(f);
+                    e.target.value = "";
+                  }}
                 />
-                <p className="text-xs text-slate-500">
-                  Minimum 50 characters. Be as detailed as possible.
-                </p>
+                <label
+                  htmlFor="resume"
+                  className={`flex items-center justify-center gap-3 border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${
+                    resumeUrl
+                      ? "border-green-300 bg-green-50"
+                      : "border-slate-300 hover:border-primary/50 hover:bg-slate-50"
+                  } ${isLoading || uploadingResume ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  {uploadingResume ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                      <span className="text-sm text-slate-600">Uploading...</span>
+                    </>
+                  ) : resumeUrl ? (
+                    <>
+                      <FileText className="w-5 h-5 text-green-600" />
+                      <div className="text-sm">
+                        <span className="text-green-700 font-medium">{resumeFile?.name || "Resume uploaded"}</span>
+                        <span className="text-green-600 ml-2">— Click to replace</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 text-slate-400" />
+                      <span className="text-sm text-slate-600">Click to upload your resume (PDF, max 5MB)</span>
+                    </>
+                  )}
+                </label>
+                {uploadError && (
+                  <p className="text-xs text-red-600">{uploadError}</p>
+                )}
+                {!resumeUrl && !uploadError && (
+                  <p className="text-xs text-slate-500">
+                    PDF only, max 2 pages. We recommend keeping your resume to 1 page.
+                  </p>
+                )}
               </div>
 
               {/* Bio */}

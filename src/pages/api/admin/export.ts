@@ -80,10 +80,11 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
           orderBy: { createdAt: "desc" },
         });
         csv = toCsv(
-          ["Name", "Email", "Phone", "Vertical", "Experience", "Status", "Skills", "Bio", "LinkedIn", "Applied"],
+          ["Name", "Email", "Phone", "Vertical", "Experience", "Status", "Skills", "Bio", "LinkedIn", "Resume URL", "Applied"],
           applications.map((a) => [
             a.fullName, a.email, a.phone || "", a.vertical, String(a.experience),
             a.status, a.skills.join("; "), a.bio || "", a.linkedInUrl || "",
+            a.resumeUrl || "",
             new Date(a.createdAt).toISOString(),
           ]),
         );
