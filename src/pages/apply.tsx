@@ -2,6 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { SEO } from "@/components/SEO";
 import { LandingHeader } from "@/components/LandingHeader";
+import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -502,6 +503,8 @@ export default function ApplyPage() {
           </p>
         </div>
       </div>
+
+      <Footer />
     </>
   );
 }

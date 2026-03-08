@@ -24,7 +24,8 @@ import {
   Crown,
   Loader2,
 } from "lucide-react";
-import { LogoIcon } from "@/components/LogoIcon";
+import { LandingHeader } from "@/components/LandingHeader";
+import { Footer } from "@/components/Footer";
 import { verticalLabels } from "@/lib/candidates";
 import { useToast } from "@/hooks/use-toast";
 
@@ -274,27 +275,9 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
         url="https://resourcematch.ph/hire"
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-light/30">
-        {/* Header */}
-        <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <Link href="/" className="flex items-center gap-2">
-                <LogoIcon className="w-8 h-8" color="accent" />
-                <span className="text-2xl font-heading font-bold text-slate-900">ResourceMatch</span>
-              </Link>
-              <div className="flex items-center gap-4">
-                <Link href="/dashboard">
-                  <Button variant="outline" size="lg">
-                    <Users className="mr-2 h-4 w-4" />
-                    Browse Talent
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
+      <LandingHeader />
 
+      <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-light/30 pt-16">
         {/* Hero Section */}
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 -z-10">
@@ -351,139 +334,6 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
             </div>
           </div>
         </section>
-
-        {/* Candidate Preview Cards */}
-        {previewCandidates.length > 0 && (
-          <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-light/20">
-            <div className="container mx-auto px-4">
-              <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-16">
-                  <Badge className="mb-4 bg-light text-primary border-secondary/30 hover:bg-light">
-                    <ShieldCheck className="w-3 h-3 mr-1" />
-                    AI-Vetted Talent
-                  </Badge>
-                  <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-                    Meet Our Senior Talent
-                  </h2>
-                  <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                    Every expert has passed our 4-layer AI vetting pipeline and brings 5-10+
-                    years of domain expertise.
-                  </p>
-                </div>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                  {previewCandidates.map((candidate, index) => (
-                    <div
-                      key={candidate.id}
-                      className="group relative bg-white rounded-2xl border-2 border-slate-200 hover:border-secondary p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/10 to-transparent rounded-bl-full" />
-
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="relative">
-                          <img
-                            src={candidate.avatar}
-                            alt={candidate.name}
-                            className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200"
-                          />
-                          {candidate.verified && (
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
-                              <ShieldCheck className="w-3 h-3 text-white" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-full">
-                          <ShieldCheck className="w-4 h-4 text-green-600" />
-                          <span className="text-sm font-bold text-green-700">
-                            {candidate.vettingScore}/100
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mb-3">
-                        <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
-                          {candidate.name}
-                        </h3>
-                        <p className="text-sm text-slate-600 font-medium">{candidate.title}</p>
-                      </div>
-
-                      <div className="flex items-center gap-4 mb-3 text-sm text-slate-600">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4 text-slate-400" />
-                          <span>Philippines</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Briefcase className="w-4 h-4 text-slate-400" />
-                          <span>{candidate.experience} yrs</span>
-                        </div>
-                      </div>
-
-                      <div className="mb-3">
-                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs">
-                          {verticalLabels[candidate.vertical] || candidate.vertical}
-                        </Badge>
-                      </div>
-
-                      {candidate.caseStudyTitle && (
-                        <div className="mb-3 pb-3 border-b border-slate-100">
-                          <p className="text-sm text-slate-600 line-clamp-2">
-                            {candidate.caseStudyTitle}
-                          </p>
-                          {candidate.caseStudyMetrics && (
-                            <p className="text-xs text-primary font-medium mt-1">
-                              {candidate.caseStudyMetrics}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {candidate.skills.slice(0, 3).map((skill, i) => (
-                          <Badge
-                            key={i}
-                            variant="secondary"
-                            className="bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs"
-                          >
-                            {skill}
-                          </Badge>
-                        ))}
-                        {candidate.skills.length > 3 && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-slate-100 text-slate-600 text-xs"
-                          >
-                            +{candidate.skills.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-
-                      <Link href={`/profile/${candidate.id}`}>
-                        <Button className="w-full bg-secondary hover:bg-primary text-white group-hover:shadow-lg transition-all">
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Profile
-                        </Button>
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="text-center">
-                  <Link href="/dashboard">
-                    <Button
-                      size="lg"
-                      className="h-14 px-8 text-lg bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/30"
-                    >
-                      Browse All Vetted Talent
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <p className="mt-4 text-sm text-slate-500">Browse free, unlock from $25</p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* Credit Packs */}
         <section className="py-20 bg-white">
@@ -666,6 +516,139 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
           </div>
         </section>
 
+        {/* Candidate Preview Cards */}
+        {previewCandidates.length > 0 && (
+          <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-light/20">
+            <div className="container mx-auto px-4">
+              <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-16">
+                  <Badge className="mb-4 bg-light text-primary border-secondary/30 hover:bg-light">
+                    <ShieldCheck className="w-3 h-3 mr-1" />
+                    AI-Vetted Talent
+                  </Badge>
+                  <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+                    Meet Our Senior Talent
+                  </h2>
+                  <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                    Every expert has passed our 4-layer AI vetting pipeline and brings 5-10+
+                    years of domain expertise.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                  {previewCandidates.map((candidate, index) => (
+                    <div
+                      key={candidate.id}
+                      className="group relative bg-white rounded-2xl border-2 border-slate-200 hover:border-secondary p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/10 to-transparent rounded-bl-full" />
+
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="relative">
+                          <img
+                            src={candidate.avatar}
+                            alt={candidate.name}
+                            className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-200"
+                          />
+                          {candidate.verified && (
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
+                              <ShieldCheck className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-full">
+                          <ShieldCheck className="w-4 h-4 text-green-600" />
+                          <span className="text-sm font-bold text-green-700">
+                            {candidate.vettingScore}/100
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
+                          {candidate.name}
+                        </h3>
+                        <p className="text-sm text-slate-600 font-medium">{candidate.title}</p>
+                      </div>
+
+                      <div className="flex items-center gap-4 mb-3 text-sm text-slate-600">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4 text-slate-400" />
+                          <span>Philippines</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Briefcase className="w-4 h-4 text-slate-400" />
+                          <span>{candidate.experience} yrs</span>
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-xs">
+                          {verticalLabels[candidate.vertical] || candidate.vertical}
+                        </Badge>
+                      </div>
+
+                      {candidate.caseStudyTitle && (
+                        <div className="mb-3 pb-3 border-b border-slate-100">
+                          <p className="text-sm text-slate-600 line-clamp-2">
+                            {candidate.caseStudyTitle}
+                          </p>
+                          {candidate.caseStudyMetrics && (
+                            <p className="text-xs text-primary font-medium mt-1">
+                              {candidate.caseStudyMetrics}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {candidate.skills.slice(0, 3).map((skill, i) => (
+                          <Badge
+                            key={i}
+                            variant="secondary"
+                            className="bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                        {candidate.skills.length > 3 && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-slate-100 text-slate-600 text-xs"
+                          >
+                            +{candidate.skills.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+
+                      <Link href={`/profile/${candidate.id}`}>
+                        <Button className="w-full bg-secondary hover:bg-primary text-white group-hover:shadow-lg transition-all">
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Profile
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="text-center">
+                  <Link href="/dashboard">
+                    <Button
+                      size="lg"
+                      className="h-14 px-8 text-lg bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/30"
+                    >
+                      Browse All Vetted Talent
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <p className="mt-4 text-sm text-slate-500">Browse free, unlock from $25</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Trust Bar */}
         <section className="py-12 bg-white border-y border-slate-200">
           <div className="container mx-auto px-4">
@@ -750,7 +733,9 @@ export default function HirePage({ previewCandidates }: HirePageProps) {
             </div>
           </div>
         </section>
-      </div>
+      </main>
+
+      <Footer />
     </>
   );
 }

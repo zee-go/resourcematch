@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SEO } from "@/components/SEO";
 import { LandingHeader } from "@/components/LandingHeader";
+import { Footer } from "@/components/Footer";
 import { LogoIcon } from "@/components/LogoIcon";
 
 export default function PrivacyPolicy() {
@@ -172,6 +173,8 @@ export default function PrivacyPolicy() {
           </div>
         </div>
       </main>
+
+      <Footer />
     </>
   );
 }
