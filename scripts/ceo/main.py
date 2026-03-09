@@ -5,6 +5,7 @@ Usage:
     python -m scripts.ceo.main "your question"   # Single question mode
     python -m scripts.ceo.main --review          # Weekly review
     python -m scripts.ceo.main --deep "question" # Deep analysis mode
+    python -m scripts.ceo.main --outreach        # Maya outreach status
 """
 
 import sys
@@ -37,12 +38,25 @@ def ask(question, deep=False):
     return response.content[0].text
 
 
+def _show_outreach_status():
+    """Show Maya's outreach status and current directive."""
+    print()
+    print("--- Maya (Outreach Agent) Status ---")
+    try:
+        from scripts.ceo.system_prompt import load_outreach_status
+        status = load_outreach_status()
+        print(status)
+    except Exception as e:
+        print(f"Could not load outreach status: {e}")
+    print()
+
+
 def interactive():
     """Run the CEO bot in interactive mode."""
     print()
     print("=" * 60)
     print("  RESOURCEMATCH STRATEGIC DIRECTOR")
-    print("  Type your question. 'quit' to exit, 'deep' prefix for deep analysis.")
+    print("  Commands: 'quit', 'review', 'metrics', 'outreach', 'deep <question>'")
     print("=" * 60)
     print()
 
@@ -69,6 +83,9 @@ def interactive():
             print()
             print(format_variance_report())
             print()
+            continue
+        if question.lower() == "outreach":
+            _show_outreach_status()
             continue
 
         deep = question.lower().startswith("deep ")
@@ -97,6 +114,10 @@ def main():
     if args[0] == "--review":
         from scripts.ceo.weekly_review import print_weekly_review
         print_weekly_review()
+        return
+
+    if args[0] == "--outreach":
+        _show_outreach_status()
         return
 
     if args[0] == "--deep" and len(args) > 1:

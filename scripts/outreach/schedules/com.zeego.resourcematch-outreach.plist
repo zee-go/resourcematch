@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.zeego.resourcematch-outreach</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/zeego/Engineering/resourcematch/scripts/venv/bin/python</string>
+        <string>-m</string>
+        <string>scripts.outreach.main</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/zeego/Engineering/resourcematch</string>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/zeego/Engineering/resourcematch/scripts/logs/outreach_stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/zeego/Engineering/resourcematch/scripts/logs/outreach_stderr.log</string>
+</dict>
+</plist>

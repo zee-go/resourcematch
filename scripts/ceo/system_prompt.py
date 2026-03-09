@@ -21,6 +21,43 @@ def load_metrics():
     return "(No metrics data yet — baseline period)"
 
 
+def load_outreach_status():
+    """Load Maya's outreach status for CEO context."""
+    from pathlib import Path
+    outreach_state_file = Path(__file__).resolve().parent.parent / "data" / "outreach_state.json"
+    directives_file = Path(__file__).resolve().parent.parent / "data" / "outreach_directives.json"
+
+    parts = []
+    if outreach_state_file.exists():
+        try:
+            state = json.loads(outreach_state_file.read_text())
+            total_sent = state.get("total_sent", 0)
+            total_replied = state.get("total_replied", 0)
+            reply_rate = round(total_replied / total_sent * 100, 1) if total_sent > 0 else 0
+            parts.append(
+                f"Maya status: "
+                f"{state.get('total_sourced', 0)} leads sourced, "
+                f"{total_sent} emails sent, "
+                f"{total_replied} replies ({reply_rate}% rate), "
+                f"{state.get('total_bounced', 0)} bounces, "
+                f"warmup day {state.get('warmup_day', 0)}"
+            )
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    if directives_file.exists():
+        try:
+            directive = json.loads(directives_file.read_text())
+            parts.append(
+                f"Current directive: Focus on {directive.get('primary_vertical', '?')}, "
+                f"segments: {', '.join(directive.get('priority_segments', []))}"
+            )
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    return "\n".join(parts) if parts else "(Outreach agent not yet active)"
+
+
 def get_current_month():
     """Determine which strategic month we're in (Month 1 = March 2026)."""
     start = datetime(2026, 3, 1)
@@ -37,6 +74,7 @@ def build_system_prompt(deep=False):
     """
     playbook = load_playbook()
     metrics = load_metrics()
+    outreach_status = load_outreach_status()
     current_month = get_current_month()
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -92,11 +130,19 @@ Month {current_month} of the 18-month plan.
 {metrics}
 </metrics>
 
+## Outreach Agent (Maya)
+Maya is ResourceMatch's outreach agent — sources leads, composes personalized emails via Claude,
+and sends them via Gmail SMTP on a separate sending domain. You set weekly directives for Maya.
+<outreach_status>
+{outreach_status}
+</outreach_status>
+
 ## Key Context
 - Platform is built and deployed (MVP complete, GCP Cloud Run)
 - 10 seeded demo candidates exist (not real vetted professionals)
 - Stripe payments are wired but untested with real customers
 - Kelly SEO agent produces 2 blog posts/week automatically
+- Maya outreach agent sends personalized cold emails + LinkedIn messages
 - Free trial: 2 free unlocks on company signup
 - Free job posting available for companies
 - External jobs aggregated from Remotive + RemoteOK daily

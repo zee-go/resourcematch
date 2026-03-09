@@ -62,6 +62,16 @@ def _blank_snapshot():
             "nps_companies": 0,
             "nps_candidates": 0,
         },
+        "outreach": {
+            "emails_sent": 0,
+            "replies_received": 0,
+            "reply_rate_pct": 0,
+            "bounces": 0,
+            "linkedin_sent": 0,
+            "linkedin_accepted": 0,
+            "meetings_booked": 0,
+            "leads_sourced": 0,
+        },
     }
 
 
@@ -109,6 +119,9 @@ def get_variance_report():
         "demand.new_company_signups": {"target": 5, "unit": "/week", "label": "Company signups"},
         "revenue.unlocks_this_week": {"target": 2, "unit": "/week", "label": "Profile unlocks"},
         "revenue.revenue_this_week": {"target": 125, "unit": "$", "label": "Weekly revenue"},
+        "outreach.emails_sent": {"target": 30, "unit": "/week", "label": "Outreach emails"},
+        "outreach.replies_received": {"target": 3, "unit": "/week", "label": "Outreach replies"},
+        "outreach.meetings_booked": {"target": 1, "unit": "/week", "label": "Meetings booked"},
     }
 
     report = []
@@ -167,7 +180,7 @@ if __name__ == "__main__":
         print("  python -m scripts.ceo.metrics update <category> <field> <value>")
         print("  python -m scripts.ceo.metrics report       # Variance report")
         print()
-        print("Categories: supply, demand, revenue, funnel, health")
+        print("Categories: supply, demand, revenue, funnel, health, outreach")
         print()
         latest = get_latest_snapshot()
         print(json.dumps(latest, indent=2))

@@ -72,11 +72,16 @@ def send(text, chat_id=None):
     cid = chat_id or _get_chat_id()
     for chunk in _chunk_text(text):
         try:
-            requests.post(
+            resp = requests.post(
                 f"{base}/sendMessage",
                 json={"chat_id": cid, "text": chunk},
                 timeout=10,
             )
+            data = resp.json()
+            if not data.get("ok"):
+                logger.error("Telegram sendMessage failed: %s", data.get("description", data))
+            else:
+                logger.info("Sent message (%d chars)", len(chunk))
         except Exception as e:
             logger.error("Failed to send message: %s", e)
 
@@ -139,8 +144,10 @@ def run_in_background(task_name, func, *args, **kwargs):
 def _safe_run(task_name, func, *args, **kwargs):
     """Wrapper that catches all exceptions and reports via Telegram."""
     global _active_task
+    logger.info("Background task started: %s", task_name)
     try:
         func(*args, **kwargs)
+        logger.info("Background task completed: %s", task_name)
     except Exception as e:
         logger.error("Task '%s' failed: %s", task_name, e, exc_info=True)
         try:
@@ -193,7 +200,10 @@ def poll_loop():
                 time.sleep(5)
                 continue
 
-            for update in resp.json().get("result", []):
+            updates = resp.json().get("result", [])
+            if updates:
+                logger.info("Received %d update(s)", len(updates))
+            for update in updates:
                 last_update_id = update["update_id"] + 1
                 _dispatch(update, chat_id, COMMAND_HANDLERS, handle_callback, handle_free_text)
 
@@ -210,6 +220,7 @@ def _dispatch(update, expected_chat_id, command_handlers, callback_handler, free
     # Handle callback queries (button presses)
     callback = update.get("callback_query")
     if callback:
+        logger.info("Callback received: %s", callback.get("data", "?"))
         _acknowledge_callback(callback)
         try:
             callback_handler(callback)
@@ -224,9 +235,11 @@ def _dispatch(update, expected_chat_id, command_handlers, callback_handler, free
 
     chat_id = str(message["chat"]["id"])
     if chat_id != str(expected_chat_id):
-        return  # Ignore messages from other chats
+        logger.debug("Ignoring message from chat %s (expected %s)", chat_id, expected_chat_id)
+        return
 
     text = message["text"].strip()
+    logger.info("Message received: %s", text[:100])
 
     # Slash commands
     if text.startswith("/"):
@@ -236,6 +249,7 @@ def _dispatch(update, expected_chat_id, command_handlers, callback_handler, free
 
         handler = command_handlers.get(command)
         if handler:
+            logger.info("Dispatching command: %s (args: %s)", command, args[:50] if args else "none")
             try:
                 handler(args)
             except Exception as e:
@@ -246,6 +260,7 @@ def _dispatch(update, expected_chat_id, command_handlers, callback_handler, free
         return
 
     # Free-form text -> Claude chat
+    logger.info("Routing to free-form chat")
     try:
         free_text_handler(text)
     except Exception as e:
