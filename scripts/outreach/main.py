@@ -84,7 +84,7 @@ def run_daily():
     today = _dt.date.today()
 
     send_telegram_message(
-        "Hey! Maya here — starting today's candidate recruitment run."
+        "Starting today's candidate recruitment run."
     )
 
     # ──────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ def run_daily():
     directive = get_current_directive()
 
     if not directive or today.weekday() == 0:
-        send_telegram_message("Consulting the Strategic Director for this week's plan...")
+        send_telegram_message("Getting this week's plan from the Strategic Director.")
         try:
             directive = get_weekly_directive()
             preview = format_directive_for_telegram(directive)
@@ -110,7 +110,7 @@ def run_daily():
             )
 
             if response != "outreach_plan_approve":
-                send_telegram_message("Got it — Maya's taking today off. See you tomorrow!")
+                send_telegram_message("Got it. Taking today off. See you tomorrow.")
                 logger.info("User skipped outreach for today.")
                 return
         except Exception as e:
@@ -137,7 +137,7 @@ def run_daily():
     # ──────────────────────────────────────────────────────────
     # Step 1: Candidate sourcing (LinkedIn + Reddit)
     # ──────────────────────────────────────────────────────────
-    send_telegram_message("Sourcing candidates...")
+    send_telegram_message("Sourcing candidates.")
 
     sourcing = get_daily_candidates(directive=directive)
     linkedin_searches = sourcing["linkedin_searches"]
@@ -314,8 +314,8 @@ def run_daily():
     vetted_count = _count_vetted_candidates()
     if vetted_count >= VETTED_CANDIDATE_THRESHOLD:
         send_telegram_message(
-            f"We have {vetted_count} vetted candidates! "
-            "Company outreach is now eligible. Running company pipeline..."
+            f"We have {vetted_count} vetted candidates. "
+            "Company outreach is now eligible. Running company pipeline."
         )
         try:
             _run_company_outreach(directive)

@@ -14,6 +14,7 @@ from pathlib import Path
 import anthropic
 
 from scripts.outreach.config import get_anthropic_api_key, get_physical_address
+from scripts.outreach.persona import get_system_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ def compose_sequence(prospect, matched_candidates):
 
     physical_address = get_physical_address()
 
-    prompt = f"""You are writing a personalized cold email sequence for ResourceMatch, a platform that connects international companies with AI-vetted senior Filipino professionals in accounting/finance and operations management.
+    prompt = f"""Write a 4-touch email sequence for this prospect.
 
 PROSPECT CONTEXT:
 {prospect_context}
@@ -62,31 +63,26 @@ MATCHED CANDIDATES FROM OUR PLATFORM:
 
 EMAIL SEQUENCE TEMPLATES (use as scaffolding, not fill-in-the-blank):
 ---
-Touch 1 (Cold Intro — send immediately):
+Touch 1 (Cold Intro, send immediately):
 {templates.get('cold_intro', 'Introduce ResourceMatch value prop + mention 1-2 matched candidates')}
 ---
-Touch 2 (Follow-up 1 — 3 days later):
+Touch 2 (Follow-up 1, 3 days later):
 {templates.get('followup_1', 'Social proof, platform stats, or relevant case study')}
 ---
-Touch 3 (Follow-up 2 — 7 days later):
+Touch 3 (Follow-up 2, 7 days later):
 {templates.get('followup_2', 'Different angle: cost savings, time-to-hire, or a relevant blog post')}
 ---
-Touch 4 (Breakup — 14 days later):
+Touch 4 (Breakup, 14 days later):
 {templates.get('breakup', 'Last touch, leave the door open, no pressure')}
 ---
 
-RULES:
-1. Each email must feel like it was written by a human who spent 5 minutes researching the prospect
-2. Reference specific details about the prospect's company, role, or hiring signals
-3. In Touch 1, mention 1-2 specific matched candidates by first name, years of experience, and a standout skill
-4. Keep emails SHORT: Touch 1 = 80-120 words, Touch 2-3 = 60-80 words, Touch 4 = 40-60 words
-5. One clear CTA per email (typically: "Want me to send you their profiles?" or "Open to a quick chat?")
-6. Subject lines: under 7 words, lowercase style (not Title Case), no clickbait
-7. No em dashes. No fluff phrases like "I hope this email finds you well" or "In today's competitive landscape"
-8. Tone: direct, professional, slightly casual. Like a knowledgeable colleague, not a salesperson
-9. Do NOT mention pricing or costs in the emails
-10. Do NOT use "we" excessively — focus on the prospect's needs and the candidates
-11. Each email must include this footer (do not modify):
+FORMAT RULES:
+1. Reference specific details about the prospect's company, role, or hiring signals
+2. In Touch 1, mention 1-2 specific matched candidates by first name, years of experience, and a standout skill
+3. Keep emails SHORT: Touch 1 = 80-120 words, Touch 2-3 = 60-80 words, Touch 4 = 40-60 words
+4. One clear CTA per email (typically: "Want me to send you their profiles?" or "Open to a quick chat?")
+5. Subject lines: under 7 words, lowercase style (not Title Case), no clickbait
+6. Each email must include this footer (do not modify):
     ---
     Sent by ResourceMatch | AI-vetted senior Filipino professionals
     {physical_address}
@@ -126,6 +122,7 @@ Return your response as a JSON object with this exact structure:
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=4096,
+            system=get_system_prompt("email_company"),
             messages=[{"role": "user", "content": prompt}],
         )
 

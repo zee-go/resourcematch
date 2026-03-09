@@ -13,6 +13,7 @@ import logging
 import anthropic
 
 from scripts.outreach.config import get_anthropic_api_key
+from scripts.outreach.persona import get_system_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ def compose_linkedin_messages(prospect, matched_candidates):
     prospect_context = _build_linkedin_context(prospect)
     candidate_brief = _build_candidate_brief(matched_candidates)
 
-    prompt = f"""Write a LinkedIn connection request and follow-up message for ResourceMatch outreach.
+    prompt = f"""Write a LinkedIn connection request and follow-up message for this prospect.
 
 PROSPECT:
 {prospect_context}
@@ -40,13 +41,10 @@ PROSPECT:
 RELEVANT CANDIDATES ON OUR PLATFORM:
 {candidate_brief}
 
-RULES:
-1. Connection request note: MUST be under 300 characters (LinkedIn limit). Be genuine and specific. Do NOT sell.
+FORMAT RULES:
+1. Connection request note: MUST be under 300 characters (LinkedIn limit). Be genuine and specific.
 2. Follow-up message: 40-80 words. Send after they accept. Mention 1 specific candidate match. Include a soft CTA.
-3. Tone: professional peer, not salesperson. Like you're introducing a colleague to a useful resource.
-4. Reference something specific about their company or role.
-5. No em dashes. No "I hope this message finds you well."
-6. Do NOT mention pricing.
+3. Reference something specific about their company or role.
 
 Return JSON:
 {{
@@ -58,6 +56,7 @@ Return JSON:
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1024,
+            system=get_system_prompt("linkedin_company"),
             messages=[{"role": "user", "content": prompt}],
         )
 

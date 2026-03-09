@@ -14,6 +14,7 @@ import logging
 import anthropic
 
 from scripts.outreach.config import get_anthropic_api_key
+from scripts.outreach.persona import get_system_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -30,28 +31,17 @@ def compose_linkedin_recruitment(candidate_context, vertical="accounting"):
     """
     client = anthropic.Anthropic(api_key=get_anthropic_api_key())
 
-    prompt = f"""You are Maya, a recruitment specialist at ResourceMatch — a platform that connects
-AI-vetted senior Filipino professionals with international companies.
-
-You're reaching out to a Filipino professional on LinkedIn to recruit them to the platform.
+    prompt = f"""Write two LinkedIn messages for this candidate.
 
 CANDIDATE CONTEXT:
 {json.dumps(candidate_context, indent=2)}
 
 VERTICAL FOCUS: {vertical}
 
-ABOUT RESOURCEMATCH:
-- AI-vetted senior talent platform (5-10+ years experience only)
-- 4-layer AI vetting: Resume Analysis, Scenario Assessment, Video Interview, Reference Verification
-- Free for candidates — no cost to apply or get vetted
-- Once vetted, candidates get featured to international hiring managers
-- Companies pay to unlock candidate profiles — candidates never pay
-- Apply at: resourcematch.ph/apply
-
 WRITE TWO MESSAGES:
 
-1. CONNECTION NOTE (max 300 characters, this is a hard LinkedIn limit):
-   - Brief, personal, not salesy
+1. CONNECTION NOTE (max 300 characters, hard LinkedIn limit):
+   - Brief, personal
    - Reference something specific about them if possible
    - Mention ResourceMatch naturally
    - End with a reason to connect
@@ -60,13 +50,6 @@ WRITE TWO MESSAGES:
    - Explain what ResourceMatch is and why they'd be a great fit
    - Emphasize: free for candidates, AI-vetted = stand out, get matched to international roles
    - Include a clear CTA: apply at resourcematch.ph/apply
-   - Warm and professional tone — colleague, not recruiter
-
-RULES:
-- No em dashes. No corporate fluff.
-- Tone: friendly, direct, professional
-- Do NOT oversell or make income promises
-- Do NOT use "Dear" or overly formal greetings
 
 Return JSON:
 {{
@@ -78,6 +61,7 @@ Return JSON:
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1024,
+            system=get_system_prompt("linkedin_candidate"),
             messages=[{"role": "user", "content": prompt}],
         )
 
@@ -114,11 +98,7 @@ def compose_reddit_reply(post_context, vertical="accounting"):
     """
     client = anthropic.Anthropic(api_key=get_anthropic_api_key())
 
-    prompt = f"""You are helping ResourceMatch recruit senior Filipino professionals via Reddit.
-
-A Filipino professional posted something relevant in a subreddit. You need to draft:
-1. A public comment reply (helpful first, mention ResourceMatch naturally)
-2. A private DM (more direct recruitment pitch)
+    prompt = f"""Draft a public comment and a private DM for this Reddit post.
 
 POST CONTEXT:
 Subreddit: r/{post_context.get('subreddit', '?')}
@@ -126,26 +106,17 @@ Title: {post_context.get('title', '')}
 Body: {post_context.get('text', '')[:500]}
 Author: u/{post_context.get('author', '?')}
 
-ABOUT RESOURCEMATCH:
-- Platform for AI-vetted senior Filipino professionals (5-10+ years)
-- Free for candidates to apply and get vetted
-- Once vetted, get featured to international companies
-- Apply at: resourcematch.ph/apply
-- Verticals: Finance & Accounting, Operations Management
-
-RULES FOR PUBLIC COMMENT:
+PUBLIC COMMENT RULES:
 - Be genuinely helpful first (answer their question, give advice)
 - Only mention ResourceMatch if it naturally fits the context
-- Don't sound like an ad — sound like a fellow professional sharing a useful resource
 - 2-4 sentences max
 - Match the subreddit's tone (r/phcareers is professional, r/buhaydigital is casual)
 
-RULES FOR DM:
-- More direct — explain what ResourceMatch is
+DM RULES:
+- More direct about what ResourceMatch is
 - Keep it short (3-5 sentences)
 - Mention it's free for candidates
-- Include the apply link
-- Friendly, not pushy
+- Include the apply link: resourcematch.ph/apply
 
 Return JSON:
 {{
@@ -157,6 +128,7 @@ Return JSON:
         response = client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1024,
+            system=get_system_prompt("reddit_candidate"),
             messages=[{"role": "user", "content": prompt}],
         )
 
