@@ -111,3 +111,88 @@ def format_followup_preview(lead, email):
         f"{email.get('body', '')}\n\n"
         f"--- END ---"
     )
+
+
+# ─── Candidate Recruitment Formatters ────────────────────────
+
+def format_linkedin_candidate_preview(search_query, candidate, messages):
+    """Format a LinkedIn candidate + recruitment message for Telegram approval."""
+    lines = [
+        "[Maya] LinkedIn Candidate\n",
+        f"Search: \"{search_query}\"",
+        f"Name: {candidate.get('name', 'Unknown')}",
+    ]
+
+    if candidate.get("title"):
+        lines.append(f"Title: {candidate['title']}")
+    if candidate.get("summary"):
+        summary = candidate["summary"][:200] + "..." if len(candidate.get("summary", "")) > 200 else candidate.get("summary", "")
+        lines.append(f"About: {summary}")
+    if candidate.get("vertical"):
+        lines.append(f"Vertical: {candidate['vertical']}")
+
+    if messages:
+        lines.append(f"\nConnection Note ({len(messages.get('connection_note', ''))} chars):")
+        lines.append(f"---\n{messages.get('connection_note', '')}\n---")
+        lines.append(f"\nFollow-up Message:")
+        followup = messages.get("followup_message", "")
+        preview = followup[:300] + "..." if len(followup) > 300 else followup
+        lines.append(f"---\n{preview}\n---")
+
+    return "\n".join(lines)
+
+
+def format_reddit_candidate_preview(post, messages):
+    """Format a Reddit candidate + reply draft for Telegram approval."""
+    lines = [
+        "[Maya] Reddit Candidate\n",
+        f"Subreddit: r/{post.get('subreddit', '?')}",
+        f"Author: u/{post.get('author', '?')}",
+        f"Post: {post.get('title', '')}",
+    ]
+
+    text = post.get("text", "")
+    if text:
+        preview = text[:200] + "..." if len(text) > 200 else text
+        lines.append(f"Body: {preview}")
+
+    if post.get("url"):
+        lines.append(f"Link: {post['url']}")
+    if post.get("vertical"):
+        lines.append(f"Vertical: {post['vertical']}")
+
+    if messages:
+        lines.append(f"\nPublic Comment:")
+        lines.append(f"---\n{messages.get('comment', '')}\n---")
+        lines.append(f"\nDirect Message:")
+        lines.append(f"---\n{messages.get('dm', '')}\n---")
+
+    return "\n".join(lines)
+
+
+def format_candidate_daily_summary(candidate_stats, linkedin_activity, reddit_activity):
+    """Format a daily candidate recruitment summary."""
+    lines = [
+        "[Maya] Daily Candidate Recruitment Summary\n",
+    ]
+
+    if linkedin_activity:
+        lines.append("LinkedIn:")
+        lines.append(f"  Searches: {linkedin_activity.get('searches_shown', 0)}")
+        lines.append(f"  Messages drafted: {linkedin_activity.get('drafted', 0)}")
+        lines.append(f"  Approved: {linkedin_activity.get('approved', 0)}")
+        lines.append(f"  Queued for sending: {linkedin_activity.get('queued', 0)}")
+
+    if reddit_activity:
+        lines.append("\nReddit:")
+        lines.append(f"  Posts found: {reddit_activity.get('posts_found', 0)}")
+        lines.append(f"  Replies drafted: {reddit_activity.get('drafted', 0)}")
+        lines.append(f"  Approved: {reddit_activity.get('approved', 0)}")
+
+    lines.append(f"\nLifetime totals:")
+    lines.append(f"  Candidates found: {candidate_stats.get('total_found', 0)}")
+    lines.append(f"  Messages sent: {candidate_stats.get('total_messaged', 0)}")
+    lines.append(f"  Responses: {candidate_stats.get('total_responded', 0)}")
+    lines.append(f"  Applications: {candidate_stats.get('total_applied', 0)}")
+
+    return "\n".join(lines)

@@ -50,25 +50,33 @@ def get_weekly_directive():
 OUTREACH STATUS:
 {outreach_context}
 
+IMPORTANT CONTEXT: ResourceMatch currently has limited real vetted candidates. Maya's PRIMARY job
+right now is candidate recruitment — finding senior Filipino professionals on LinkedIn and Reddit
+and driving them to apply at resourcematch.ph/apply. Company outreach activates automatically
+once 5 real vetted candidates exist.
+
 Based on the strategic playbook, current metrics, and outreach performance:
 
-1. What ICP segments should Maya prioritize this week? (hiring_managers, finance_leaders, ops_leaders, founders)
-2. Which vertical should be the primary focus? (accounting or ecommerce)
-3. What's the weekly goal? (number of prospects to reach, emails to send)
-4. Any specific messaging angles to try this week?
-5. Any companies, industries, or signals to specifically target or avoid?
+1. Which vertical should be the primary focus for candidate recruitment? (accounting or operations)
+2. What candidate profiles should Maya prioritize? (e.g., CPAs, QuickBooks experts, Shopify specialists)
+3. What's the weekly candidate recruitment goal? (LinkedIn connections to make, Reddit posts to engage)
+4. Any specific messaging angles for recruiting candidates?
+5. If company outreach is active: What ICP segments to target? (hiring_managers, finance_leaders, ops_leaders, founders)
 
 Return your response as JSON:
 {{
     "priority_segments": ["segment1", "segment2"],
-    "primary_vertical": "accounting" or "ecommerce",
+    "primary_vertical": "accounting" or "operations",
     "weekly_goals": {{
+        "candidates_to_find": 10,
+        "linkedin_connections": 10,
+        "reddit_engagements": 5,
         "prospects_to_source": 15,
         "emails_to_send": 30,
-        "linkedin_connections": 10,
         "meetings_target": 2
     }},
-    "messaging_guidance": "One paragraph on the angle/approach to try this week",
+    "candidate_focus": "Description of ideal candidate profiles to target this week",
+    "messaging_guidance": "One paragraph on the angle/approach for candidate recruitment",
     "target_industries": ["industry1", "industry2"],
     "avoid": ["anything to avoid this week"],
     "strategic_context": "Brief strategic reasoning for these choices"
@@ -109,7 +117,18 @@ def _build_outreach_context():
     state = get_state()
     stats = get_current_stats()
 
+    # Candidate recruitment stats
+    from scripts.outreach.state import get_candidate_stats
+    cand_stats = get_candidate_stats()
+
     lines = [
+        "--- Candidate Recruitment ---",
+        f"Candidates found: {cand_stats.get('total_found', 0)}",
+        f"Messages sent: {cand_stats.get('total_messaged', 0)}",
+        f"Responses: {cand_stats.get('total_responded', 0)}",
+        f"Applications received: {cand_stats.get('total_applied', 0)}",
+        "",
+        "--- Company Outreach ---",
         f"Total leads sourced: {stats.get('total_sourced', 0)}",
         f"Total emails sent: {stats.get('total_sent', 0)}",
         f"Total replies: {stats.get('total_replied', 0)}",
@@ -152,14 +171,20 @@ def _default_directive():
         "priority_segments": ["hiring_managers", "finance_leaders"],
         "primary_vertical": "accounting",
         "weekly_goals": {
+            "candidates_to_find": 10,
+            "linkedin_connections": 10,
+            "reddit_engagements": 5,
             "prospects_to_source": 10,
             "emails_to_send": 20,
-            "linkedin_connections": 10,
             "meetings_target": 1,
         },
+        "candidate_focus": (
+            "Senior Filipino accountants and bookkeepers with 5+ years experience. "
+            "Prioritize CPAs, QuickBooks/Xero specialists, and financial analysts."
+        ),
         "messaging_guidance": (
-            "Lead with specific candidate matches. Focus on the cost savings angle "
-            "for US companies comparing Filipino senior talent to domestic hires."
+            "Lead with the level-up pitch: get AI-vetted and stand out to international "
+            "companies. Emphasize it's free for candidates and senior-only (no VA marketplace)."
         ),
         "target_industries": ["fintech", "e-commerce", "professional services"],
         "avoid": [],
@@ -195,12 +220,20 @@ def format_directive_for_telegram(directive):
         f"Focus vertical: {directive.get('primary_vertical', 'mixed')}",
         f"Target segments: {segments}",
         "",
-        "Weekly goals:",
+        "Candidate recruitment goals:",
+        f"  Candidates to find: {goals.get('candidates_to_find', '?')}",
+        f"  LinkedIn connections: {goals.get('linkedin_connections', '?')}",
+        f"  Reddit engagements: {goals.get('reddit_engagements', '?')}",
+        "",
+        "Company outreach goals:",
         f"  Prospects to source: {goals.get('prospects_to_source', '?')}",
         f"  Emails to send: {goals.get('emails_to_send', '?')}",
-        f"  LinkedIn connections: {goals.get('linkedin_connections', '?')}",
         f"  Meeting target: {goals.get('meetings_target', '?')}",
     ]
+
+    candidate_focus = directive.get("candidate_focus", "")
+    if candidate_focus:
+        lines.append(f"\nCandidate focus:\n{candidate_focus}")
 
     industries = directive.get("target_industries", [])
     if industries:

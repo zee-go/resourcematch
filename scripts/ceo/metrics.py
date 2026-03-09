@@ -71,6 +71,9 @@ def _blank_snapshot():
             "linkedin_accepted": 0,
             "meetings_booked": 0,
             "leads_sourced": 0,
+            "candidate_messages_sent": 0,
+            "candidate_responses": 0,
+            "applications_via_outreach": 0,
         },
     }
 
@@ -122,6 +125,8 @@ def get_variance_report():
         "outreach.emails_sent": {"target": 30, "unit": "/week", "label": "Outreach emails"},
         "outreach.replies_received": {"target": 3, "unit": "/week", "label": "Outreach replies"},
         "outreach.meetings_booked": {"target": 1, "unit": "/week", "label": "Meetings booked"},
+        "outreach.candidate_messages_sent": {"target": 20, "unit": "/week", "label": "Candidate messages"},
+        "outreach.applications_via_outreach": {"target": 3, "unit": "/week", "label": "Applications (via outreach)"},
     }
 
     report = []

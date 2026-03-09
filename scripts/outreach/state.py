@@ -1,4 +1,4 @@
-"""Outreach state management — tracks leads, sequences, and campaign metrics."""
+"""Outreach state management — tracks leads, candidates, sequences, and campaign metrics."""
 
 import json
 import datetime
@@ -8,6 +8,7 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 STATE_FILE = DATA_DIR / "outreach_state.json"
 METRICS_FILE = DATA_DIR / "outreach_metrics.json"
 LINKEDIN_QUEUE_FILE = DATA_DIR / "linkedin_queue.json"
+CANDIDATE_STATE_FILE = DATA_DIR / "candidate_outreach_state.json"
 
 
 # ─── Lead State ──────────────────────────────────────────────
@@ -276,3 +277,126 @@ def record_weekly_snapshot():
     metrics["weekly_snapshots"] = metrics["weekly_snapshots"][-52:]
     save_metrics(metrics)
     return snapshot
+
+
+# ─── Candidate Outreach State ───────────────────────────────
+
+def get_candidate_state():
+    """Read candidate outreach state."""
+    try:
+        if CANDIDATE_STATE_FILE.exists():
+            with open(CANDIDATE_STATE_FILE) as f:
+                return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        pass
+    return {
+        "candidates": [],
+        "total_found": 0,
+        "total_messaged": 0,
+        "total_responded": 0,
+        "total_applied": 0,
+        "seen_reddit_urls": [],
+    }
+
+
+def save_candidate_state(state):
+    """Persist candidate outreach state."""
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with open(CANDIDATE_STATE_FILE, "w") as f:
+        json.dump(state, f, indent=2)
+
+
+def add_candidate_prospect(prospect):
+    """Add a candidate prospect to state. Deduplicates by identifier (URL or name).
+
+    Args:
+        prospect: dict with source, name/author, url, vertical, messages, etc.
+
+    Returns:
+        True if added (new), False if duplicate.
+    """
+    state = get_candidate_state()
+    identifier = prospect.get("url") or prospect.get("author") or prospect.get("name", "")
+
+    # Deduplicate
+    existing_ids = set()
+    for c in state["candidates"]:
+        existing_ids.add(c.get("url", ""))
+        existing_ids.add(c.get("author", ""))
+        existing_ids.add(c.get("name", ""))
+
+    if identifier in existing_ids:
+        return False
+
+    prospect["status"] = "drafted"
+    prospect["found_at"] = datetime.datetime.now().isoformat()
+    state["candidates"].append(prospect)
+    state["total_found"] += 1
+    save_candidate_state(state)
+    return True
+
+
+def update_candidate_prospect(identifier, updates):
+    """Update a candidate prospect by URL, author, or name."""
+    state = get_candidate_state()
+    for candidate in state["candidates"]:
+        if identifier in (candidate.get("url"), candidate.get("author"), candidate.get("name")):
+            candidate.update(updates)
+            break
+    save_candidate_state(state)
+
+
+def mark_candidate_messaged(identifier):
+    """Mark a candidate as messaged (connection sent / comment posted)."""
+    state = get_candidate_state()
+    for candidate in state["candidates"]:
+        if identifier in (candidate.get("url"), candidate.get("author"), candidate.get("name")):
+            candidate["status"] = "messaged"
+            candidate["messaged_at"] = datetime.datetime.now().isoformat()
+            state["total_messaged"] += 1
+            break
+    save_candidate_state(state)
+
+
+def mark_candidate_responded(identifier):
+    """Mark a candidate as responded (accepted connection, replied, etc.)."""
+    state = get_candidate_state()
+    for candidate in state["candidates"]:
+        if identifier in (candidate.get("url"), candidate.get("author"), candidate.get("name")):
+            candidate["status"] = "responded"
+            state["total_responded"] += 1
+            break
+    save_candidate_state(state)
+
+
+def mark_candidate_applied(identifier):
+    """Mark a candidate as applied (submitted application on resourcematch.ph/apply)."""
+    state = get_candidate_state()
+    for candidate in state["candidates"]:
+        if identifier in (candidate.get("url"), candidate.get("author"), candidate.get("name")):
+            candidate["status"] = "applied"
+            state["total_applied"] += 1
+            break
+    save_candidate_state(state)
+
+
+def add_seen_reddit_url(url):
+    """Track a Reddit URL as seen to avoid re-processing."""
+    state = get_candidate_state()
+    if url not in state["seen_reddit_urls"]:
+        state["seen_reddit_urls"].append(url)
+        # Keep last 500
+        state["seen_reddit_urls"] = state["seen_reddit_urls"][-500:]
+    save_candidate_state(state)
+
+
+def get_candidate_stats():
+    """Get candidate outreach statistics."""
+    state = get_candidate_state()
+    return {
+        "total_found": state.get("total_found", 0),
+        "total_messaged": state.get("total_messaged", 0),
+        "total_responded": state.get("total_responded", 0),
+        "total_applied": state.get("total_applied", 0),
+        "pending_drafts": len([c for c in state["candidates"] if c.get("status") == "drafted"]),
+    }

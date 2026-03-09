@@ -26,8 +26,25 @@ def load_outreach_status():
     from pathlib import Path
     outreach_state_file = Path(__file__).resolve().parent.parent / "data" / "outreach_state.json"
     directives_file = Path(__file__).resolve().parent.parent / "data" / "outreach_directives.json"
+    candidate_state_file = Path(__file__).resolve().parent.parent / "data" / "candidate_outreach_state.json"
 
     parts = []
+
+    # Candidate recruitment stats
+    if candidate_state_file.exists():
+        try:
+            cand = json.loads(candidate_state_file.read_text())
+            parts.append(
+                f"Candidate recruitment: "
+                f"{cand.get('total_found', 0)} found, "
+                f"{cand.get('total_messaged', 0)} messaged, "
+                f"{cand.get('total_responded', 0)} responded, "
+                f"{cand.get('total_applied', 0)} applied"
+            )
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    # Company outreach stats
     if outreach_state_file.exists():
         try:
             state = json.loads(outreach_state_file.read_text())
@@ -131,8 +148,10 @@ Month {current_month} of the 18-month plan.
 </metrics>
 
 ## Outreach Agent (Maya)
-Maya is ResourceMatch's outreach agent — sources leads, composes personalized emails via Claude,
-and sends them via Gmail SMTP on a separate sending domain. You set weekly directives for Maya.
+Maya is ResourceMatch's outreach SDR agent. Currently focused on CANDIDATE RECRUITMENT:
+finding senior Filipino professionals via LinkedIn + Reddit and driving them to apply.
+Company outreach (cold emails to hiring managers) activates after 5 real vetted candidates exist.
+You set weekly directives for Maya covering both candidate recruitment and company outreach.
 <outreach_status>
 {outreach_status}
 </outreach_status>
