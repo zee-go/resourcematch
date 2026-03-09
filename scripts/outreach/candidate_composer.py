@@ -47,9 +47,10 @@ WRITE TWO MESSAGES:
    - End with a reason to connect
 
 2. FOLLOW-UP MESSAGE (send after they accept connection, 100-150 words):
-   - Explain what ResourceMatch is and why they'd be a great fit
-   - Emphasize: free for candidates, AI-vetted = stand out, get matched to international roles
-   - Include a clear CTA: apply at resourcematch.ph/apply
+   - Invite them to create a profile on ResourceMatch
+   - Explain: it's free, takes a few minutes, they upload a resume and fill out their background
+   - Once they have a profile, they get AI-vetted and matched to international companies
+   - CTA: "Create your profile at resourcematch.ph/apply"
 
 Return JSON:
 {{
@@ -113,10 +114,10 @@ PUBLIC COMMENT RULES:
 - Match the subreddit's tone (r/phcareers is professional, r/buhaydigital is casual)
 
 DM RULES:
-- More direct about what ResourceMatch is
+- Invite them to create a profile on ResourceMatch
 - Keep it short (3-5 sentences)
-- Mention it's free for candidates
-- Include the apply link: resourcematch.ph/apply
+- Mention it's free and takes a few minutes
+- CTA: "Create your profile at resourcematch.ph/apply"
 
 Return JSON:
 {{
