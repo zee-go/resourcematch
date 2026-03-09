@@ -113,6 +113,43 @@ def format_followup_preview(lead, email):
     )
 
 
+# ─── Candidate Research Formatters ────────────────────────────
+
+def format_candidate_research_list(candidates):
+    """Format a numbered list of Apollo candidates for Telegram review."""
+    if not candidates:
+        return "[Maya] No candidates found for this search."
+
+    lines = [
+        f"[Maya] Found {len(candidates)} candidates\n",
+    ]
+
+    for i, c in enumerate(candidates, 1):
+        name = c.get("name", "Unknown")
+        title = c.get("title", "")
+        company = c.get("company", "")
+        linkedin = c.get("linkedin_url", "")
+
+        entry = f"{i}. {name}"
+        if title:
+            entry += f" — {title}"
+        if company:
+            entry += f" at {company}"
+        lines.append(entry)
+
+        if linkedin:
+            lines.append(f"   {linkedin}")
+        lines.append("")
+
+    lines.append(
+        "Review their profiles, then reply with the numbers "
+        "you want to reach out to.\n"
+        'Example: "1, 3, 5" or "all" or "none"'
+    )
+
+    return "\n".join(lines)
+
+
 # ─── Candidate Recruitment Formatters ────────────────────────
 
 def format_linkedin_candidate_preview(search_query, candidate, messages):
@@ -178,7 +215,7 @@ def format_candidate_daily_summary(candidate_stats, linkedin_activity, reddit_ac
 
     if linkedin_activity:
         lines.append("LinkedIn:")
-        lines.append(f"  Searches: {linkedin_activity.get('searches_shown', 0)}")
+        lines.append(f"  Candidates found: {linkedin_activity.get('searched', 0)}")
         lines.append(f"  Messages drafted: {linkedin_activity.get('drafted', 0)}")
         lines.append(f"  Approved: {linkedin_activity.get('approved', 0)}")
         lines.append(f"  Queued for sending: {linkedin_activity.get('queued', 0)}")

@@ -296,6 +296,8 @@ def get_candidate_state():
         "total_responded": 0,
         "total_applied": 0,
         "seen_reddit_urls": [],
+        "seen_apollo_urls": [],
+        "last_apollo_candidate_page": 0,
     }
 
 
@@ -387,6 +389,31 @@ def add_seen_reddit_url(url):
         state["seen_reddit_urls"].append(url)
         # Keep last 500
         state["seen_reddit_urls"] = state["seen_reddit_urls"][-500:]
+    save_candidate_state(state)
+
+
+def add_seen_apollo_url(url):
+    """Track an Apollo LinkedIn URL as seen to avoid re-showing."""
+    state = get_candidate_state()
+    if "seen_apollo_urls" not in state:
+        state["seen_apollo_urls"] = []
+    if url not in state["seen_apollo_urls"]:
+        state["seen_apollo_urls"].append(url)
+        # Keep last 1000
+        state["seen_apollo_urls"] = state["seen_apollo_urls"][-1000:]
+    save_candidate_state(state)
+
+
+def get_apollo_candidate_page():
+    """Get the current Apollo candidate search page for pagination."""
+    state = get_candidate_state()
+    return state.get("last_apollo_candidate_page", 0)
+
+
+def set_apollo_candidate_page(page):
+    """Set the Apollo candidate search page for next run."""
+    state = get_candidate_state()
+    state["last_apollo_candidate_page"] = page
     save_candidate_state(state)
 
 
