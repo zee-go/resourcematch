@@ -197,7 +197,11 @@ content/
 
 scripts/
   seo/                       # Kelly SEO agent (Python)
-    main.py                  # Weekly orchestrator: plan → generate → approve → publish
+    bot.py                   # Interactive Telegram bot (always-on listener, command dispatch)
+    commands.py              # Bot command handlers (/traffic, /plan, /write, /research, /publish, /status, /run)
+    chat.py                  # Free-form Claude chat handler (SEO advice via Telegram)
+    scheduler.py             # In-process weekly schedule trigger (Monday 11AM, replaces launchd cron)
+    main.py                  # Weekly orchestrator: plan → generate → approve → publish (standalone/debug)
     topic_researcher.py      # Claude-based keyword/topic research (5 content pillars)
     content_planner.py       # Weekly content calendar (2 blog posts, Tue + Thu)
     content_generator.py     # Claude writes full SEO-optimized posts (ResourceMatch voice)
@@ -214,7 +218,7 @@ scripts/
     health.py                # Failure notification via Telegram
     logging_setup.py         # Logging config → scripts/logs/seo.log
   requirements.txt           # Python deps (anthropic, requests, google-api-python-client)
-  schedules/                 # launchd plist (Monday 11:00 AM)
+  schedules/                 # launchd plists (bot daemon + legacy weekly cron)
   data/                      # (gitignored) secrets.json, seo_state.json, seo_calendar.json
   logs/                      # (gitignored) agent log files
 ```
@@ -283,9 +287,11 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Blog content pillars: Outsourcing Strategy, Finance & Accounting, Operations Management, Hiring Best Practices, Industry Insights
 - Blog prose styles (`.prose-blog`) use brand design tokens — no hardcoded colors
 - Blog SEO: Article JSON-LD, Breadcrumb JSON-LD, OG article type, published/modified time meta, canonical links + og:url on all public pages
-- Kelly SEO agent: Python in `scripts/seo/`, runs Monday 11AM via launchd, generates 2 blog posts/week
-- Kelly workflow: traffic report (GSC) → topic research (Claude) → content plan → Telegram approval → generate post (Claude) → source images (Unsplash) → preview → approve → git push → Cloud Build deploy
-- Kelly reuses existing SEO Telegram bot for approval workflow
+- Kelly SEO agent: Python in `scripts/seo/`, interactive Telegram bot + scheduled weekly runs
+- Kelly interactive bot (`bot.py`): always-on Telegram listener with commands `/traffic`, `/plan`, `/write [topic]`, `/research`, `/publish`, `/status`, `/run`, `/help` + free-form Claude chat for SEO questions
+- Kelly bot architecture: single `getUpdates` poller (avoids Telegram update conflicts), `ThreadPoolExecutor(max_workers=1)` for long-running tasks, callback-driven approval flows (buttons), in-process scheduler replaces separate launchd cron
+- Kelly bot runtime: `python -m scripts.seo.bot` (manual) or `com.zeego.resourcematch-seo-bot.plist` launchd daemon (always-on, KeepAlive)
+- Kelly weekly workflow: traffic report (GSC) → topic research (Claude) → content plan → Telegram approval → generate post (Claude) → source images (Unsplash) → preview → approve → git push → Cloud Build deploy
 - Free trial: 2 free unlocks on company signup (credits: 2), `freeUnlocksUsed` tracks usage, free trial messaging in UnlockModal + Hero + dashboard welcome banner
 - GA4 conversion tracking: `src/lib/analytics.ts` wraps `gtag()` with typed helpers, events tracked across signup funnel, unlock funnel, profile views, search/filters, AI match, purchases, CTA clicks, user properties (user_type, subscription_tier)
 - Automated matching emails: Company model has `matchingEnabled/matchingVertical/matchingExperience/matchingSkills/lastMatchEmailSent` fields, `MatchingPreferences` component on dashboard, `/api/matching/digest` endpoint secured by Bearer token for Cloud Scheduler, `sendMatchDigest()` in email.ts
