@@ -22,6 +22,46 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Old Wix site pages → redirect to relevant current pages
+      {
+        source: "/service-page/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/how-it-works",
+        destination: "/#how-it-works",
+        permanent: true,
+      },
+      {
+        source: "/pricing",
+        destination: "/hire",
+        permanent: true,
+      },
+      {
+        source: "/about",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/about-us",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/contact",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/contact-us",
+        destination: "/",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
