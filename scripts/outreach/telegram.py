@@ -1,6 +1,6 @@
 """Telegram client for the outreach agent (Maya).
 
-Reuses the same Telegram bot as Kelly (SEO agent), with 'outreach_' callback prefixes.
+Uses a dedicated Telegram bot separate from Kelly (SEO agent).
 """
 
 from scripts.seo.config import _get_secret
@@ -13,8 +13,8 @@ def _get_client():
     global _client
     if _client is None:
         _client = TelegramClient(
-            _get_secret("seo-telegram-bot-token"),
-            _get_secret("seo-telegram-chat-id"),
+            _get_secret("outreach-telegram-bot-token"),
+            _get_secret("outreach-telegram-chat-id"),
         )
     return _client
 
