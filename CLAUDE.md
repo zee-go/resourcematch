@@ -33,6 +33,7 @@ Key differentiators:
 - **AI**: Claude API (Anthropic) for vetting pipeline
 - **Blog**: MDX files in `content/blog/`, rendered via next-mdx-remote + gray-matter + reading-time
 - **SEO Agent**: Kelly — Python agent in `scripts/seo/`, runs weekly via launchd, generates blog content via Claude API
+- **CEO Bot**: Strategic advisor bot in `scripts/ceo/`, interactive CLI powered by Claude API, uses `docs/strategy/ceo-playbook.md` as knowledge base
 - **Payments**: Stripe Checkout (redirect, zero PCI scope)
 - **Forms**: React Hook Form + Zod validation
 - **Storage**: Google Cloud Storage (`resourcematch-avatars` bucket for avatar uploads)
@@ -217,6 +218,13 @@ scripts/
     telegram_client.py       # TelegramClient class
     health.py                # Failure notification via Telegram
     logging_setup.py         # Logging config → scripts/logs/seo.log
+  ceo/                       # CEO strategic advisor bot (Python)
+    main.py                  # Interactive CLI + single-question mode (`ceo` shell alias)
+    system_prompt.py         # System prompt builder (loads playbook + metrics into CEO persona)
+    metrics.py               # KPI tracker (weekly snapshots, variance reports)
+    weekly_review.py         # AI-generated weekly strategic review
+    config.py                # Secret loader (reuses scripts/data/secrets.json)
+    data/metrics.json        # Weekly KPI snapshots + current metrics
   requirements.txt           # Python deps (anthropic, requests, google-api-python-client)
   schedules/                 # launchd plists (bot daemon + legacy weekly cron)
   data/                      # (gitignored) secrets.json, seo_state.json, seo_calendar.json
@@ -309,6 +317,10 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
   - `www` CNAME → `ghs.googlehosted.com` (DNS-only)
   - MX records → Google Workspace (unchanged)
   - SSL: Google-managed certificate via Cloud Run domain mapping
+- CEO Bot: Python in `scripts/ceo/`, interactive CLI strategic advisor powered by Claude API, uses `docs/strategy/ceo-playbook.md` as knowledge base
+- CEO Bot features: interactive mode (`ceo` alias), single-question mode, deep analysis (Opus), weekly strategic review, KPI tracking with variance reports
+- CEO Bot metrics: `scripts/ceo/data/metrics.json` stores weekly KPI snapshots (supply, demand, revenue, funnel, health categories)
+- Strategic playbook: `docs/strategy/ceo-playbook.md` — 6-month tactical plan, 18-month roadmap, dual funnel strategy, demand/supply acquisition tiers, KPI dashboard, competitive positioning, decision framework
 - GitHub: zee-go/resourcematch
 
 ## Guardrails

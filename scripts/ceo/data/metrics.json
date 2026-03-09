@@ -1,0 +1,41 @@
+{
+  "snapshots": [],
+  "current": {
+    "week_ending": "2026-03-09",
+    "supply": {
+      "applications_received": 0,
+      "candidates_vetted": 0,
+      "total_vetted_live": 0,
+      "vetting_completion_rate": 0,
+      "referral_applications": 0
+    },
+    "demand": {
+      "new_company_signups": 0,
+      "total_registered_companies": 0,
+      "jobs_posted": 0,
+      "profile_views": 0
+    },
+    "revenue": {
+      "unlocks_this_week": 0,
+      "revenue_this_week": 0,
+      "mrr": 0,
+      "total_placements": 0,
+      "active_subscribers": 0
+    },
+    "funnel": {
+      "visitors": 0,
+      "signups": 0,
+      "free_unlocks_used": 0,
+      "paid_unlocks": 0,
+      "subscription_conversions": 0
+    },
+    "health": {
+      "candidate_churn_pct": 0,
+      "company_churn_pct": 0,
+      "avg_time_to_match_hours": 0,
+      "support_tickets": 0,
+      "nps_companies": 0,
+      "nps_candidates": 0
+    }
+  }
+}
