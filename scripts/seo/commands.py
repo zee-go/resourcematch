@@ -290,6 +290,7 @@ def _do_publish(content, file_path):
         title=content["title"],
         keywords=content.get("keywords", []),
         category=content.get("category", ""),
+        target_market=content.get("target_market", "universal"),
     )
 
     # Mark calendar item as published if it matches
@@ -494,6 +495,7 @@ def _do_run_publish_and_next():
         title=content["title"],
         keywords=content.get("keywords", []),
         category=content.get("category", ""),
+        target_market=content.get("target_market", "universal"),
     )
 
     idx = _run_state["current_item_index"]

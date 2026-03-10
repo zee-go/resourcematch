@@ -152,6 +152,7 @@ def run_weekly_content():
                 title=content["title"],
                 keywords=content.get("keywords", []),
                 category=content.get("category", ""),
+                target_market=content.get("target_market", "universal"),
             )
 
             item["status"] = "published"

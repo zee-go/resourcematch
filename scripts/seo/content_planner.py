@@ -20,6 +20,14 @@ def _get_next_pillar_focus(state):
     return pillar_keys[0]
 
 
+def _get_underserved_market(state):
+    """Return the geographic market with fewest published posts."""
+    market_counts = state.get("market_coverage", {})
+    geo_markets = ["us", "uk", "eu", "au"]
+    geo_markets.sort(key=lambda m: len(market_counts.get(m, [])))
+    return geo_markets[0]
+
+
 def generate_weekly_plan():
     """Generate this week's content calendar.
 
@@ -34,9 +42,20 @@ def generate_weekly_plan():
     if existing.get("week_start") == week_start.isoformat():
         return existing
 
-    topics = research_topics(count=4)
+    topics = research_topics(count=6)
+    underserved = _get_underserved_market(state)
 
-    selected = [t for t in topics if t["page_type"] == "blog"][:BLOG_PER_WEEK]
+    blogs = [t for t in topics if t["page_type"] == "blog"]
+    market_match = [t for t in blogs if t.get("target_market") == underserved]
+    others = [t for t in blogs if t not in market_match]
+
+    # Prefer at least 1 topic for the underserved market
+    selected = []
+    if market_match:
+        selected.append(market_match[0])
+    selected.extend([t for t in others if t not in selected])
+    selected = selected[:BLOG_PER_WEEK]
+
     if len(selected) < WEEKLY_TARGET:
         remaining = [t for t in topics if t not in selected]
         selected.extend(remaining[:WEEKLY_TARGET - len(selected)])

@@ -111,8 +111,10 @@ def format_weekly_plan(calendar):
     ]
 
     for i, item in enumerate(calendar.get("items", []), 1):
+        market = item.get("target_market", "universal")
+        market_label = market.upper() if market != "universal" else "ALL"
         lines.append(
-            f"{i}. [BLOG] {item['title_suggestion']}\n"
+            f"{i}. [{market_label}] [BLOG] {item['title_suggestion']}\n"
             f"   Keyword: {item['primary_keyword']}\n"
             f"   Publish: {item['publish_date']}\n"
         )
@@ -130,9 +132,13 @@ def format_content_preview(content, page_type):
     body = content.get("content", "")
     preview_body = body[:500] + "..." if len(body) > 500 else body
 
+    market = content.get("target_market", "universal")
+    market_label = market.upper() if market != "universal" else "ALL MARKETS"
+
     lines = [
         "--- SEO CONTENT PREVIEW ---\n",
         f"Type: BLOG",
+        f"Market: {market_label}",
         f"Title: {title}",
         f"URL: resourcematch.ph/blog/{slug}",
         f"Meta: {meta}",
@@ -169,6 +175,12 @@ def format_weekly_summary(state):
         f"Keywords targeted: {keywords_covered}",
         f"Topic clusters: {clusters}",
     ]
+
+    market_coverage = state.get("market_coverage", {})
+    if market_coverage:
+        lines.append(f"\nMarket coverage:")
+        for market, slugs in sorted(market_coverage.items()):
+            lines.append(f"  {market.upper()}: {len(slugs)} posts")
 
     recent = sorted(
         state.get("blog_posts", []),

@@ -67,6 +67,7 @@ def write_blog_post(generated_content, images=None):
         "reading_time": generated_content.get("reading_time", 8),
         "related_posts": generated_content.get("related_posts", []),
         "internal_links": generated_content.get("internal_links", []),
+        "target_market": generated_content.get("target_market", "universal"),
         "schema_type": "Article",
     }
 
