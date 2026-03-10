@@ -187,12 +187,8 @@ LINKEDIN_SEARCHES = {
 # ─── Reddit Communities ─────────────────────────────────────────
 
 REDDIT_SUBREDDITS = [
-    "phcareers",
-    "buhaydigital",
-    "forhire",
-    "VirtualAssistants",
-    "freelance",
-    "accounting",
+    "phcareers",          # PH careers — job seeking, career advice
+    "buhaydigital",       # PH remote/digital workers
 ]
 
 # Keywords indicating a Filipino professional seeking remote work
