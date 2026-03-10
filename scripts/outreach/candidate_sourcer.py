@@ -1,8 +1,8 @@
 """Candidate sourcer — find senior Filipino professionals via Apollo + Reddit.
 
-Apollo: searches for Filipino professionals by title/location (free, no credits).
+Apollo org search (free): finds Philippine companies by vertical, then generates
+targeted LinkedIn People Search URLs scoped to each company + job title.
 Reddit: scans subreddits via JSON API for job-seeking posts from Filipino professionals.
-LinkedIn search URLs: fallback if Apollo API key not configured.
 """
 
 import json
@@ -35,87 +35,133 @@ CANDIDATE_TITLES = {
 }
 
 
-def search_apollo_candidates(vertical="accounting", max_results=10):
-    """Search Apollo for Filipino professionals matching a vertical.
+VERTICAL_ORG_KEYWORDS = {
+    "accounting": ["accounting", "finance", "bookkeeping", "audit", "tax"],
+    "operations": ["e-commerce", "logistics", "supply chain", "fulfillment", "operations"],
+}
 
-    Uses /mixed_people/api_search (free — no email credits consumed).
-    Returns list of candidate dicts with name, title, company, LinkedIn URL.
-    Falls back to empty list if Apollo key not configured.
+
+def search_apollo_companies(vertical="accounting", max_results=10):
+    """Search Apollo for Philippine companies in a vertical (free endpoint).
+
+    Uses /organizations/search (free on all plans).
+    Returns list of company dicts with name, LinkedIn URL, industry, city, size.
     """
     try:
         from scripts.outreach.config import get_apollo_api_key
         api_key = get_apollo_api_key()
         if not api_key:
-            logger.info("Apollo API key not configured, skipping candidate search.")
+            logger.info("Apollo API key not configured, skipping org search.")
             return []
     except Exception:
-        logger.info("Apollo API key not available, skipping candidate search.")
+        logger.info("Apollo API key not available, skipping org search.")
         return []
 
     from scripts.outreach.state import (
-        get_candidate_state,
         get_apollo_candidate_page,
         set_apollo_candidate_page,
     )
 
-    titles = CANDIDATE_TITLES.get(vertical, CANDIDATE_TITLES["accounting"])
-    page = get_apollo_candidate_page() + 1  # next page
+    keywords = VERTICAL_ORG_KEYWORDS.get(vertical, VERTICAL_ORG_KEYWORDS["accounting"])
+    page = get_apollo_candidate_page() + 1
 
     payload = {
-        "api_key": api_key,
         "page": page,
         "per_page": max_results,
-        "person_titles": titles,
-        "person_locations": ["Philippines"],
-        "person_seniorities": ["senior", "manager", "director", "vp"],
+        "organization_locations": ["Philippines"],
+        "organization_num_employees_ranges": ["11,50", "51,200", "201,500", "501,1000"],
+        "q_organization_keyword_tags": keywords,
+    }
+
+    headers = {
+        "X-Api-Key": api_key,
+        "Content-Type": "application/json",
     }
 
     try:
         resp = requests.post(
-            f"{APOLLO_API_BASE}/mixed_people/search",
+            f"{APOLLO_API_BASE}/organizations/search",
             json=payload,
+            headers=headers,
             timeout=30,
         )
         resp.raise_for_status()
         data = resp.json()
     except requests.RequestException as e:
-        logger.error("Apollo candidate search failed: %s", e)
+        logger.error("Apollo org search failed: %s", e)
         return []
 
-    # Dedup against already-seen LinkedIn URLs
+    # Dedup against already-seen company LinkedIn URLs
+    from scripts.outreach.state import get_candidate_state
     candidate_state = get_candidate_state()
     seen_urls = set(candidate_state.get("seen_apollo_urls", []))
 
-    candidates = []
-    for person in data.get("people", []):
-        linkedin_url = person.get("linkedin_url", "")
-        if not linkedin_url or linkedin_url in seen_urls:
+    companies = []
+    for org in data.get("organizations", []):
+        linkedin_url = org.get("linkedin_url", "")
+        if linkedin_url in seen_urls:
             continue
 
-        org = person.get("organization", {})
-        candidates.append({
-            "name": person.get("name", ""),
-            "first_name": person.get("first_name", ""),
-            "last_name": person.get("last_name", ""),
-            "title": person.get("title", ""),
+        companies.append({
+            "name": org.get("name", ""),
             "linkedin_url": linkedin_url,
-            "company": org.get("name", ""),
-            "city": person.get("city", ""),
-            "country": person.get("country", "Philippines"),
-            "source": "apollo",
+            "website": org.get("website_url", ""),
+            "industry": org.get("industry", ""),
+            "city": org.get("city", ""),
+            "country": org.get("country", "Philippines"),
+            "size": org.get("estimated_num_employees", 0),
+            "keywords": org.get("keywords", [])[:5],
         })
 
-    # Update pagination — reset to 1 if no results (exhausted pages)
-    if candidates:
+    # Update pagination — reset if no results
+    if companies:
         set_apollo_candidate_page(page)
     else:
         set_apollo_candidate_page(0)
 
     logger.info(
-        "Apollo candidate search (%s): found %d candidates (page %d)",
-        vertical, len(candidates), page,
+        "Apollo org search (%s): found %d companies (page %d)",
+        vertical, len(companies), page,
     )
-    return candidates
+    return companies
+
+
+def build_targeted_linkedin_searches(companies, vertical="accounting", titles_per_company=2):
+    """Build LinkedIn People Search URLs from Apollo company data + job titles.
+
+    For each company, generates LinkedIn search URLs scoped to that company
+    with vertical-specific job titles — much more targeted than generic searches.
+
+    Returns list of dicts with company, title, search_url.
+    """
+    titles = CANDIDATE_TITLES.get(vertical, CANDIDATE_TITLES["accounting"])
+
+    searches = []
+    for company in companies:
+        company_name = company.get("name", "")
+        if not company_name:
+            continue
+
+        for title in titles[:titles_per_company]:
+            # Avoid "Philippines Philippines" if company name already contains it
+            location = "" if "philippines" in company_name.lower() else " Philippines"
+            query = f"{title} {company_name}{location}"
+            encoded = requests.utils.quote(query)
+            searches.append({
+                "company": company_name,
+                "company_linkedin": company.get("linkedin_url", ""),
+                "company_industry": company.get("industry", ""),
+                "company_size": company.get("size", 0),
+                "company_city": company.get("city", ""),
+                "title": title,
+                "search_query": query,
+                "search_url": f"https://www.linkedin.com/search/results/people/?keywords={encoded}",
+                "vertical": vertical,
+            })
+
+    logger.info("Built %d targeted LinkedIn searches from %d companies",
+                len(searches), len(companies))
+    return searches
 
 # ─── LinkedIn Search Queries ────────────────────────────────────
 
@@ -266,36 +312,42 @@ def _classify_vertical(post):
 
 
 def get_daily_candidates(directive=None):
-    """Run daily candidate sourcing: Apollo search + Reddit scan.
+    """Run daily candidate sourcing: Apollo org search → LinkedIn URLs + Reddit scan.
 
     Args:
         directive: CEO bot directive dict (optional, guides vertical focus)
 
     Returns:
-        dict with apollo_candidates, linkedin_searches (fallback), and reddit_candidates
+        dict with targeted_searches (Apollo-powered), linkedin_searches (generic fallback),
+        and reddit_candidates
     """
     vertical = "accounting"
     if directive:
         vertical = directive.get("primary_vertical", "accounting")
 
-    # Apollo candidate search (free, no credits)
-    apollo_candidates = search_apollo_candidates(vertical=vertical, max_results=10)
+    # Apollo org search (free) → targeted LinkedIn people search URLs
+    targeted_searches = []
+    companies = search_apollo_companies(vertical=vertical, max_results=5)
+    if companies:
+        targeted_searches = build_targeted_linkedin_searches(
+            companies, vertical=vertical, titles_per_company=2,
+        )
 
-    # Fallback: LinkedIn search URLs if Apollo returned nothing
+    # Fallback: generic LinkedIn search URLs if Apollo returned nothing
     linkedin_searches = []
-    if not apollo_candidates:
+    if not targeted_searches:
         linkedin_searches = get_linkedin_search_urls(vertical=vertical, limit=3)
 
     # Reddit candidate scan
     reddit_candidates = scan_reddit(max_per_sub=15, max_age_days=7)
 
     logger.info(
-        "Daily sourcing: %d Apollo candidates, %d LinkedIn searches, %d Reddit candidates",
-        len(apollo_candidates), len(linkedin_searches), len(reddit_candidates),
+        "Daily sourcing: %d targeted searches, %d generic searches, %d Reddit candidates",
+        len(targeted_searches), len(linkedin_searches), len(reddit_candidates),
     )
 
     return {
-        "apollo_candidates": apollo_candidates,
+        "targeted_searches": targeted_searches,
         "linkedin_searches": linkedin_searches,
         "reddit_candidates": reddit_candidates,
     }

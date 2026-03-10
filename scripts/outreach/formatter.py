@@ -150,6 +150,60 @@ def format_candidate_research_list(candidates):
     return "\n".join(lines)
 
 
+def format_targeted_search_list(searches):
+    """Format Apollo-powered targeted LinkedIn search URLs for Telegram.
+
+    Groups searches by company for easy scanning.
+    """
+    if not searches:
+        return "[Maya] No targeted searches available."
+
+    # Group by company
+    companies = {}
+    for s in searches:
+        company = s.get("company", "Unknown")
+        if company not in companies:
+            companies[company] = {
+                "industry": s.get("company_industry", ""),
+                "size": s.get("company_size", 0),
+                "city": s.get("company_city", ""),
+                "linkedin": s.get("company_linkedin", ""),
+                "searches": [],
+            }
+        companies[company]["searches"].append(s)
+
+    lines = [
+        f"[Maya] Found {len(companies)} companies with {len(searches)} candidate searches\n",
+    ]
+
+    idx = 1
+    for company, info in companies.items():
+        detail = company
+        if info["industry"]:
+            detail += f" ({info['industry']})"
+        if info["size"]:
+            detail += f" ~{info['size']} emp"
+        if info["city"]:
+            detail += f", {info['city']}"
+        lines.append(detail)
+        if info["linkedin"]:
+            lines.append(f"  {info['linkedin']}")
+
+        for s in info["searches"]:
+            lines.append(f"  {idx}. {s['title']}")
+            lines.append(f"     {s['search_url']}")
+            idx += 1
+        lines.append("")
+
+    lines.append(
+        "Open the searches above on LinkedIn. For each promising candidate,\n"
+        "tap 'Draft Message' and I'll compose a personalized pitch.\n\n"
+        'Type "done" when finished or "skip" to move on.'
+    )
+
+    return "\n".join(lines)
+
+
 # ─── Candidate Recruitment Formatters ────────────────────────
 
 def format_linkedin_candidate_preview(search_query, candidate, messages):
@@ -215,7 +269,8 @@ def format_candidate_daily_summary(candidate_stats, linkedin_activity, reddit_ac
 
     if linkedin_activity:
         lines.append("LinkedIn:")
-        lines.append(f"  Candidates found: {linkedin_activity.get('searched', 0)}")
+        lines.append(f"  Companies found: {linkedin_activity.get('companies_found', 0)}")
+        lines.append(f"  Searches generated: {linkedin_activity.get('searches_generated', 0)}")
         lines.append(f"  Messages drafted: {linkedin_activity.get('drafted', 0)}")
         lines.append(f"  Approved: {linkedin_activity.get('approved', 0)}")
         lines.append(f"  Queued for sending: {linkedin_activity.get('queued', 0)}")

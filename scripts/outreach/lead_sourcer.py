@@ -70,7 +70,6 @@ def search_people(segment="hiring_managers", per_page=10, page=1):
     segment_config = ICP_SEGMENTS.get(segment, ICP_SEGMENTS["hiring_managers"])
 
     payload = {
-        "api_key": api_key,
         "page": page,
         "per_page": per_page,
         "person_titles": segment_config["person_titles"],
@@ -78,10 +77,16 @@ def search_people(segment="hiring_managers", per_page=10, page=1):
         **COMPANY_FILTERS,
     }
 
+    headers = {
+        "X-Api-Key": api_key,
+        "Content-Type": "application/json",
+    }
+
     try:
         resp = requests.post(
             f"{APOLLO_API_BASE}/mixed_people/search",
             json=payload,
+            headers=headers,
             timeout=30,
         )
         resp.raise_for_status()

@@ -57,7 +57,7 @@ def run_daily():
         compose_reddit_reply,
     )
     from scripts.outreach.formatter import (
-        format_candidate_research_list,
+        format_targeted_search_list,
         format_linkedin_candidate_preview,
         format_reddit_candidate_preview,
         format_candidate_daily_summary,
@@ -142,7 +142,7 @@ def run_daily():
     send_telegram_message("Sourcing candidates.")
 
     sourcing = get_daily_candidates(directive=directive)
-    apollo_candidates = sourcing.get("apollo_candidates", [])
+    targeted_searches = sourcing.get("targeted_searches", [])
     linkedin_searches = sourcing.get("linkedin_searches", [])
     reddit_candidates = sourcing["reddit_candidates"]
 
@@ -151,127 +151,52 @@ def run_daily():
     seen_urls = set(candidate_state.get("seen_reddit_urls", []))
     reddit_candidates = [c for c in reddit_candidates if c.get("url") not in seen_urls]
 
-    linkedin_activity = {"searched": 0, "drafted": 0, "approved": 0, "queued": 0}
+    linkedin_activity = {
+        "companies_found": 0, "searches_generated": 0,
+        "drafted": 0, "approved": 0, "queued": 0,
+    }
     reddit_activity = {"posts_found": len(reddit_candidates), "drafted": 0, "approved": 0}
 
     # ──────────────────────────────────────────────────────────
-    # Step 2: LinkedIn — Apollo research + user selection
+    # Step 2: LinkedIn — Apollo company research → targeted searches
     # ──────────────────────────────────────────────────────────
-    if apollo_candidates:
-        # Show candidate list for user review
-        linkedin_activity["searched"] = len(apollo_candidates)
-        list_text = format_candidate_research_list(apollo_candidates)
-        send_telegram_message(list_text)
+    all_searches = targeted_searches or linkedin_searches
 
-        log_entry["linkedin"]["apollo_candidates"] = len(apollo_candidates)
-
-        # Wait for user to select candidates by number
+    if all_searches:
         from scripts.outreach.telegram import poll_for_text_reply
 
-        reply = poll_for_text_reply(timeout_minutes=60)
+        if targeted_searches:
+            # Apollo-powered: company-specific LinkedIn searches
+            unique_companies = {s["company"] for s in targeted_searches}
+            linkedin_activity["companies_found"] = len(unique_companies)
+            linkedin_activity["searches_generated"] = len(targeted_searches)
+            list_text = format_targeted_search_list(targeted_searches)
 
-        selected_candidates = []
-        if reply:
-            reply_lower = reply.lower().strip()
-            if reply_lower == "all":
-                selected_candidates = apollo_candidates
-            elif reply_lower in ("none", "done", "skip"):
-                selected_candidates = []
-            else:
-                # Parse numbers like "1, 3, 5" or "1 3 5"
-                import re
-                numbers = re.findall(r"\d+", reply)
-                for num_str in numbers:
-                    idx = int(num_str) - 1  # 1-indexed to 0-indexed
-                    if 0 <= idx < len(apollo_candidates):
-                        selected_candidates.append(apollo_candidates[idx])
+            # Mark company LinkedIn URLs as seen
+            for s in targeted_searches:
+                if s.get("company_linkedin"):
+                    add_seen_apollo_url(s["company_linkedin"])
 
-        # Mark all shown candidates as seen (even unselected, to avoid repeats)
-        for c in apollo_candidates:
-            if c.get("linkedin_url"):
-                add_seen_apollo_url(c["linkedin_url"])
-
-        # Compose messages for each selected candidate
-        for candidate in selected_candidates:
-            candidate_context = {
-                "name": candidate.get("name", ""),
-                "title": candidate.get("title", ""),
-                "company": candidate.get("company", ""),
-                "linkedin_url": candidate.get("linkedin_url", ""),
-                "description": (
-                    f"{candidate.get('name', '')}, {candidate.get('title', '')}"
-                    f" at {candidate.get('company', '')}"
-                ),
-                "vertical": directive.get("primary_vertical", "accounting"),
-            }
-
-            messages = compose_linkedin_recruitment(
-                candidate_context,
-                vertical=directive.get("primary_vertical", "accounting"),
+            log_entry["linkedin"]["companies_found"] = len(unique_companies)
+            log_entry["linkedin"]["targeted_searches"] = len(targeted_searches)
+        else:
+            # Generic fallback
+            linkedin_activity["searches_generated"] = len(linkedin_searches)
+            list_text = "[Maya] LinkedIn Searches for Today\n\n"
+            for i, s in enumerate(linkedin_searches, 1):
+                list_text += f"{i}. \"{s['search_query']}\"\n   {s['search_url']}\n\n"
+            list_text += (
+                "Open these searches on LinkedIn. For each promising candidate,\n"
+                "tap 'Draft Message' and I'll compose a personalized pitch.\n\n"
+                'Type "done" when finished or "skip" to move on.'
             )
-
-            if not messages:
-                continue
-
-            linkedin_activity["drafted"] += 1
-
-            # Preview for approval
-            preview = format_linkedin_candidate_preview(
-                "Apollo search",
-                candidate_context,
-                messages,
-            )
-            buttons = [
-                {"text": "Approve", "callback_data": "outreach_cand_approve"},
-                {"text": "Skip", "callback_data": "outreach_cand_skip"},
-            ]
-            msg_id = send_message_with_inline_keyboard(preview, buttons)
-            response = poll_for_callback(
-                prefix="outreach_cand_",
-                timeout_minutes=30,
-                message_id=msg_id,
-                buttons=buttons,
-            )
-
-            if response == "outreach_cand_approve":
-                linkedin_activity["approved"] += 1
-                from scripts.outreach.linkedin_queue import queue_linkedin_message
-                queue_linkedin_message(
-                    {
-                        "name": candidate.get("name", ""),
-                        "email": "",
-                        "title": candidate.get("title", ""),
-                        "company_name": candidate.get("company", ""),
-                        "linkedin_url": candidate.get("linkedin_url", ""),
-                    },
-                    messages,
-                )
-                linkedin_activity["queued"] += 1
-                add_candidate_prospect({
-                    "source": "apollo",
-                    "name": candidate.get("name", ""),
-                    "linkedin_url": candidate.get("linkedin_url", ""),
-                    "title": candidate.get("title", ""),
-                    "company": candidate.get("company", ""),
-                    "vertical": candidate_context["vertical"],
-                    "messages": messages,
-                })
-
-    elif linkedin_searches:
-        # Fallback: show LinkedIn search URLs (Apollo key not configured)
-        search_text = "[Maya] LinkedIn Searches for Today\n\n"
-        for i, s in enumerate(linkedin_searches, 1):
-            search_text += f"{i}. \"{s['search_query']}\"\n   {s['search_url']}\n\n"
-        search_text += (
-            "Open these searches on LinkedIn. For each promising profile, "
-            "tap 'Draft Message' below and I'll compose a personalized pitch."
-        )
+            log_entry["linkedin"]["generic_searches"] = len(linkedin_searches)
 
         buttons = [
             {"text": "Draft messages", "callback_data": "outreach_li_draft"},
             {"text": "Skip LinkedIn", "callback_data": "outreach_li_skip"},
         ]
-        msg_id = send_message_with_inline_keyboard(search_text, buttons)
+        msg_id = send_message_with_inline_keyboard(list_text, buttons)
         response = poll_for_callback(
             prefix="outreach_li_",
             timeout_minutes=60,
@@ -279,16 +204,11 @@ def run_daily():
             buttons=buttons,
         )
 
-        linkedin_activity["searched"] = len(linkedin_searches)
-        log_entry["linkedin"]["searches"] = linkedin_searches
-
         if response == "outreach_li_draft":
-            from scripts.outreach.telegram import poll_for_text_reply
-
             send_telegram_message(
                 "Describe the candidates you found (one per message).\n"
-                "Include: name, title, and any details you see on their profile.\n\n"
-                "Example: 'Maria Santos, Senior Accountant at Deloitte PH, "
+                "Include: name, title, and any details from their profile.\n\n"
+                "Example: 'Maria Santos, Senior Accountant at CloudCFO, "
                 "10 years experience, CPA, QuickBooks expert'\n\n"
                 "Type 'done' when finished."
             )
@@ -296,7 +216,7 @@ def run_daily():
             candidates_described = []
             while True:
                 reply = poll_for_text_reply(timeout_minutes=30)
-                if not reply or reply.lower().strip() == "done":
+                if not reply or reply.lower().strip() in ("done", "skip"):
                     break
                 candidates_described.append(reply.strip())
 
@@ -318,7 +238,7 @@ def run_daily():
                 linkedin_activity["drafted"] += 1
 
                 preview = format_linkedin_candidate_preview(
-                    linkedin_searches[0]["search_query"] if linkedin_searches else "",
+                    "Apollo company search" if targeted_searches else "LinkedIn search",
                     candidate_context,
                     messages,
                 )
@@ -343,7 +263,7 @@ def run_daily():
                     )
                     linkedin_activity["queued"] += 1
                     add_candidate_prospect({
-                        "source": "linkedin",
+                        "source": "apollo" if targeted_searches else "linkedin",
                         "name": candidate_context["name"],
                         "description": desc,
                         "vertical": candidate_context["vertical"],
@@ -442,7 +362,8 @@ def run_daily():
 
     # Update log entry
     log_entry["linkedin"].update({
-        "candidates_searched": linkedin_activity.get("searched", 0),
+        "companies_found": linkedin_activity.get("companies_found", 0),
+        "searches_generated": linkedin_activity.get("searches_generated", 0),
         "messages_drafted": linkedin_activity.get("drafted", 0),
         "messages_approved": linkedin_activity.get("approved", 0),
         "queued": linkedin_activity.get("queued", 0),
@@ -454,6 +375,7 @@ def run_daily():
         "messages_approved": reddit_activity.get("approved", 0),
     })
     log_entry["results"] = {
+        "apollo_companies_sourced": linkedin_activity.get("companies_found", 0),
         "linkedin_messages_queued": linkedin_activity.get("queued", 0),
         "reddit_replies_approved": reddit_activity.get("approved", 0),
         "vetted_candidates": vetted_count,
