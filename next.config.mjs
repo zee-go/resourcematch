@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  outputFileTracingIncludes: {
+    "/sitemap.xml": ["./content/blog/**/*"],
+  },
   images: {
     remotePatterns: [
       {
