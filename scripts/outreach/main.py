@@ -65,6 +65,7 @@ def run_daily():
     from scripts.outreach.state import (
         get_candidate_state,
         add_candidate_prospect,
+        update_candidate_prospect,
         mark_candidate_messaged,
         get_candidate_stats,
         add_seen_reddit_url,
@@ -159,19 +160,46 @@ def run_daily():
     reddit_activity = {"posts_found": len(reddit_candidates), "drafted": 0, "approved": 0}
 
     # ──────────────────────────────────────────────────────────
-    # Step 2a: Google CSE candidates (actual LinkedIn profile URLs)
+    # Step 2a: Apollo candidates — sync to sheet + draft messages
     # ──────────────────────────────────────────────────────────
+    sheet_synced = 0
     if apollo_candidates:
         send_telegram_message(
-            f"Found {len(apollo_candidates)} candidates with LinkedIn profiles."
+            f"Found {len(apollo_candidates)} candidates with LinkedIn profiles. "
+            "Adding to sheet..."
         )
 
+        # Immediately add all candidates to sheet + state
+        from scripts.outreach.sheets import sync_candidate_to_sheet
+        for person in apollo_candidates:
+            prospect = {
+                "source": "apollo",
+                "name": person.get("name", ""),
+                "description": f"{person.get('title', '')} at {person.get('company', '')}",
+                "vertical": person.get("vertical", "accounting"),
+                "linkedin_url": person.get("linkedin_url", ""),
+                "company": person.get("company", ""),
+                "email": person.get("email", ""),
+                "messages": {},
+            }
+            add_candidate_prospect(prospect)
+            try:
+                sync_candidate_to_sheet(prospect)
+                sheet_synced += 1
+            except Exception as e:
+                logger.warning("Sheet sync failed (non-blocking): %s", e)
+
+        send_telegram_message(
+            f"Added {sheet_synced} candidates to Google Sheet."
+        )
+
+        # Now draft outreach messages for each candidate
         for person in apollo_candidates:
             candidate_context = {
                 "name": person.get("name", ""),
                 "title": person.get("title", ""),
                 "company": person.get("company", ""),
-                "description": person.get("snippet", ""),
+                "description": f"{person.get('title', '')} at {person.get('company', '')}",
                 "vertical": person.get("vertical", "accounting"),
             }
 
@@ -218,21 +246,11 @@ def run_daily():
                     messages,
                 )
                 linkedin_activity["queued"] += 1
-                prospect = {
-                    "source": "apollo",
-                    "name": person.get("name", ""),
-                    "description": person.get("snippet", ""),
-                    "vertical": person.get("vertical", "accounting"),
-                    "linkedin_url": person.get("linkedin_url", ""),
-                    "company": person.get("company", ""),
-                    "messages": messages,
-                }
-                add_candidate_prospect(prospect)
-                try:
-                    from scripts.outreach.sheets import sync_candidate_to_sheet
-                    sync_candidate_to_sheet(prospect)
-                except Exception as e:
-                    logger.warning("Sheet sync failed (non-blocking): %s", e)
+                # Update prospect with approved messages
+                update_candidate_prospect(
+                    person.get("linkedin_url", ""),
+                    {"messages": messages, "status": "messaged"},
+                )
 
     # ──────────────────────────────────────────────────────────
     # Step 2b: LinkedIn — Apollo company research → targeted searches (fallback)
@@ -448,6 +466,8 @@ def run_daily():
     summary = format_candidate_daily_summary(
         candidate_stats, linkedin_activity, reddit_activity,
     )
+    if sheet_synced:
+        summary += f"\n\nGoogle Sheet: {sheet_synced} new candidates added"
     send_telegram_message(summary)
 
     # Update log entry
