@@ -91,8 +91,17 @@ def source_images_for_post(slug, title, primary_keyword, secondary_keywords=None
     """
     result = {"hero_image": None, "mid_image": None}
 
-    hero_query = f"{primary_keyword} professional office philippines"
-    hero_info = search_image(hero_query, orientation="landscape")
+    # Hero image with fallback queries
+    hero_queries = [
+        f"{primary_keyword} professional office philippines",
+        f"{primary_keyword} business professional",
+        "remote work professional office",
+    ]
+    hero_info = None
+    for query in hero_queries:
+        hero_info = search_image(query, orientation="landscape")
+        if hero_info:
+            break
     if hero_info:
         path = download_image(hero_info, slug, "hero.jpg")
         result["hero_image"] = {
@@ -101,10 +110,22 @@ def source_images_for_post(slug, title, primary_keyword, secondary_keywords=None
             "photographer": hero_info["photographer"],
             "photographer_url": hero_info["photographer_url"],
         }
+    else:
+        logger.warning("No hero image found for '%s' after all fallbacks", slug)
 
+    # Mid-article image with fallback queries
     hero_ids = {hero_info["id"]} if hero_info else set()
-    mid_query = (secondary_keywords[0] if secondary_keywords else primary_keyword) + " teamwork"
-    mid_info = search_image(mid_query, orientation="landscape", exclude_ids=hero_ids)
+    mid_keyword = secondary_keywords[0] if secondary_keywords else primary_keyword
+    mid_queries = [
+        f"{mid_keyword} teamwork",
+        f"{mid_keyword} professional",
+        "team collaboration office",
+    ]
+    mid_info = None
+    for query in mid_queries:
+        mid_info = search_image(query, orientation="landscape", exclude_ids=hero_ids)
+        if mid_info:
+            break
     if mid_info:
         path = download_image(mid_info, slug, "mid.jpg")
         result["mid_image"] = {
@@ -113,5 +134,7 @@ def source_images_for_post(slug, title, primary_keyword, secondary_keywords=None
             "photographer": mid_info["photographer"],
             "photographer_url": mid_info["photographer_url"],
         }
+    else:
+        logger.warning("No mid image found for '%s' after all fallbacks", slug)
 
     return result

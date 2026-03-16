@@ -161,7 +161,7 @@ SEO WRITING RULES:
 2. H1: One H1 only (the title). Natural, not keyword-stuffed.
 3. STRUCTURE: Use H2 and H3 headings. Include primary keyword in first H2. Every H2 should be scannable and informative.
 4. INTRO (first 100 words): State the problem clearly. Include primary keyword in the first paragraph. Hook with a specific insight or data point — no generic openings.
-5. BODY (800-1200 words): Keep it concise and scannable. Genuinely useful, specific advice. Use examples from real outsourcing scenarios. Include data points, benchmarks, or specific numbers. Write for decision-makers, not beginners. Short paragraphs (2-3 sentences). Cut filler ruthlessly.
+5. BODY (800-1200 words): STRICT LIMIT — never exceed 1200 words. Aim for 900-1100. Stay concise by cutting filler, redundant transitions, and generic statements, NOT by removing data points, expert insights, benchmarks, or actionable advice. Every sentence should earn its place with specific, useful information. If the topic is broad, narrow the angle rather than writing longer. Short paragraphs (2-3 sentences).
 6. E-E-A-T SIGNALS: Write from the perspective of experienced outsourcing practitioners. Reference specific hiring scenarios, salary benchmarks, and real challenges.
 7. KEYWORD USAGE: Primary keyword in title, first paragraph, one H2, meta description, and naturally 3-5 more times. Secondary keywords scattered naturally. Never force a keyword.
 8. INTERNAL LINKS: Link to 2-3 existing blog posts using descriptive anchor text. Always link to at least one platform page (/dashboard or /hire).

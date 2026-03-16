@@ -299,7 +299,10 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - Kelly interactive bot (`bot.py`): always-on Telegram listener with commands `/traffic`, `/plan`, `/write [topic]`, `/research`, `/publish`, `/status`, `/run`, `/help` + free-form Claude chat for SEO questions
 - Kelly bot architecture: single `getUpdates` poller (avoids Telegram update conflicts), `ThreadPoolExecutor(max_workers=1)` for long-running tasks, callback-driven approval flows (buttons), in-process scheduler replaces separate launchd cron
 - Kelly bot runtime: `python -m scripts.seo.bot` (manual) or `com.zeego.resourcematch-seo-bot.plist` launchd daemon (always-on, KeepAlive)
-- Kelly weekly workflow: traffic report (GSC) → topic research (Claude) → content plan → Telegram approval → generate post (Claude) → source images (Unsplash) → preview → approve → git push → Cloud Build deploy
+- Kelly weekly workflow: traffic report (GSC) → topic research (Claude) → content plan → Telegram approval → generate post (Claude) → source images (Unsplash) → preview → approve → git push → Cloud Build auto-deploy
+- Kelly blog authorship: dynamic by content pillar — "Maya Garcia" for Outsourcing Strategy + Hiring Best Practices, "ResourceMatch Team" for Finance, Ops, Industry Insights (AUTHOR_BY_PILLAR in page_writer.py)
+- Kelly content limits: 800-1200 words strict cap (enforced in Claude prompt), cuts filler not expertise/data
+- Kelly image sourcing: 3 fallback queries per image (hero + mid-article), progressively broader if primary search fails
 - Free trial: 2 free unlocks on company signup (credits: 2), `freeUnlocksUsed` tracks usage, free trial messaging in UnlockModal + Hero + dashboard welcome banner
 - GA4 conversion tracking: `src/lib/analytics.ts` wraps `gtag()` with typed helpers, events tracked across signup funnel, unlock funnel, profile views, search/filters, AI match, purchases, CTA clicks, user properties (user_type, subscription_tier)
 - Automated matching emails: Company model has `matchingEnabled/matchingVertical/matchingExperience/matchingSkills/lastMatchEmailSent` fields, `MatchingPreferences` component on dashboard, `/api/matching/digest` endpoint secured by Bearer token for Cloud Scheduler, `sendMatchDigest()` in email.ts

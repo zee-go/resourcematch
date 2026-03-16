@@ -39,7 +39,7 @@ function parseFrontmatter(filePath: string): BlogPost {
     description: data.description || "",
     date: data.date || "",
     updated: data.updated || null,
-    author: data.author || "ResourceMatch",
+    author: data.author || "ResourceMatch Team",
     category: data.category || "general",
     tags: data.tags || [],
     keywords: data.keywords || [],

@@ -9,6 +9,14 @@ logger = logging.getLogger(__name__)
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 BLOG_DIR = REPO_ROOT / "content" / "blog"
 
+AUTHOR_BY_PILLAR = {
+    "outsourcing_strategy": "Maya Garcia",
+    "hiring_best_practices": "Maya Garcia",
+    "finance_accounting": "ResourceMatch Team",
+    "operations_management": "ResourceMatch Team",
+    "industry_insights": "ResourceMatch Team",
+}
+
 
 def _format_frontmatter(data):
     """Convert a dict to YAML frontmatter string."""
@@ -60,7 +68,9 @@ def write_blog_post(generated_content, images=None):
         "description": generated_content["meta_description"],
         "date": today,
         "updated": today,
-        "author": "ResourceMatch",
+        "author": AUTHOR_BY_PILLAR.get(
+            generated_content.get("category", ""), "ResourceMatch Team"
+        ),
         "category": generated_content.get("category", "outsourcing_strategy"),
         "tags": generated_content.get("tags", []),
         "keywords": generated_content.get("keywords", []),
