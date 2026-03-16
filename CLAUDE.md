@@ -37,7 +37,7 @@ Key differentiators:
 - **Payments**: Stripe Checkout (redirect, zero PCI scope)
 - **Forms**: React Hook Form + Zod validation
 - **Storage**: Google Cloud Storage (`resourcematch-avatars` bucket for avatar uploads)
-- **Deployment**: GCP Cloud Run (Docker, Cloud Build CI/CD)
+- **Deployment**: GCP Cloud Run (Docker, Cloud Build CI/CD — auto-deploy on push to main)
 
 ## Code Structure
 
@@ -304,14 +304,14 @@ Future verticals (month 6+): Healthcare Admin, Digital Marketing
 - GA4 conversion tracking: `src/lib/analytics.ts` wraps `gtag()` with typed helpers, events tracked across signup funnel, unlock funnel, profile views, search/filters, AI match, purchases, CTA clicks, user properties (user_type, subscription_tier)
 - Automated matching emails: Company model has `matchingEnabled/matchingVertical/matchingExperience/matchingSkills/lastMatchEmailSent` fields, `MatchingPreferences` component on dashboard, `/api/matching/digest` endpoint secured by Bearer token for Cloud Scheduler, `sendMatchDigest()` in email.ts
 - Deployed to GCP Cloud Run: `resourcematch-vimf2wal7a-as.a.run.app`
-- Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD (manual `gcloud builds submit` — no auto-trigger configured)
+- Cloud SQL seeded, Secret Manager configured, Cloud Build CI/CD with auto-deploy trigger (`deploy-on-push-to-main`) — pushes to `main` auto-build and deploy via 2nd-gen GitHub connection (`github-zeego`)
 - Cloud Scheduler jobs: `matching-digest` (Mon 10AM), `job-sync` (daily 6AM Manila)
 - Vetting score auto-recalculation: `src/server/utils/recalculate-vetting.ts` called by all 4 vetting endpoints after upsert, updates Candidate.vettingScore + VettingProfile + verified status + englishScore
 - Application → Candidate auto-conversion: `src/server/utils/convert-application.ts` pre-screens applications (experience ≥ 5, skills ≥ 2, bio ≥ 50 chars, vertical keyword match ≥ 2), auto-converts qualified applicants to User + Candidate in a transaction (carries resumeUrl), unqualified stay PENDING for manual review
 - Apply page resume upload: PDF only (max 5MB, max 2 pages via pdf-lib), uploaded to GCS `resumes/` prefix via `/api/applications/upload-resume`, stored as `Application.resumeUrl`, carried to `Candidate.resumeUrl` on auto-conversion
 - Admin application management: Approve triggers auto-conversion with feedback UI (success/error messages in dialog), `src/components/admin/ApplicationsTab.tsx`
 - Avatar upload: `POST /api/candidate/avatar` (formidable multipart parsing → GCS `resourcematch-avatars` bucket), `src/server/utils/storage.ts` handles upload/delete, candidates see camera overlay on profile page
-- Last deployed: 2026-03-09 (commit 3751191)
+- Last deployed: 2026-03-16 (commit de765d9, auto-deploy trigger)
 - Domain: `resourcematch.ph` — Cloudflare DNS (zone `f55cc59b877aee0c0f5e92c2bdccaa1a`) → GCP Cloud Run domain mapping
   - A records (x4) → `216.239.x.x` (Google domain mapping IPs, DNS-only)
   - `www` CNAME → `ghs.googlehosted.com` (DNS-only)
