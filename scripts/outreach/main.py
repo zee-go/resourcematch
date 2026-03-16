@@ -142,6 +142,7 @@ def run_daily():
     send_telegram_message("Sourcing candidates.")
 
     sourcing = get_daily_candidates(directive=directive)
+    apollo_candidates = sourcing.get("apollo_candidates", [])
     targeted_searches = sourcing.get("targeted_searches", [])
     linkedin_searches = sourcing.get("linkedin_searches", [])
     reddit_candidates = sourcing["reddit_candidates"]
@@ -158,7 +159,83 @@ def run_daily():
     reddit_activity = {"posts_found": len(reddit_candidates), "drafted": 0, "approved": 0}
 
     # ──────────────────────────────────────────────────────────
-    # Step 2: LinkedIn — Apollo company research → targeted searches
+    # Step 2a: Google CSE candidates (actual LinkedIn profile URLs)
+    # ──────────────────────────────────────────────────────────
+    if apollo_candidates:
+        send_telegram_message(
+            f"Found {len(apollo_candidates)} candidates with LinkedIn profiles."
+        )
+
+        for person in apollo_candidates:
+            candidate_context = {
+                "name": person.get("name", ""),
+                "title": person.get("title", ""),
+                "company": person.get("company", ""),
+                "description": person.get("snippet", ""),
+                "vertical": person.get("vertical", "accounting"),
+            }
+
+            messages = compose_linkedin_recruitment(
+                candidate_context,
+                vertical=directive.get("primary_vertical", "accounting"),
+            )
+
+            if not messages:
+                continue
+
+            linkedin_activity["drafted"] += 1
+
+            preview = format_linkedin_candidate_preview(
+                "Apollo people search",
+                candidate_context,
+                messages,
+            )
+            preview += f"\n\nLinkedIn: {person.get('linkedin_url', '')}"
+
+            buttons = [
+                {"text": "Approve", "callback_data": "outreach_cand_approve"},
+                {"text": "Skip", "callback_data": "outreach_cand_skip"},
+            ]
+            msg_id = send_message_with_inline_keyboard(preview, buttons)
+            response = poll_for_callback(
+                prefix="outreach_cand_",
+                timeout_minutes=30,
+                message_id=msg_id,
+                buttons=buttons,
+            )
+
+            if response == "outreach_cand_approve":
+                linkedin_activity["approved"] += 1
+                from scripts.outreach.linkedin_queue import queue_linkedin_message
+                queue_linkedin_message(
+                    {
+                        "name": person.get("name", ""),
+                        "email": "",
+                        "title": person.get("title", ""),
+                        "company_name": person.get("company", ""),
+                        "linkedin_url": person.get("linkedin_url", ""),
+                    },
+                    messages,
+                )
+                linkedin_activity["queued"] += 1
+                prospect = {
+                    "source": "apollo",
+                    "name": person.get("name", ""),
+                    "description": person.get("snippet", ""),
+                    "vertical": person.get("vertical", "accounting"),
+                    "linkedin_url": person.get("linkedin_url", ""),
+                    "company": person.get("company", ""),
+                    "messages": messages,
+                }
+                add_candidate_prospect(prospect)
+                try:
+                    from scripts.outreach.sheets import sync_candidate_to_sheet
+                    sync_candidate_to_sheet(prospect)
+                except Exception as e:
+                    logger.warning("Sheet sync failed (non-blocking): %s", e)
+
+    # ──────────────────────────────────────────────────────────
+    # Step 2b: LinkedIn — Apollo company research → targeted searches (fallback)
     # ──────────────────────────────────────────────────────────
     all_searches = targeted_searches or linkedin_searches
 

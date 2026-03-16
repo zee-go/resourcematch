@@ -35,3 +35,5 @@ def get_physical_address():
 def get_candidate_sheet_id():
     """Google Sheet ID for candidate leads tracker."""
     return _get_secret("candidate-sheet-id")
+
+

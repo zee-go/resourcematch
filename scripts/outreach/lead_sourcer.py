@@ -84,7 +84,7 @@ def search_people(segment="hiring_managers", per_page=10, page=1):
 
     try:
         resp = requests.post(
-            f"{APOLLO_API_BASE}/mixed_people/search",
+            f"{APOLLO_API_BASE}/mixed_people/api_search",
             json=payload,
             headers=headers,
             timeout=30,

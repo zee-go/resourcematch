@@ -41,6 +41,111 @@ VERTICAL_ORG_KEYWORDS = {
 }
 
 
+def search_apollo_candidates(vertical="accounting", per_page=5):
+    """Search Apollo for Filipino professionals, then reveal their LinkedIn URLs.
+
+    Two-step flow:
+    1. /mixed_people/api_search — find candidates (free, returns obfuscated data)
+    2. /people/match — reveal full profile per candidate (1 credit each)
+
+    Returns list of person dicts with name, title, linkedin_url, company, email.
+    """
+    try:
+        from scripts.outreach.config import get_apollo_api_key
+        api_key = get_apollo_api_key()
+        if not api_key:
+            logger.info("Apollo API key not configured, skipping people search.")
+            return []
+    except Exception:
+        logger.info("Apollo API key not available, skipping people search.")
+        return []
+
+    from scripts.outreach.state import get_candidate_state, add_seen_apollo_url
+
+    titles = CANDIDATE_TITLES.get(vertical, CANDIDATE_TITLES["accounting"])
+
+    headers = {
+        "X-Api-Key": api_key,
+        "Content-Type": "application/json",
+    }
+
+    # Step 1: Search (free — returns obfuscated results with IDs)
+    payload = {
+        "page": 1,
+        "per_page": per_page,
+        "person_titles": titles,
+        "person_seniorities": ["senior", "manager", "director"],
+        "person_locations": ["Philippines"],
+    }
+
+    try:
+        resp = requests.post(
+            f"{APOLLO_API_BASE}/mixed_people/api_search",
+            json=payload,
+            headers=headers,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except requests.RequestException as e:
+        logger.error("Apollo people search failed: %s", e)
+        return []
+
+    # Dedup against already-seen IDs/URLs
+    candidate_state = get_candidate_state()
+    seen_urls = set(candidate_state.get("seen_apollo_urls", []))
+
+    # Step 2: Reveal each candidate (1 credit per person)
+    candidates = []
+    for person in data.get("people", []):
+        person_id = person.get("id", "")
+        if not person_id or person_id in seen_urls:
+            continue
+
+        try:
+            reveal_resp = requests.post(
+                f"{APOLLO_API_BASE}/people/match",
+                json={"id": person_id},
+                headers=headers,
+                timeout=15,
+            )
+            reveal_resp.raise_for_status()
+            revealed = reveal_resp.json().get("person", {})
+        except requests.RequestException as e:
+            logger.warning("Apollo reveal failed for %s: %s", person_id, e)
+            continue
+
+        linkedin_url = revealed.get("linkedin_url", "")
+        if not linkedin_url:
+            continue
+
+        # Skip if we've already seen this LinkedIn URL
+        if linkedin_url in seen_urls:
+            continue
+
+        org = revealed.get("organization", {})
+        candidates.append({
+            "source": "apollo",
+            "name": revealed.get("name", ""),
+            "first_name": revealed.get("first_name", ""),
+            "last_name": revealed.get("last_name", ""),
+            "title": revealed.get("title", ""),
+            "email": revealed.get("email", ""),
+            "linkedin_url": linkedin_url,
+            "company": org.get("name", ""),
+            "company_industry": org.get("industry", ""),
+            "vertical": vertical,
+        })
+        add_seen_apollo_url(linkedin_url)
+        add_seen_apollo_url(person_id)
+
+    logger.info(
+        "Apollo people search (%s): found %d candidates (%d credits used)",
+        vertical, len(candidates), len(candidates),
+    )
+    return candidates
+
+
 def search_apollo_companies(vertical="accounting", max_results=10):
     """Search Apollo for Philippine companies in a vertical (free endpoint).
 
@@ -308,41 +413,47 @@ def _classify_vertical(post):
 
 
 def get_daily_candidates(directive=None):
-    """Run daily candidate sourcing: Apollo org search → LinkedIn URLs + Reddit scan.
+    """Run daily candidate sourcing: Apollo people search → company fallback + Reddit.
 
     Args:
         directive: CEO bot directive dict (optional, guides vertical focus)
 
     Returns:
-        dict with targeted_searches (Apollo-powered), linkedin_searches (generic fallback),
+        dict with apollo_candidates (direct people with LinkedIn URLs),
+        targeted_searches (company-scoped fallback), linkedin_searches (generic fallback),
         and reddit_candidates
     """
     vertical = "accounting"
     if directive:
         vertical = directive.get("primary_vertical", "accounting")
 
-    # Apollo org search (free) → targeted LinkedIn people search URLs
-    targeted_searches = []
-    companies = search_apollo_companies(vertical=vertical, max_results=5)
-    if companies:
-        targeted_searches = build_targeted_linkedin_searches(
-            companies, vertical=vertical, titles_per_company=2,
-        )
+    # Primary: Apollo people search — returns individual LinkedIn URLs
+    apollo_candidates = search_apollo_candidates(vertical=vertical, per_page=5)
 
-    # Fallback: generic LinkedIn search URLs if Apollo returned nothing
+    # Fallback: Apollo org search → targeted LinkedIn search URLs
+    targeted_searches = []
     linkedin_searches = []
-    if not targeted_searches:
-        linkedin_searches = get_linkedin_search_urls(vertical=vertical, limit=3)
+    if not apollo_candidates:
+        companies = search_apollo_companies(vertical=vertical, max_results=5)
+        if companies:
+            targeted_searches = build_targeted_linkedin_searches(
+                companies, vertical=vertical, titles_per_company=2,
+            )
+        if not targeted_searches:
+            linkedin_searches = get_linkedin_search_urls(vertical=vertical, limit=3)
 
     # Reddit candidate scan
     reddit_candidates = scan_reddit(max_per_sub=15, max_age_days=7)
 
     logger.info(
-        "Daily sourcing: %d targeted searches, %d generic searches, %d Reddit candidates",
-        len(targeted_searches), len(linkedin_searches), len(reddit_candidates),
+        "Daily sourcing: %d Apollo candidates, %d targeted searches, "
+        "%d generic searches, %d Reddit candidates",
+        len(apollo_candidates), len(targeted_searches),
+        len(linkedin_searches), len(reddit_candidates),
     )
 
     return {
+        "apollo_candidates": apollo_candidates,
         "targeted_searches": targeted_searches,
         "linkedin_searches": linkedin_searches,
         "reddit_candidates": reddit_candidates,
