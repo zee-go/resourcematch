@@ -262,13 +262,19 @@ def run_daily():
                         messages,
                     )
                     linkedin_activity["queued"] += 1
-                    add_candidate_prospect({
+                    prospect = {
                         "source": "apollo" if targeted_searches else "linkedin",
                         "name": candidate_context["name"],
                         "description": desc,
                         "vertical": candidate_context["vertical"],
                         "messages": messages,
-                    })
+                    }
+                    add_candidate_prospect(prospect)
+                    try:
+                        from scripts.outreach.sheets import sync_candidate_to_sheet
+                        sync_candidate_to_sheet(prospect)
+                    except Exception as e:
+                        logger.warning("Sheet sync failed (non-blocking): %s", e)
 
     # ──────────────────────────────────────────────────────────
     # Step 3: Reddit — preview candidates + draft replies
@@ -306,14 +312,21 @@ def run_daily():
 
             if response == "outreach_reddit_approve":
                 reddit_activity["approved"] += 1
-                add_candidate_prospect({
+                prospect = {
                     "source": "reddit",
+                    "name": post.get("author", ""),
                     "author": post.get("author", ""),
                     "url": post.get("url", ""),
                     "subreddit": post.get("subreddit", ""),
                     "vertical": post.get("vertical", "general"),
                     "messages": messages,
-                })
+                }
+                add_candidate_prospect(prospect)
+                try:
+                    from scripts.outreach.sheets import sync_candidate_to_sheet
+                    sync_candidate_to_sheet(prospect)
+                except Exception as e:
+                    logger.warning("Sheet sync failed (non-blocking): %s", e)
     else:
         send_telegram_message("No new Reddit candidate signals today.")
 

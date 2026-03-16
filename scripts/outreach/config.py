@@ -30,3 +30,8 @@ def get_database_url():
 def get_physical_address():
     """CAN-SPAM required physical mailing address."""
     return _get_secret("outreach-physical-address")
+
+
+def get_candidate_sheet_id():
+    """Google Sheet ID for candidate leads tracker."""
+    return _get_secret("candidate-sheet-id")
