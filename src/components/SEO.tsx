@@ -23,9 +23,6 @@ export function SEOElements({
     <>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="icon" href="/logo-icon.svg" type="image/svg+xml" />
-      <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
-      <link rel="apple-touch-icon" href="/logo-icon-accent.svg" />
 
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />

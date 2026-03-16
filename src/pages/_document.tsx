@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils";
 import { Html, Head, Main, NextScript } from "next/document";
-import { SEOElements } from "@/components/SEO";
 
 export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <SEOElements />
+        <link rel="icon" href="/logo-icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/logo-icon-accent.svg" />
         {/* Google Analytics 4 */}
         <script
           async
