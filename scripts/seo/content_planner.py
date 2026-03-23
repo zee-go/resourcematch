@@ -8,8 +8,9 @@ from scripts.seo.topic_researcher import research_topics, CONTENT_PILLARS
 
 logger = logging.getLogger(__name__)
 
-WEEKLY_TARGET = 2
+WEEKLY_TARGET = 3
 BLOG_PER_WEEK = 2
+LANDING_PER_WEEK = 1
 
 
 def _get_next_pillar_focus(state):
@@ -42,25 +43,32 @@ def generate_weekly_plan():
     if existing.get("week_start") == week_start.isoformat():
         return existing
 
-    topics = research_topics(count=6)
+    topics = research_topics(count=8)
     underserved = _get_underserved_market(state)
 
     blogs = [t for t in topics if t["page_type"] == "blog"]
+    landings = [t for t in topics if t["page_type"] == "landing"]
+
+    # Select blogs: prefer underserved market
     market_match = [t for t in blogs if t.get("target_market") == underserved]
     others = [t for t in blogs if t not in market_match]
-
-    # Prefer at least 1 topic for the underserved market
-    selected = []
+    selected_blogs = []
     if market_match:
-        selected.append(market_match[0])
-    selected.extend([t for t in others if t not in selected])
-    selected = selected[:BLOG_PER_WEEK]
+        selected_blogs.append(market_match[0])
+    selected_blogs.extend([t for t in others if t not in selected_blogs])
+    selected_blogs = selected_blogs[:BLOG_PER_WEEK]
 
+    # Select landing page
+    selected_landings = landings[:LANDING_PER_WEEK]
+
+    selected = selected_blogs + selected_landings
+
+    # Fill remaining slots if needed
     if len(selected) < WEEKLY_TARGET:
         remaining = [t for t in topics if t not in selected]
         selected.extend(remaining[:WEEKLY_TARGET - len(selected)])
 
-    publish_days = [1, 3]  # Tuesday, Thursday
+    publish_days = [1, 2, 3]  # Tuesday, Wednesday, Thursday
     items = []
     for i, topic in enumerate(selected[:WEEKLY_TARGET]):
         day_offset = publish_days[i] if i < len(publish_days) else publish_days[-1]

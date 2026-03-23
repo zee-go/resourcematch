@@ -42,7 +42,7 @@ def publish_page(file_path, title, page_type="blog", slug=None):
     _run_git(["add", str(rel_path)])
 
     # Stage images if they exist
-    if slug and page_type == "blog":
+    if slug:
         images_dir = REPO_ROOT / "public" / "blog" / "images" / slug
         if images_dir.exists():
             rel_images = images_dir.relative_to(REPO_ROOT)

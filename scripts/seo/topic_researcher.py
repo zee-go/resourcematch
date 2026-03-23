@@ -112,6 +112,7 @@ def research_topics(count=5):
     state = get_state()
     existing_keywords = list(state.get("keyword_coverage", {}).keys())
     existing_titles = [p["title"] for p in state.get("blog_posts", [])]
+    existing_titles += [p["title"] for p in state.get("landing_pages", [])]
 
     pillars_context = "\n".join(
         f"- {k}: {v['label']} — {v['description']} (seeds: {', '.join(v['seed_keywords'][:3])})"
@@ -145,9 +146,13 @@ ALREADY PUBLISHED (do NOT repeat these topics):
 ALREADY TARGETED KEYWORDS:
 {', '.join(existing_keywords[:50]) if existing_keywords else "None yet."}
 
-Generate exactly {count} blog post ideas (informational, 1500-2500 words).
+Generate exactly {count} content ideas:
+- At least 2 should be blog posts (page_type: "blog") — informational, 800-1200 words
+- At least 2 should be landing pages (page_type: "landing") — commercial intent, 600-900 words
 
-Target informational search intent — "how to hire", "guide to outsourcing", "best practices", "cost of", "vs" comparisons, "top skills", "checklist".
+BLOG POSTS target informational search intent — "how to hire", "guide to outsourcing", "best practices", "cost of", "vs" comparisons, "top skills", "checklist".
+
+LANDING PAGES target commercial/transactional search intent — "hire filipino accountant", "outsource bookkeeping philippines", "filipino operations manager". These are conversion-focused pages that sell ResourceMatch's value for a specific role, vertical, or use case. They should target keywords where someone is ready to take action.
 
 GEOGRAPHIC TARGETING:
 - Generate a MIX of universal topics (applicable to all markets) AND region-specific topics (targeting one market's compliance, salary norms, or regulations)

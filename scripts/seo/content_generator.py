@@ -197,3 +197,105 @@ Return JSON:
     )
 
     return _parse_json_response(message.content[0].text)
+
+
+def generate_landing_page(topic_plan):
+    """Generate a conversion-focused landing page.
+
+    Args:
+        topic_plan: dict from content_planner with topic, primary_keyword,
+                    secondary_keywords, title_suggestion, meta_description, pillar
+
+    Returns:
+        dict with title, slug, meta_description, category, tags, keywords,
+        content, cta_title, cta_description, cta_button_text, cta_button_href
+    """
+    api_key = _get_secret("anthropic-api-key")
+    client = anthropic.Anthropic(api_key=api_key, max_retries=5)
+
+    state = get_state()
+    existing_posts = state.get("blog_posts", [])
+    internal_link_targets = [
+        {"slug": p["slug"], "title": p["title"], "keywords": p.get("keywords", [])}
+        for p in existing_posts[-20:]
+    ]
+
+    target_market = topic_plan.get("target_market", "universal")
+    market_context = _get_market_context(target_market)
+
+    prompt = f"""Write a conversion-focused SEO landing page for resourcematch.ph.
+
+BUSINESS CONTEXT:
+{RESOURCEMATCH_CONTEXT}
+
+{BRAND_VOICE}
+
+ARTICLE ASSIGNMENT:
+- Topic: {topic_plan['topic']}
+- Primary keyword: {topic_plan['primary_keyword']}
+- Secondary keywords: {', '.join(topic_plan.get('secondary_keywords', []))}
+- Search intent: commercial/transactional
+- Content pillar: {topic_plan.get('pillar', '')}
+- Target market: {target_market}
+- Title: {topic_plan['title_suggestion']}
+- Meta description: {topic_plan['meta_description']}
+
+GEOGRAPHIC CONTEXT:
+{market_context}
+
+EXISTING BLOG POSTS (for internal linking):
+{json.dumps(internal_link_targets, indent=2) if internal_link_targets else 'No existing blog posts yet.'}
+
+PLATFORM PAGES FOR LINKING:
+- /dashboard — Browse vetted professionals (main CTA target)
+- /hire — Pricing plans and credit packs
+- /signup — Free account registration
+- /apply — Professionals can apply
+- /jobs — Browse job listings
+- /blog — Blog listing
+
+LANDING PAGE RULES:
+1. TITLE: Under 60 characters. Primary keyword near the front. Compelling, action-oriented.
+2. LENGTH: 600-900 words. Every word must earn its place.
+3. STRUCTURE:
+   - Opening hook (2-3 sentences): state the pain point, hint at the solution
+   - Value proposition section: why ResourceMatch for this specific need
+   - Key benefits (3-5 bullet points or short sections with H2s)
+   - Social proof / data points: salary comparisons, vetting stats, time zone advantages
+   - How it works (brief 3-step process)
+   - Mid-page <CTABanner /> (on its own line, not wrapped in markdown)
+   - FAQ section (3-4 common questions as H3s with brief answers)
+   - Final CTA section (handled by page template)
+4. TONE: Confident, direct, consultative. Like a senior outsourcing advisor closing a deal.
+5. KEYWORD USAGE: Primary keyword in title, first paragraph, one H2, meta description. Natural throughout.
+6. INTERNAL LINKS: Link to 2-3 blog posts and at least /dashboard or /hire.
+7. DO NOT: Use generic filler, em dashes, or emoji. No "In today's world" openers.
+8. GEOGRAPHIC ACCURACY: Use the target market's currency, regulations, and tools.
+9. INCLUDE specific numbers: salary ranges, cost savings percentages, vetting pass rates.
+
+Return JSON:
+{{
+  "title": "final page title",
+  "slug": "url-friendly-slug (short, keyword-rich, no 'landing' prefix)",
+  "meta_description": "final meta description under 160 chars",
+  "category": "{topic_plan.get('pillar', 'outsourcing_strategy')}",
+  "target_market": "{target_market}",
+  "tags": ["3-5 relevant tags"],
+  "keywords": ["{topic_plan['primary_keyword']}", "...secondary keywords"],
+  "content": "the full page in Markdown (H2s, H3s, bold, links, bullet points)",
+  "cta_title": "custom CTA heading for this page",
+  "cta_description": "custom CTA subtext",
+  "cta_button_text": "custom button text",
+  "cta_button_href": "/dashboard or /signup",
+  "internal_links": [
+    {{"anchor": "anchor text used", "href": "/blog/slug-or-path"}}
+  ]
+}}"""
+
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=8192,
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    return _parse_json_response(message.content[0].text)

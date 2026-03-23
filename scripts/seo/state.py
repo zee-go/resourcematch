@@ -45,16 +45,22 @@ def record_publication(page_type, slug, title, keywords, category, target_market
         "keywords": keywords,
         "category": category,
         "target_market": target_market,
+        "page_type": page_type,
     }
 
+    # Use separate lists for blogs and landing pages
+    list_key = "landing_pages" if page_type == "landing" else "blog_posts"
+    if list_key not in state:
+        state[list_key] = []
+
     # Remove existing entry with same slug (re-publish / regeneration)
-    existing = [p for p in state["blog_posts"] if p["slug"] == slug]
+    existing = [p for p in state[list_key] if p["slug"] == slug]
     if existing:
-        state["blog_posts"] = [p for p in state["blog_posts"] if p["slug"] != slug]
+        state[list_key] = [p for p in state[list_key] if p["slug"] != slug]
     else:
         state["total_published"] += 1
 
-    state["blog_posts"].append(entry)
+    state[list_key].append(entry)
 
     for kw in keywords:
         if kw not in state["keyword_coverage"]:

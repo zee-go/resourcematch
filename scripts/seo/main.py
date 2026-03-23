@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 def run_weekly_content():
     """Main weekly flow: plan -> generate -> preview -> approve -> publish."""
     from scripts.seo.content_planner import generate_weekly_plan
-    from scripts.seo.content_generator import generate_blog_post
-    from scripts.seo.page_writer import write_blog_post
+    from scripts.seo.content_generator import generate_blog_post, generate_landing_page
+    from scripts.seo.page_writer import write_blog_post, write_landing_page
     from scripts.seo.publisher import publish_page
     from scripts.seo.state import record_publication, get_state, save_calendar
     from scripts.seo.formatter import (
@@ -81,7 +81,13 @@ def run_weekly_content():
         )
 
         try:
-            content = generate_blog_post(item)
+            page_type = item.get("page_type", "blog")
+            is_landing = page_type == "landing"
+
+            if is_landing:
+                content = generate_landing_page(item)
+            else:
+                content = generate_blog_post(item)
 
             # Source images (non-blocking)
             images = None
@@ -96,12 +102,15 @@ def run_weekly_content():
             except Exception as img_err:
                 logger.warning("Image sourcing failed, continuing without: %s", img_err)
 
-            file_path = write_blog_post(content, images=images)
+            if is_landing:
+                file_path = write_landing_page(content, images=images)
+            else:
+                file_path = write_blog_post(content, images=images)
 
             # Preview for approval — loop up to 3 regenerations
             approved = False
             for attempt in range(3):
-                preview = format_content_preview(content, item["page_type"])
+                preview = format_content_preview(content, page_type)
                 buttons = [
                     {"text": "Publish", "callback_data": "seo_content_approve"},
                     {"text": "Regenerate", "callback_data": "seo_content_regenerate"},
@@ -118,7 +127,10 @@ def run_weekly_content():
                     break
                 elif response == "seo_content_regenerate":
                     logger.info("Regenerating content (attempt %d).", attempt + 2)
-                    content = generate_blog_post(item)
+                    if is_landing:
+                        content = generate_landing_page(item)
+                    else:
+                        content = generate_blog_post(item)
                     images = None
                     try:
                         from scripts.seo.image_client import source_images_for_post
@@ -130,7 +142,10 @@ def run_weekly_content():
                         )
                     except Exception as img_err:
                         logger.warning("Image sourcing failed on regen: %s", img_err)
-                    file_path = write_blog_post(content, images=images)
+                    if is_landing:
+                        file_path = write_landing_page(content, images=images)
+                    else:
+                        file_path = write_blog_post(content, images=images)
                 elif response in (None, "seo_content_skip"):
                     send_telegram_message(f"Skipped: {item['title_suggestion']}")
                     break
@@ -142,7 +157,7 @@ def run_weekly_content():
             commit_hash = publish_page(
                 file_path,
                 content["title"],
-                page_type="blog",
+                page_type=page_type,
                 slug=content.get("slug"),
             )
 

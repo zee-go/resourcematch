@@ -113,8 +113,9 @@ def format_weekly_plan(calendar):
     for i, item in enumerate(calendar.get("items", []), 1):
         market = item.get("target_market", "universal")
         market_label = market.upper() if market != "universal" else "ALL"
+        page_type = item.get("page_type", "blog").upper()
         lines.append(
-            f"{i}. [{market_label}] [BLOG] {item['title_suggestion']}\n"
+            f"{i}. [{market_label}] [{page_type}] {item['title_suggestion']}\n"
             f"   Keyword: {item['primary_keyword']}\n"
             f"   Publish: {item['publish_date']}\n"
         )
@@ -135,12 +136,15 @@ def format_content_preview(content, page_type):
     market = content.get("target_market", "universal")
     market_label = market.upper() if market != "universal" else "ALL MARKETS"
 
+    type_label = page_type.upper() if page_type else "BLOG"
+    url_prefix = "blog/" if page_type == "blog" else ""
+
     lines = [
         "--- SEO CONTENT PREVIEW ---\n",
-        f"Type: BLOG",
+        f"Type: {type_label}",
         f"Market: {market_label}",
         f"Title: {title}",
-        f"URL: resourcematch.ph/blog/{slug}",
+        f"URL: resourcematch.ph/{url_prefix}{slug}",
         f"Meta: {meta}",
         f"Keywords: {', '.join(keywords[:5])}\n",
         "--- CONTENT PREVIEW ---\n",
@@ -154,9 +158,11 @@ def format_content_preview(content, page_type):
 
 def format_publish_confirmation(title, slug, page_type, commit_hash):
     """Format a publish success message."""
+    url_prefix = "blog/" if page_type == "blog" else ""
     return (
         f"Published: {title}\n\n"
-        f"URL: resourcematch.ph/blog/{slug}\n"
+        f"Type: {page_type.upper()}\n"
+        f"URL: resourcematch.ph/{url_prefix}{slug}\n"
         f"Commit: {commit_hash[:8]}\n"
         f"Cloud Build deploy triggered \u2014 live in ~3 minutes."
     )
@@ -166,12 +172,13 @@ def format_weekly_summary(state):
     """Format a weekly SEO summary."""
     total = state.get("total_published", 0)
     blogs = len(state.get("blog_posts", []))
+    landings = len(state.get("landing_pages", []))
     keywords_covered = len(state.get("keyword_coverage", {}))
     clusters = len(state.get("topic_clusters", {}))
 
     lines = [
         "Kelly's Weekly Summary (ResourceMatch)\n",
-        f"Total blog posts: {total}",
+        f"Total published: {total} ({blogs} blogs, {landings} landing pages)",
         f"Keywords targeted: {keywords_covered}",
         f"Topic clusters: {clusters}",
     ]

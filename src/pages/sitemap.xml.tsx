@@ -1,5 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { getAllPosts } from "@/lib/blog";
+import { getAllLandingPages } from "@/lib/pages";
 
 const SITE = "https://resourcematch.ph";
 
@@ -16,7 +17,10 @@ const staticPages = [
   { path: "/terms", changefreq: "monthly", priority: "0.3" },
 ];
 
-function generateSitemap(blogSlugs: { slug: string; date: string }[]): string {
+function generateSitemap(
+  blogSlugs: { slug: string; date: string }[],
+  landingPages: { slug: string; date: string }[]
+): string {
   const staticEntries = staticPages
     .map(
       (p) => `  <url>
@@ -38,16 +42,29 @@ function generateSitemap(blogSlugs: { slug: string; date: string }[]): string {
     )
     .join("\n");
 
+  const landingEntries = landingPages
+    .map(
+      (page) => `  <url>
+    <loc>${SITE}/${page.slug}</loc>
+    <lastmod>${page.date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`
+    )
+    .join("\n");
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticEntries}
+${landingEntries}
 ${blogEntries}
 </urlset>`;
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const posts = getAllPosts().map((p) => ({ slug: p.slug, date: p.date }));
-  const sitemap = generateSitemap(posts);
+  const pages = getAllLandingPages().map((p) => ({ slug: p.slug, date: p.date }));
+  const sitemap = generateSitemap(posts, pages);
 
   res.setHeader("Content-Type", "application/xml");
   res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate");
