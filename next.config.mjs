@@ -28,6 +28,13 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Force www → non-www with 301 permanent redirect
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.resourcematch.ph" }],
+        destination: "https://resourcematch.ph/:path*",
+        permanent: true,
+      },
       // Old Wix site pages → redirect to relevant current pages
       {
         source: "/service-page/:slug*",
@@ -62,6 +69,42 @@ const nextConfig = {
       {
         source: "/contact-us",
         destination: "/",
+        permanent: true,
+      },
+      // Old Wix pages that are returning 404
+      {
+        source: "/testimonials",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/faq",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/careers",
+        destination: "/apply",
+        permanent: true,
+      },
+      {
+        source: "/team",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/resources",
+        destination: "/blog",
+        permanent: true,
+      },
+      {
+        source: "/partners",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/services",
+        destination: "/hire",
         permanent: true,
       },
     ];

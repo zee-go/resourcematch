@@ -50,10 +50,25 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Resources */}
           <div>
-            <h3 className="font-semibold mb-3 text-white/90">Legal</h3>
+            <h3 className="font-semibold mb-3 text-white/90">Resources</h3>
             <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/blog/why-hire-filipino-accountants" className="text-white/60 hover:text-white transition-colors">
+                  Why Hire Filipino Accountants
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog/cost-of-hiring-filipino-accountant-vs-us" className="text-white/60 hover:text-white transition-colors">
+                  Filipino vs US Accountant Cost
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog/how-to-hire-filipino-operations-manager" className="text-white/60 hover:text-white transition-colors">
+                  Hire Filipino Ops Manager
+                </Link>
+              </li>
               <li>
                 <Link href="/privacy" className="text-white/60 hover:text-white transition-colors">
                   Privacy Policy

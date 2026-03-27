@@ -8,6 +8,7 @@ interface SEOProps {
   type?: "website" | "article";
   publishedTime?: string;
   modifiedTime?: string;
+  noindex?: boolean;
 }
 
 export function SEOElements({
@@ -18,11 +19,13 @@ export function SEOElements({
   type = "website",
   publishedTime,
   modifiedTime,
+  noindex,
 }: SEOProps) {
   return (
     <>
       <title>{title}</title>
       <meta name="description" content={description} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
 
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />

@@ -231,6 +231,7 @@ export default function SignupPage() {
         title="Sign Up - ResourceMatch"
         description="Create your ResourceMatch account to hire AI-vetted senior Filipino talent or showcase your professional skills."
         url="https://resourcematch.ph/signup"
+        noindex
       />
 
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">

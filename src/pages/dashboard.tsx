@@ -259,6 +259,7 @@ export default function Dashboard({ candidates: allCandidates }: DashboardProps)
         title="Browse Vetted Talent - ResourceMatch"
         description="Search AI-vetted senior Filipino talent with 5-10+ years experience. Filter by vertical, experience, and skills."
         url="https://resourcematch.ph/dashboard"
+        noindex
       />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50/30">

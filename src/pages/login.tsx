@@ -51,6 +51,7 @@ export default function LoginPage() {
         title="Log In - ResourceMatch"
         description="Log in to your ResourceMatch account to access vetted senior talent."
         url="https://resourcematch.ph/login"
+        noindex
       />
 
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
