@@ -3,6 +3,7 @@ import type { GetServerSideProps } from "next";
 import { SEO } from "@/components/SEO";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { AIBanner } from "@/components/dashboard/AIBanner";
+import { PostJobBanner } from "@/components/dashboard/PostJobBanner";
 import { AIMatchModal, MatchFormData } from "@/components/dashboard/AIMatchModal";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { SearchFilters } from "@/components/dashboard/SearchFilters";
@@ -265,6 +266,7 @@ export default function Dashboard({ candidates: allCandidates }: DashboardProps)
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50/30">
         <DashboardHeader />
         <AIBanner onMatchClick={() => setShowAIModal(true)} />
+        {company && <PostJobBanner />}
 
         <main className="container mx-auto px-4 py-8 max-w-7xl">
           <StatsCards />

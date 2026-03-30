@@ -35,6 +35,7 @@ export function LandingHeader() {
       },
     },
     { label: "Apply", href: "/apply" },
+    { label: "Post Open Role", href: "/jobs/post" },
     { label: "Blog", href: "/blog" },
   ];
 

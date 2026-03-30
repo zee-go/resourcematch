@@ -203,17 +203,29 @@ export function HowItWorks() {
         <div className="text-center space-y-6 animate-fade-in" style={{ animationDelay: "500ms" }}>
           {activeTab === "companies" ? (
             <>
-              <Link href="/dashboard">
-                <Button
-                  size="lg"
-                  className="bg-primary hover:bg-primary-dark text-white px-8 h-14 text-lg group"
-                >
-                  Browse Vetted Talent
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/dashboard">
+                  <Button
+                    size="lg"
+                    className="bg-primary hover:bg-primary-dark text-white px-8 h-14 text-lg group"
+                  >
+                    Browse Vetted Talent
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link href="/jobs/post">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 h-14 text-lg group"
+                  >
+                    Post Open Role
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
               <p className="text-sm text-muted-foreground">
-                No credit card required to browse profiles
+                Browse profiles or share your roles — we&apos;ll connect you with vetted talent
               </p>
             </>
           ) : (

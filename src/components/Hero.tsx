@@ -52,6 +52,16 @@ export function Hero() {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
+            <Link href="/jobs/post">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => trackCTAClick("share_roles", "hero")}
+                className="text-lg px-8 py-6 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              >
+                Post Open Role
+              </Button>
+            </Link>
             <Link href="/apply">
               <Button
                 size="lg"
@@ -65,7 +75,7 @@ export function Hero() {
           </div>
 
           <p className="text-sm text-muted-foreground text-center mb-16 animate-slide-up-delay-3">
-            Start with 2 free unlocks — no credit card required
+            Start with 2 free unlocks — or share your open roles and we&apos;ll promote them to our vetted talent network
           </p>
 
           {/* Key Stats */}

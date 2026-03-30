@@ -38,6 +38,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/jobs/post" className="text-white/60 hover:text-white transition-colors">
+                  Post Open Role
+                </Link>
+              </li>
+              <li>
                 <Link href="/apply" className="text-white/60 hover:text-white transition-colors">
                   Apply as Talent
                 </Link>
