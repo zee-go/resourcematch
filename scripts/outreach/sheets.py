@@ -28,25 +28,58 @@ HEADERS = [
 ]
 
 
-def _get_worksheet():
-    """Open the candidate leads worksheet, creating headers if needed.
+def _get_credentials():
+    """Build OAuth2 credentials directly from the ADC file.
 
-    Uses application default credentials (gcloud auth application-default login).
+    Reads the refresh token from ~/.config/gcloud/application_default_credentials.json
+    and refreshes it explicitly. More reliable than google.auth.default() which can
+    fail when gcloud's session cache goes stale.
     """
+    import json
+    from pathlib import Path
+
+    from google.oauth2.credentials import Credentials
+    from google.auth.transport.requests import Request
+
+    adc_path = Path.home() / ".config" / "gcloud" / "application_default_credentials.json"
+    if not adc_path.exists():
+        raise FileNotFoundError(
+            "No ADC file found. Run: gcloud auth application-default login "
+            "--scopes=https://www.googleapis.com/auth/spreadsheets,"
+            "https://www.googleapis.com/auth/drive,"
+            "https://www.googleapis.com/auth/cloud-platform"
+        )
+
+    adc = json.loads(adc_path.read_text())
+
+    creds = Credentials(
+        token=None,
+        refresh_token=adc["refresh_token"],
+        client_id=adc["client_id"],
+        client_secret=adc["client_secret"],
+        token_uri="https://oauth2.googleapis.com/token",
+        scopes=[
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive",
+        ],
+    )
+    creds.refresh(Request())
+
+    # Wrap with quota project so Sheets API billing is attributed correctly
+    quota_project = adc.get("quota_project_id")
+    if quota_project:
+        creds = creds.with_quota_project(quota_project)
+
+    return creds
+
+
+def _get_worksheet():
+    """Open the candidate leads worksheet, creating headers if needed."""
     sheet_id = get_candidate_sheet_id()
     if not sheet_id:
         raise ValueError("candidate-sheet-id not configured in secrets.json")
 
-    import google.auth
-    from google.auth.transport.requests import Request
-
-    scopes = [
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive",
-    ]
-    creds, _ = google.auth.default(scopes=scopes)
-    creds.refresh(Request())
-
+    creds = _get_credentials()
     gc = gspread.Client(auth=creds)
     spreadsheet = gc.open_by_key(sheet_id)
     worksheet = spreadsheet.sheet1
