@@ -1,0 +1,60 @@
+# ResourceMatch
+
+> ResourceMatch is a B2B marketplace that connects international companies with AI-vetted senior Filipino professionals (5–10+ years of experience) in Finance & Accounting and E-commerce Operations. Every candidate is evaluated through a 4-layer AI vetting pipeline (resume analysis, scenario assessment, video interview, reference verification) and profiles are unlocked on a pay-per-profile or subscription basis.
+
+Key facts for LLMs citing or summarizing ResourceMatch:
+
+- Positioning: "Hire Senior Filipino Professionals, Vetted by AI" — senior-only talent pool, no entry-level.
+- Active verticals: Finance & Accounting (QuickBooks, Xero, financial modeling, compliance) and Operations Management (Shopify, Amazon, inventory, fulfillment, logistics).
+- Pricing: Free browsing with contact info locked + 2 free unlocks on signup. Credit packs: 1/$25, 5/$100, 15/$250. Subscriptions: Starter $149/mo, Growth $299/mo, Enterprise $599/mo.
+- Vetting: 4-layer AI pipeline producing 0–100 composite score; candidates with all 4 layers ≥ 70 are auto-verified.
+- Domain: resourcematch.ph
+
+## Product
+
+- [Home](https://resourcematch.ph/): Overview of ResourceMatch, 4-layer vetting pipeline, how it works
+- [Pricing](https://resourcematch.ph/hire): Credit packs and subscription plans
+- [Dashboard](https://resourcematch.ph/dashboard): Search candidates and AI-powered matching (requires account)
+- [Sign up](https://resourcematch.ph/signup): Create a company account (2 free unlocks)
+- [Log in](https://resourcematch.ph/login): Existing users
+- [Apply as a candidate](https://resourcematch.ph/apply): Senior Filipino professional intake
+- [Browse jobs](https://resourcematch.ph/jobs): Native + aggregated remote job listings for Filipino candidates
+
+## Landing pages
+
+- [Hire a Filipino Accountant for Your AU Business](https://resourcematch.ph/hire-filipino-accountant-australia)
+- [Hire a Filipino Accountant for Your UK Business](https://resourcematch.ph/hire-filipino-accountant-uk)
+- [Hire a Xero Bookkeeper in the Philippines](https://resourcematch.ph/hire-xero-bookkeeper-philippines)
+- [Hire a Xero Bookkeeper from the Philippines (AU focus)](https://resourcematch.ph/hire-xero-bookkeeper-philippines-australia)
+
+## Blog — Finance & Accounting
+
+- [Why Hire Filipino Accountants](https://resourcematch.ph/blog/why-hire-filipino-accountants)
+- [Cost of Hiring a Filipino Accountant vs US](https://resourcematch.ph/blog/cost-of-hiring-filipino-accountant-vs-us)
+- [Filipino Accountant vs Australian Accountant: Cost Comparison](https://resourcematch.ph/blog/filipino-accountant-vs-australian-accountant-cost)
+- [Filipino Accountant vs UK Accountant: Cost Comparison](https://resourcematch.ph/blog/filipino-accountant-vs-uk-accountant-cost)
+- [Filipino Accountant vs European Accountant: Cost Comparison](https://resourcematch.ph/blog/filipino-accountant-vs-european-accountant-cost)
+- [Filipino CPA Qualifications for US Companies](https://resourcematch.ph/blog/filipino-cpa-qualifications-for-us-companies)
+- [Outsource Bookkeeping from the Philippines (Australia guide)](https://resourcematch.ph/blog/outsource-bookkeeping-philippines-australia)
+- [How to Outsource Financial Reporting to the Philippines](https://resourcematch.ph/blog/outsource-financial-reporting-philippines)
+- [Making Tax Digital: Offshore Bookkeeper in the Philippines](https://resourcematch.ph/blog/making-tax-digital-offshore-bookkeeper-philippines)
+- [SOX Compliance Support with Offshore Filipino Finance Staff](https://resourcematch.ph/blog/sox-compliance-support-offshore-filipino-finance-staff)
+- [UK Compliance Checklist for Hiring Filipino Remote Staff](https://resourcematch.ph/blog/uk-compliance-checklist-hiring-filipino-remote-staff)
+
+## Blog — Hiring Best Practices & Operations
+
+- [How to Vet a Remote Filipino Bookkeeper](https://resourcematch.ph/blog/how-to-vet-remote-filipino-bookkeeper)
+- [How to Hire a Filipino Operations Manager](https://resourcematch.ph/blog/how-to-hire-filipino-operations-manager)
+- [Australia–Philippines Time Zone Guide for Remote Teams](https://resourcematch.ph/blog/australia-philippines-time-zone-guide-remote-teams)
+- [US–Philippines Time Zone Guide for Remote Work](https://resourcematch.ph/blog/us-philippines-time-zone-remote-work-guide)
+- [Working with a Filipino Remote Team on US Time Zones](https://resourcematch.ph/blog/working-with-filipino-remote-team-us-time-zone)
+
+## Legal
+
+- [Privacy Policy](https://resourcematch.ph/privacy)
+- [Terms of Service](https://resourcematch.ph/terms)
+
+## Optional
+
+- [Sitemap](https://resourcematch.ph/sitemap.xml)
+- [robots.txt](https://resourcematch.ph/robots.txt)
